@@ -25,6 +25,14 @@
     <string name="digital_config_name">Digital watch face configuration</string>
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
+
+    <string name="fit_steps_name">Sample Fit Steps</string>
+    <string name="fit_distance_name">Sample Fit Distance</string>
+    <string name="fit_am">AM</string>
+    <string name="fit_pm">PM</string>
+    <string name="fit_steps">%1$d steps</string>
+    <string name="fit_distance">%1$,.2f meters</string>
+
     <string name="calendar_name">Sample Calendar</string>
     <plurals name="calendar_meetings">
         <item quantity="one">&lt;br&gt;&lt;br&gt;&lt;br&gt;You have &lt;b&gt;%1$d&lt;/b&gt; meeting in the next 24 hours.</item>
