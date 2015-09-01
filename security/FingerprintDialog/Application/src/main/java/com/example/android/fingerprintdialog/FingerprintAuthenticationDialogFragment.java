@@ -16,6 +16,9 @@
 
 package com.example.android.fingerprintdialog;
 
+import com.example.android.fingerprintdialog.server.StoreBackend;
+import com.example.android.fingerprintdialog.server.Transaction;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.SharedPreferences;
@@ -32,6 +35,18 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.inject.Inject;
 
@@ -60,6 +75,7 @@ public class FingerprintAuthenticationDialogFragment extends DialogFragment
     @Inject FingerprintUiHelper.FingerprintUiHelperBuilder mFingerprintUiHelperBuilder;
     @Inject InputMethodManager mInputMethodManager;
     @Inject SharedPreferences mSharedPreferences;
+    @Inject StoreBackend mStoreBackend;
 
     @Inject
     public FingerprintAuthenticationDialogFragment() {}
@@ -71,6 +87,9 @@ public class FingerprintAuthenticationDialogFragment extends DialogFragment
         // Do not create a new Fragment when the Activity is re-created such as orientation changes.
         setRetainInstance(true);
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
+
+        // We register a new user account here. Real apps should do this with proper UIs.
+        enroll();
     }
 
     @Override
@@ -168,11 +187,38 @@ public class FingerprintAuthenticationDialogFragment extends DialogFragment
     }
 
     /**
-     * Checks whether the current entered password is correct, and dismisses the the dialog and
-     * let's the activity know about the result.
+     * Enrolls a user to the fake backend.
+     */
+    private void enroll() {
+        try {
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            PublicKey publicKey = keyStore.getCertificate(MainActivity.KEY_NAME).getPublicKey();
+            // Provide the public key to the backend. In most cases, the key needs to be transmitted
+            // to the backend over the network, for which Key.getEncoded provides a suitable wire
+            // format (X.509 DER-encoded). The backend can then create a PublicKey instance from the
+            // X.509 encoded form using KeyFactory.generatePublic. This conversion is also currently
+            // needed on API Level 23 (Android M) due to a platform bug which prevents the use of
+            // Android Keystore public keys when their private keys require user authentication.
+            // This conversion creates a new public key which is not backed by Android Keystore and
+            // thus does not is not affected by the bug.
+            KeyFactory factory = KeyFactory.getInstance(publicKey.getAlgorithm());
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKey.getEncoded());
+            PublicKey verificationKey = factory.generatePublic(spec);
+            mStoreBackend.enroll("user", "password", verificationKey);
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException |
+                IOException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Checks whether the current entered password is correct, and dismisses the the dialog and lets
+     * the activity know about the result.
      */
     private void verifyPassword() {
-        if (!checkPassword(mPassword.getText().toString())) {
+        Transaction transaction = new Transaction("user", 1);
+        if (!mStoreBackend.verify(transaction, mPassword.getText().toString())) {
             return;
         }
         if (mStage == Stage.NEW_FINGERPRINT_ENROLLED) {
@@ -183,22 +229,13 @@ public class FingerprintAuthenticationDialogFragment extends DialogFragment
 
             if (mUseFingerprintFutureCheckBox.isChecked()) {
                 // Re-create the key so that fingerprints including new ones are validated.
-                mActivity.createKey();
+                mActivity.createKeyPair();
                 mStage = Stage.FINGERPRINT;
             }
         }
         mPassword.setText("");
-        mActivity.onPurchased(false /* without Fingerprint */);
+        mActivity.onPurchased(null);
         dismiss();
-    }
-
-    /**
-     * @return true if {@code password} is correct, false otherwise
-     */
-    private boolean checkPassword(String password) {
-        // Assume the password is always correct.
-        // In the real world situation, the password needs to be verified in the server side.
-        return password.length() > 0;
     }
 
     private final Runnable mShowKeyboardRunnable = new Runnable() {
@@ -245,8 +282,22 @@ public class FingerprintAuthenticationDialogFragment extends DialogFragment
     public void onAuthenticated() {
         // Callback from FingerprintUiHelper. Let the activity know that authentication was
         // successful.
-        mActivity.onPurchased(true /* withFingerprint */);
-        dismiss();
+        mPassword.setText("");
+        Signature signature = mCryptoObject.getSignature();
+        Transaction transaction = new Transaction("user", 1);
+        try {
+            signature.update(transaction.toByteArray());
+            byte[] sigBytes = signature.sign();
+            if (mStoreBackend.verify(transaction, sigBytes)) {
+                mActivity.onPurchased(sigBytes);
+                dismiss();
+            } else {
+                mActivity.onPurchaseFailed();
+                dismiss();
+            }
+        } catch (SignatureException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
