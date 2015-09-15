@@ -28,6 +28,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,16 +39,17 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.spec.ECGenParameterSpec;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.inject.Inject;
 
 /**
@@ -60,7 +62,7 @@ public class MainActivity extends Activity {
     private static final String DIALOG_FRAGMENT_TAG = "myFragment";
     private static final String SECRET_MESSAGE = "Very secret message";
     /** Alias for our key in the Android Key Store */
-    public static final String KEY_NAME = "my_key";
+    private static final String KEY_NAME = "my_key";
 
     private static final int FINGERPRINT_PERMISSION_REQUEST_CODE = 0;
 
@@ -68,8 +70,8 @@ public class MainActivity extends Activity {
     @Inject FingerprintManager mFingerprintManager;
     @Inject FingerprintAuthenticationDialogFragment mFragment;
     @Inject KeyStore mKeyStore;
-    @Inject KeyPairGenerator mKeyPairGenerator;
-    @Inject Signature mSignature;
+    @Inject KeyGenerator mKeyGenerator;
+    @Inject Cipher mCipher;
     @Inject SharedPreferences mSharedPreferences;
 
     @Override
@@ -104,7 +106,7 @@ public class MainActivity extends Activity {
                         Toast.LENGTH_LONG).show();
                 return;
             }
-            createKeyPair();
+            createKey();
             purchaseButton.setEnabled(true);
             purchaseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -114,11 +116,11 @@ public class MainActivity extends Activity {
 
                     // Set up the crypto object for later. The object will be authenticated by use
                     // of the fingerprint.
-                    if (initSignature()) {
+                    if (initCipher()) {
 
                         // Show the fingerprint dialog. The user has the option to use the fingerprint with
                         // crypto, or you can fall back to using a server-side verified password.
-                        mFragment.setCryptoObject(new FingerprintManager.CryptoObject(mSignature));
+                        mFragment.setCryptoObject(new FingerprintManager.CryptoObject(mCipher));
                         boolean useFingerprintPreference = mSharedPreferences
                                 .getBoolean(getString(R.string.use_fingerprint_to_authenticate_key),
                                         true);
@@ -135,6 +137,7 @@ public class MainActivity extends Activity {
                         // enrolled. Thus show the dialog to authenticate with their password first
                         // and ask the user if they want to authenticate with fingerprints in the
                         // future
+                        mFragment.setCryptoObject(new FingerprintManager.CryptoObject(mCipher));
                         mFragment.setStage(
                                 FingerprintAuthenticationDialogFragment.Stage.NEW_FINGERPRINT_ENROLLED);
                         mFragment.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
@@ -145,18 +148,18 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Initialize the {@link Signature} instance with the created key in the
-     * {@link #createKeyPair()} method.
+     * Initialize the {@link Cipher} instance with the created key in the {@link #createKey()}
+     * method.
      *
      * @return {@code true} if initialization is successful, {@code false} if the lock screen has
      * been disabled or reset after the key was generated, or if a fingerprint got enrolled after
      * the key was generated.
      */
-    private boolean initSignature() {
+    private boolean initCipher() {
         try {
             mKeyStore.load(null);
-            PrivateKey key = (PrivateKey) mKeyStore.getKey(KEY_NAME, null);
-            mSignature.initSign(key);
+            SecretKey key = (SecretKey) mKeyStore.getKey(KEY_NAME, null);
+            mCipher.init(Cipher.ENCRYPT_MODE, key);
             return true;
         } catch (KeyPermanentlyInvalidatedException e) {
             return false;
@@ -166,12 +169,15 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void onPurchased(byte[] signature) {
-        showConfirmation(signature);
-    }
-
-    public void onPurchaseFailed() {
-        Toast.makeText(this, R.string.purchase_fail, Toast.LENGTH_SHORT).show();
+    public void onPurchased(boolean withFingerprint) {
+        if (withFingerprint) {
+            // If the user has authenticated with fingerprint, verify that using cryptography and
+            // then show the confirmation message.
+            tryEncrypt();
+        } else {
+            // Authentication happened with backup password. Just show the confirmation message.
+            showConfirmation(null);
+        }
     }
 
     // Show confirmation, if fingerprint was used show crypto information.
@@ -185,27 +191,44 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Generates an asymmetric key pair in the Android Keystore. Every use of the private key must
-     * be authorized by the user authenticating with fingerprint. Public key use is unrestricted.
+     * Tries to encrypt some data with the generated key in {@link #createKey} which is
+     * only works if the user has just authenticated via fingerprint.
      */
-    public void createKeyPair() {
+    private void tryEncrypt() {
+        try {
+            byte[] encrypted = mCipher.doFinal(SECRET_MESSAGE.getBytes());
+            showConfirmation(encrypted);
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            Toast.makeText(this, "Failed to encrypt the data with the generated key. "
+                    + "Retry the purchase", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Failed to encrypt the data with the generated key." + e.getMessage());
+        }
+    }
+
+    /**
+     * Creates a symmetric key in the Android Key Store which can only be used after the user has
+     * authenticated with fingerprint.
+     */
+    public void createKey() {
         // The enrolling flow for fingerprint. This is where you ask the user to set up fingerprint
         // for your flow. Use of keys is necessary if you need to know if the set of
         // enrolled fingerprints has changed.
         try {
+            mKeyStore.load(null);
             // Set the alias of the entry in Android KeyStore where the key will appear
             // and the constrains (purposes) in the constructor of the Builder
-            mKeyPairGenerator.initialize(
-                    new KeyGenParameterSpec.Builder(KEY_NAME,
-                            KeyProperties.PURPOSE_SIGN)
-                            .setDigests(KeyProperties.DIGEST_SHA256)
-                            .setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1"))
-                            // Require the user to authenticate with a fingerprint to authorize
-                            // every use of the private key
-                            .setUserAuthenticationRequired(true)
-                            .build());
-            mKeyPairGenerator.generateKeyPair();
-        } catch (InvalidAlgorithmParameterException e) {
+            mKeyGenerator.init(new KeyGenParameterSpec.Builder(KEY_NAME,
+                    KeyProperties.PURPOSE_ENCRYPT |
+                            KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                            // Require the user to authenticate with a fingerprint to authorize every use
+                            // of the key
+                    .setUserAuthenticationRequired(true)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .build());
+            mKeyGenerator.generateKey();
+        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException
+                | CertificateException | IOException e) {
             throw new RuntimeException(e);
         }
     }

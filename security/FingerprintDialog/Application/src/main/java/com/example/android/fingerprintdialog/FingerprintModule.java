@@ -16,9 +16,6 @@
 
 package com.example.android.fingerprintdialog;
 
-import com.example.android.fingerprintdialog.server.StoreBackend;
-import com.example.android.fingerprintdialog.server.StoreBackendImpl;
-
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,12 +24,14 @@ import android.preference.PreferenceManager;
 import android.security.keystore.KeyProperties;
 import android.view.inputmethod.InputMethodManager;
 
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Signature;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 
 import dagger.Module;
 import dagger.Provides;
@@ -77,20 +76,22 @@ public class FingerprintModule {
     }
 
     @Provides
-    public KeyPairGenerator providesKeyPairGenerator() {
+    public KeyGenerator providesKeyGenerator() {
         try {
-            return KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+            return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            throw new RuntimeException("Failed to get an instance of KeyPairGenerator", e);
+            throw new RuntimeException("Failed to get an instance of KeyGenerator", e);
         }
     }
 
     @Provides
-    public Signature providesSignature(KeyStore keyStore) {
+    public Cipher providesCipher(KeyStore keyStore) {
         try {
-            return Signature.getInstance("SHA256withECDSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to get an instance of Signature", e);
+            return Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
+                    + KeyProperties.BLOCK_MODE_CBC + "/"
+                    + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new RuntimeException("Failed to get an instance of Cipher", e);
         }
     }
 
@@ -102,10 +103,5 @@ public class FingerprintModule {
     @Provides
     public SharedPreferences providesSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    @Provides
-    public StoreBackend providesStoreBackend() {
-        return new StoreBackendImpl();
     }
 }
