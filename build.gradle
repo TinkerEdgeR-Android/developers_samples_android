@@ -109,6 +109,7 @@ List<String> samples = [
 "content/DirectShare",
 "media/MidiScope",
 "media/MidiSynth",
+"security/AsymmetricFingerprintDialog",
 ]
 
 List<String> taskNames = [
