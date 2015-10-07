@@ -20,6 +20,7 @@
     <package>com.example.android.xyztouristattractions</package>
     <minSdk>18</minSdk>
     <targetSdkVersion>23</targetSdkVersion>
+    <targetSdkVersionWear>22</targetSdkVersionWear>
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>

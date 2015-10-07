@@ -19,12 +19,11 @@
 
     <uses-feature android:name="android.hardware.type.watch"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="true" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>\
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <uses-sdk
         android:minSdkVersion="20"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <application
         android:allowBackup="true"
