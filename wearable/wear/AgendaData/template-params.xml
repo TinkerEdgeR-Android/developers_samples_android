@@ -59,8 +59,8 @@
         </screenshots>
         <api_refs>
             <android>android.app.IntentService</android>
-            <ext>com.google.android.gms.wearable.DataApi</ext>
-            <ext>com.google.android.gms.wearable.Node</ext>
+            <ext>gms:com.google.android.gms.wearable.DataApi</ext>
+            <ext>gms:com.google.android.gms.wearable.Node</ext>
         </api_refs>
         <description>
 <![CDATA[
