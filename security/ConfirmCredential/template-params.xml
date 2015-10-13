@@ -21,7 +21,7 @@
      -->
 <sample>
     <name>Confirm Credential</name>
-    <group>security</group>
+    <group>Security</group>
     <package>com.example.android.confirmcredential</package>
 
     <minSdk>23</minSdk>

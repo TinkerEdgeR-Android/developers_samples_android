@@ -21,7 +21,7 @@
      -->
 <sample>
     <name>Asymmetric Fingerprint Dialog Sample</name>
-    <group>security</group>
+    <group>Security</group>
     <package>com.example.android.asymmetricfingerprintdialog</package>
 
     <minSdk>23</minSdk>
