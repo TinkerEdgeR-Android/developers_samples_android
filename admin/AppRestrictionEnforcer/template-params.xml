@@ -22,7 +22,7 @@
     <group>Admin</group>
     <package>com.example.android.apprestrictionenforcer</package>
 
-    <minSdk>23</minSdk>
+    <minSdk>21</minSdk>
 
     <strings>
         <intro>

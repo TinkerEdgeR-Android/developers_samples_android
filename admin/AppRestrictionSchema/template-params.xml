@@ -20,7 +20,7 @@
     <group>Admin</group>
     <package>com.example.android.apprestrictionschema</package>
 
-    <minSdk>23</minSdk>
+    <minSdk>21</minSdk>
 
     <strings>
         <intro>
