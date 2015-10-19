@@ -1616,8 +1616,8 @@ public class Camera2RawFragment extends Fragment
      *
      * @param choices           The list of sizes that the camera supports for the intended output
      *                          class
-     * @param textureViewWidth  The width of the texture view in landscape mode
-     * @param textureViewHeight The height of the texture view in landscape mode
+     * @param textureViewWidth  The width of the texture view relative to sensor coordinate
+     * @param textureViewHeight The height of the texture view relative to sensor coordinate
      * @param maxWidth          The maximum width that can be chosen
      * @param maxHeight         The maximum height that can be chosen
      * @param aspectRatio       The aspect ratio
