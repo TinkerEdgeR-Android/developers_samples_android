@@ -20,7 +20,7 @@
      E.g. Skipping device 'Nexus 5 - MNC', due to different API preview 'MNC' and 'android-MNC'
      -->
 <sample>
-    <name>Asymmetric Fingerprint Dialog Sample</name>
+    <name>AsymmetricFingerprintDialog</name>
     <group>Security</group>
     <package>com.example.android.asymmetricfingerprintdialog</package>
 
