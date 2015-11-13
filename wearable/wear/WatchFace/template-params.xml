@@ -24,12 +24,12 @@
 
     <minSdk>18</minSdk>
     <targetSdkVersion>23</targetSdkVersion>
-    <targetSdkVersionWear>22</targetSdkVersionWear>
+    <targetSdkVersionWear>23</targetSdkVersionWear>
 
     <dependency_wearable>com.android.support:palette-v7:23.1.0</dependency_wearable>
     <dependency>com.google.android.support:wearable:1.3.0</dependency>
-    <dependency>com.google.android.gms:play-services-fitness:8.1.0</dependency>
-    <dependency_wearable>com.google.android.gms:play-services-fitness:8.1.0</dependency_wearable>
+    <dependency>com.google.android.gms:play-services-fitness:8.3.0</dependency>
+    <dependency_wearable>com.google.android.gms:play-services-fitness:8.3.0</dependency_wearable>
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>
