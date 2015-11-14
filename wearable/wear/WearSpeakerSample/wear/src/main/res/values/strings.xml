@@ -14,4 +14,5 @@
 <resources>
     <string name="app_name">Wear Speaker Sample</string>
     <string name="exiting_for_permissions">Recording Audio permission is required, exiting now!</string>
+    <string name="no_speaker_supported">Speaker is not supported</string>
 </resources>

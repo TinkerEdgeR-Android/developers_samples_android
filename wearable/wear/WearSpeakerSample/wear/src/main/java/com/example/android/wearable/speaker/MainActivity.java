@@ -17,9 +17,12 @@
 package com.example.android.wearable.speaker;
 
 import android.Manifest;
-import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.ActivityCompat;
@@ -27,7 +30,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -229,7 +231,17 @@ public class MainActivity extends WearableActivity implements UIAnimation.UIStat
     @Override
     protected void onStart() {
         super.onStart();
-        checkPermissions();
+        if (speakerIsSupported()) {
+            checkPermissions();
+        } else {
+            findViewById(R.id.container2).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(MainActivity.this, R.string.no_speaker_supported,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override
@@ -254,5 +266,28 @@ public class MainActivity extends WearableActivity implements UIAnimation.UIStat
         mUIAnimation.transitionToHome();
         mUiState = UIAnimation.UIState.HOME;
         mState = AppState.READY;
+    }
+
+    /**
+     * Determines if the wear device has a built-in speaker and if it is supported. Speaker, even if
+     * physically present, is only supported in Android M+ on a wear device..
+     */
+    public final boolean speakerIsSupported() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PackageManager packageManager = getPackageManager();
+            // The results from AudioManager.getDevices can't be trusted unless the device
+            // advertises FEATURE_AUDIO_OUTPUT.
+            if (!packageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_OUTPUT)) {
+                return false;
+            }
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            for (AudioDeviceInfo device : devices) {
+                if (device.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
