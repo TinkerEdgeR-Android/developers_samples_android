@@ -32,8 +32,8 @@
 
     <dependency>com.android.support:design:23.0.1</dependency>
 
-    <dependency>com.google.android.gms:play-services-location:8.1.0</dependency>
-    <dependency_wearable>com.google.android.gms:play-services-location:8.1.0</dependency_wearable>
+    <dependency>com.google.android.gms:play-services-location:8.3.0</dependency>
+    <dependency_wearable>com.google.android.gms:play-services-location:8.3.0</dependency_wearable>
 
     <strings>
         <intro>

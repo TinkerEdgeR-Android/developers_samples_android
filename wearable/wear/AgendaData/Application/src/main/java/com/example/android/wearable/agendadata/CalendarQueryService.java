@@ -250,6 +250,7 @@ public class CalendarQueryService extends IntentService
         public PutDataMapRequest toPutDataMapRequest(){
             final PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(
                     makeDataItemPath(eventId, begin));
+            putDataMapRequest.setUrgent();
             DataMap data = putDataMapRequest.getDataMap();
             data.putString(DATA_ITEM_URI, putDataMapRequest.getUri().toString());
             data.putLong(ID, id);
