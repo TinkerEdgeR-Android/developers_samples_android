@@ -103,6 +103,7 @@ List<String> samples = [
 "security/FingerprintDialog",
 "system/RuntimePermissions",
 "system/RuntimePermissionsBasic",
+"wearable/wear/RuntimePermissionsWear",
 "notification/ActiveNotifications",
 "media/Camera2Raw",
 "content/AutoBackupForApps",
