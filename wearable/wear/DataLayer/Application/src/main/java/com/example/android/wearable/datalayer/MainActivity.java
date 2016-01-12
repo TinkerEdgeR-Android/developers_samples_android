@@ -381,7 +381,7 @@ public class MainActivity extends Activity implements DataApi.DataListener,
         public void run() {
             PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(COUNT_PATH);
             putDataMapRequest.getDataMap().putInt(COUNT_KEY, count++);
-            putDataMapRequest.setUrgent();
+
             PutDataRequest request = putDataMapRequest.asPutDataRequest();
             request.setUrgent();
 
