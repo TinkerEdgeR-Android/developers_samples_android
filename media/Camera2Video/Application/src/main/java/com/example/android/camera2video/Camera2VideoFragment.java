@@ -600,7 +600,8 @@ public class Camera2VideoFragment extends Fragment
     }
 
     private String getVideoFilePath(Context context) {
-        return context.getExternalFilesDir(null).getAbsolutePath() + "/" + System.currentTimeMillis() + ".mp4";
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/"
+                + System.currentTimeMillis() + ".mp4";
     }
 
     private void startRecordingVideo() {
@@ -614,19 +615,24 @@ public class Camera2VideoFragment extends Fragment
             assert texture != null;
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
             mPreviewBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            List<Surface> surfaces = new ArrayList<Surface>();
+            List<Surface> surfaces = new ArrayList<>();
 
+            // Set up Surface for the camera preview
             Surface previewSurface = new Surface(texture);
             surfaces.add(previewSurface);
             mPreviewBuilder.addTarget(previewSurface);
 
+            // Set up Surface for the MediaRecorder
             mRecorderSurface = mMediaRecorder.getSurface();
             surfaces.add(mRecorderSurface);
             mPreviewBuilder.addTarget(mRecorderSurface);
+
+            // Start a capture session
+            // Once the session starts, we can update the UI and start recording
             mCameraDevice.createCaptureSession(surfaces, new CameraCaptureSession.StateCallback() {
 
                 @Override
-                public void onConfigured(CameraCaptureSession cameraCaptureSession) {
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     mPreviewSession = cameraCaptureSession;
                     updatePreview();
                     getActivity().runOnUiThread(new Runnable() {
@@ -643,7 +649,7 @@ public class Camera2VideoFragment extends Fragment
                 }
 
                 @Override
-                public void onConfigureFailed(CameraCaptureSession cameraCaptureSession) {
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                     Activity activity = getActivity();
                     if (null != activity) {
                         Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
@@ -659,7 +665,7 @@ public class Camera2VideoFragment extends Fragment
     }
 
     private void closePreviewSession() {
-        if(mPreviewSession != null) {
+        if (mPreviewSession != null) {
             mPreviewSession.close();
             mPreviewSession = null;
         }
@@ -677,6 +683,7 @@ public class Camera2VideoFragment extends Fragment
         if (null != activity) {
             Toast.makeText(activity, "Video saved: " + mNextVideoAbsolutePath,
                     Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Video saved: " + mNextVideoAbsolutePath);
         }
         mNextVideoAbsolutePath = null;
         startPreview();
