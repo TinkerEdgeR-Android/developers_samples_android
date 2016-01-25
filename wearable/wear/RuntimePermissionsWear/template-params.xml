@@ -28,8 +28,8 @@
         <has_handheld_app>true</has_handheld_app>
     </wearable>
 
-    <dependency>com.android.support:appcompat-v7:23.1.0</dependency>
-    <dependency>com.android.support:design:23.1.0</dependency>
+    <dependency>com.android.support:appcompat-v7:23.1.1</dependency>
+    <dependency>com.android.support:design:23.1.1</dependency>
     <provided_dependency_wearable>com.google.android.wearable:wearable:1.0.0</provided_dependency_wearable>
 
     <strings>
