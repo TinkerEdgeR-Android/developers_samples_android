@@ -106,6 +106,7 @@ List<String> samples = [
 "notification/ActiveNotifications",
 "media/Camera2Raw",
 "content/AutoBackupForApps",
+"ui/window/MultiWindowPlayground",
 ]
 
 List<String> taskNames = [
