@@ -17,7 +17,7 @@
 
 <sample>
     <name>ScopedDirectoryAccess</name>
-    <group>content</group>  <!-- This field will be deprecated in the future
+    <group>Android N Preview</group>  <!-- This field will be deprecated in the future
                             and replaced with the "categories" tags below. -->
     <package>com.example.android.scopeddirectoryaccess</package>
 
@@ -27,9 +27,9 @@
     <compileSdkVersion>"android-N"</compileSdkVersion>
 
     <!-- Include additional dependencies here.-->
-    <dependency>com.android.support:appcompat-v7:24.0.0-SNAPSHOT</dependency>
-    <dependency>com.android.support:recyclerview-v7:24.0.0-SNAPSHOT</dependency>
-    <dependency>com.android.support:support-v4:24.0.0-SNAPSHOT</dependency>
+    <dependency>com.android.support:appcompat-v7:24.0.0-alpha1</dependency>
+    <dependency>com.android.support:recyclerview-v7:24.0.0-alpha1</dependency>
+    <dependency>com.android.support:support-v4:24.0.0-alpha1</dependency>
 
     <template src="base" />
 
@@ -44,7 +44,7 @@ READ_EXTERNAL_STORAGE or WRITE_EXTERNAL_STORAGE in your manifest.
     </strings>
 
     <metadata>
-        <status>DRAFT</status>
+        <status>PUBLISHED</status>
         <categories>Android N Preview</categories>
         <technologies>Android</technologies>
         <languages>Java</languages>

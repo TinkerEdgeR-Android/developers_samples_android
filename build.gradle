@@ -107,6 +107,8 @@ List<String> samples = [
 "media/Camera2Raw",
 "content/AutoBackupForApps",
 "ui/window/MultiWindowPlayground",
+"content/documentsUi/ScopedDirectoryAccess",
+"security/DirectBoot",
 ]
 
 List<String> taskNames = [
