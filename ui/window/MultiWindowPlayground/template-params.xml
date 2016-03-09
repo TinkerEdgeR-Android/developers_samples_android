@@ -39,7 +39,7 @@ the lifecycle and behavior of the app.
     <template src="base-build" />
 
     <metadata>
-        <status>DRAFT</status>
+        <status>PUBLISHED</status>
         <categories>Android N Preview</categories>
         <technologies>Android</technologies>
         <languages>Java</languages>
