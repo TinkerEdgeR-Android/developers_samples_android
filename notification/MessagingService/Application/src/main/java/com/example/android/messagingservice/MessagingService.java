@@ -106,7 +106,7 @@ public class MessagingService extends Service {
 
         // Build an Android N compatible Remote Input enabled action.
         NotificationCompat.Action actionReplyByRemoteInput = new NotificationCompat.Action.Builder(
-                R.drawable.abc_btn_check_material, getString(R.string.reply), replyIntent)
+                R.drawable.notification_icon, getString(R.string.reply), replyIntent)
                 .addRemoteInput(remoteInput)
                 .build();
 
