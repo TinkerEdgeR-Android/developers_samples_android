@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 <sample>
-    <name>ActiveNotification</name>
+    <name>ActiveNotifications</name>
     <group>Android N Preview</group>
     <package>com.example.android.activenotifications</package>
 
@@ -76,8 +76,8 @@ Notifications can now be grouped.
 Starting with Android N, you can set notification groups for notifications
 and define a notification group summary.
 
-Starting with Android M, you can query it for the active notifications that
-your app sent using the [notify][2] methods.
+In Android M, you can query for the active notifications that your app sent 
+sing the [notify][2] methods.
 
 This sample demonstrates simple use of these features by allowing a user 
 to add notifications and then query how many notifications
