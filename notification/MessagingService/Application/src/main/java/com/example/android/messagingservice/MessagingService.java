@@ -107,7 +107,8 @@ public class MessagingService extends Service {
         // Build an Android N compatible Remote Input enabled action.
         NotificationCompat.Action actionReplyByRemoteInput = new NotificationCompat.Action.Builder(
                 R.drawable.abc_btn_check_material, getString(R.string.reply), replyIntent)
-                .addRemoteInput(remoteInput).build();
+                .addRemoteInput(remoteInput)
+                .build();
 
         // Create the UnreadConversation and populate it with the participant name,
         // read and reply intents.
@@ -139,7 +140,8 @@ public class MessagingService extends Service {
                 .setContentIntent(readPendingIntent)
                 .extend(new CarExtender()
                         .setUnreadConversation(unreadConvBuilder.build())
-                        .setColor(getApplicationContext().getColor(R.color.default_color_light)))
+                        .setColor(getApplicationContext().getResources()
+                                .getColor(R.color.default_color_light)))
                 .addAction(actionReplyByRemoteInput);
 
         MessageLogger.logMessage(getApplicationContext(), "Sending notification "
