@@ -36,4 +36,9 @@
     <template src="base-build"/>
     <template src="Wear"/>
 
+    <metadata>
+        <status>DEPRECATED</status>
+        <categories>Wearable</categories>
+    </metadata>
+
 </sample>

@@ -47,7 +47,7 @@
     <template src="Wear"/>
 
     <metadata>
-        <status>PUBLISHED</status>
+        <status>DEPRECATED</status>
         <categories>Wearable, Sensors</categories>
         <technologies>Android</technologies>
         <languages>Java</languages>

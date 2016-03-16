@@ -42,4 +42,9 @@
     <common src="logger"/>
     <common src="activities"/>
 
+    <metadata>
+        <status>DEPRECATED</status>
+        <categories>Wearable</categories>
+    </metadata>
+
 </sample>
