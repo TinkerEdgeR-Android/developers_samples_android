@@ -40,7 +40,7 @@
 
         <receiver android:name=".BootBroadcastReceiver"
             android:exported="false"
-            android:encryptionAware="true">
+            android:directBootAware="true">
             <!-- Listening the BOOT_COMPLETED action for legacy pre-N devices -->
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
@@ -50,6 +50,6 @@
 
         <service android:name=".alarms.AlarmIntentService"
             android:exported="false"
-            android:encryptionAware="true"/>
+            android:directBootAware="true"/>
     </application>
 </manifest>

@@ -43,8 +43,8 @@ public class AlarmStorage {
             // All N devices have split storage areas, but we may need to
             // migrate existing preferences into the new device encrypted
             // storage area, which is where the data lives from now on.
-            final Context deviceContext = context.createDeviceEncryptedStorageContext();
-            if (!deviceContext.migrateSharedPreferencesFrom(context,
+            final Context deviceContext = context.createDeviceProtectedStorageContext();
+            if (!deviceContext.moveSharedPreferencesFrom(context,
                     ALARM_PREFERENCES_NAME)) {
                 Log.w(TAG, "Failed to migrate shared preferences.");
             }
