@@ -41,7 +41,7 @@ public class AlarmStorage {
         Context storageContext;
         if (BuildCompat.isAtLeastN()) {
             // All N devices have split storage areas, but we may need to
-            // migrate existing preferences into the new device encrypted
+            // move the existing preferences to the new device protected
             // storage area, which is where the data lives from now on.
             final Context deviceContext = context.createDeviceProtectedStorageContext();
             if (!deviceContext.moveSharedPreferencesFrom(context,

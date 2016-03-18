@@ -35,7 +35,7 @@ import android.util.Log;
  * </ul>
  *
  * To receive the Intent.ACTION_LOCKED_BOOT_COMPLETED broadcast, the receiver needs to have
- * <code>encryptionAware="true"</code> property in the manifest.
+ * <code>directBootAware="true"</code> property in the manifest.
  */
 public class BootBroadcastReceiver extends BroadcastReceiver {
 
