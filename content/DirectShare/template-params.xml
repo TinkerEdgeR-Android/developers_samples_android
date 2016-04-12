@@ -73,7 +73,7 @@ Service.
 
 [1]: https://developer.android.com/reference/android/service/chooser/package-summary.html
 [2]: https://developer.android.com/reference/android/service/chooser/ChooserTargetService.html
-[3]: https://developer.android.com/reference/android/service/chooser/ChooserTargetService.html#onGetChooserTargets(android.content.ComponentName, android.content.IntentFilter)
+[3]: https://developer.android.com/reference/android/service/chooser/ChooserTargetService.html#onGetChooserTargets(android.content.ComponentName%2C%20android.content.IntentFilter)
             ]]>
         </intro>
     </metadata>
