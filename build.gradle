@@ -103,12 +103,18 @@ List<String> samples = [
 "security/FingerprintDialog",
 "system/RuntimePermissions",
 "system/RuntimePermissionsBasic",
+"wearable/wear/RuntimePermissionsWear",
 "notification/ActiveNotifications",
 "media/Camera2Raw",
 "content/AutoBackupForApps",
 "ui/window/MultiWindowPlayground",
 "content/documentsUi/ScopedDirectoryAccess",
 "security/DirectBoot",
+"content/DirectShare",
+"media/MidiScope",
+"media/MidiSynth",
+"security/AsymmetricFingerprintDialog",
+"wearable/wear/WearSpeakerSample",
 ]
 
 List<String> taskNames = [
