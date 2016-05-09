@@ -28,15 +28,6 @@
     <targetSdkVersion>23</targetSdkVersion>
     <compileSdkVersion>23</compileSdkVersion>
 
-    <dependency>com.squareup.dagger:dagger:1.2.2</dependency>
-    <dependency>com.squareup.dagger:dagger-compiler:1.2.2</dependency>
-
-    <!-- TODO(thagikura) These dependencies should be created as testCompile instead of compile but
-         the template system doesn't allow androidTestCompile dependencies. Change it once fixed.
-    -->
-    <dependency>junit:junit:4.12</dependency>
-    <dependency>org.mockito:mockito-core:1.10.19</dependency>
-
     <strings>
         <intro>
             <![CDATA[
