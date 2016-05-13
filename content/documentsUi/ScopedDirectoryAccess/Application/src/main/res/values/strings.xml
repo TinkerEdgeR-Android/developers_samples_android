@@ -19,6 +19,7 @@
     <string name="open_directory">Open</string>
     <string name="selected_directory">Selected directory:\ </string>
     <string name="nothing_in_directory">Nothing in the directory</string>
+    <string name="primary_volume_description">Internal shared storage</string>
     <string-array name="directories">
         <item>ALARMS</item>
         <item>DCIM</item>
