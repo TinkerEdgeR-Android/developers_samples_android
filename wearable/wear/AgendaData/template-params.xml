@@ -26,7 +26,7 @@
     <targetSdkVersion>23</targetSdkVersion>
     <targetSdkVersionWear>23</targetSdkVersionWear>
 
-    <dependency>com.android.support:design:23.1.1</dependency>
+    <dependency>com.android.support:design:23.3.0</dependency>
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>
