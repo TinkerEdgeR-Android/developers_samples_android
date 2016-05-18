@@ -26,13 +26,11 @@
     <targetSdkVersion>23</targetSdkVersion>
     <targetSdkVersionWear>23</targetSdkVersionWear>
 
-    <dependency_wearable>com.google.android.gms:play-services-wearable</dependency_wearable>
-    <dependency_wearable>com.android.support:palette-v7:23.3.0</dependency_wearable>
     <dependency>com.google.android.support:wearable:1.4.0</dependency>
-
-    <dependency_wearable>com.google.android.support:wearable:2.0.0-alpha1</dependency_wearable>
-
     <dependency>com.google.android.gms:play-services-fitness</dependency>
+    <dependency_wearable>com.android.support:palette-v7:23.3.0</dependency_wearable>
+
+    <preview_wearable_support_dependency>com.google.android.support:wearable:2.0.0-alpha1</preview_wearable_support_dependency>
     <dependency_wearable>com.google.android.gms:play-services-fitness</dependency_wearable>
 
     <wearable>
