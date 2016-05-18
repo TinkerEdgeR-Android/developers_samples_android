@@ -112,6 +112,7 @@ List<String> samples = [
 "media/MidiSynth",
 "security/AsymmetricFingerprintDialog",
 "wearable/wear/WearSpeakerSample",
+"wearable/wear/WearDrawers",
 ]
 
 List<String> taskNames = [
