@@ -25,7 +25,7 @@
     <targetSdkVersionWear>23</targetSdkVersionWear>
 
     <provided_dependency_wearable>com.google.android.wearable:wearable:1.0.0</provided_dependency_wearable>
-    <dependency_wearable>com.google.android.support:wearable:2.0.0-alpha1</dependency_wearable>
+    <preview_wearable_support_dependency>com.google.android.support:wearable:2.0.0-alpha1</preview_wearable_support_dependency>
 
     <strings>
         <intro>
