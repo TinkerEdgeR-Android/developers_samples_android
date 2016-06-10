@@ -61,6 +61,7 @@ public class ScopedDirectoryAccessFragment extends Fragment {
     private StorageManager mStorageManager;
     private TextView mCurrentDirectoryTextView;
     private TextView mNothingInDirectoryTextView;
+    private TextView mPrimaryVolumeNameTextView;
     private Spinner mDirectoriesSpinner;
     private DirectoryEntryAdapter mAdapter;
     private ArrayList<DirectoryEntry> mDirectoryEntries;
@@ -105,6 +106,8 @@ public class ScopedDirectoryAccessFragment extends Fragment {
                 .findViewById(R.id.textview_current_directory);
         mNothingInDirectoryTextView = (TextView) rootView
                 .findViewById(R.id.textview_nothing_in_directory);
+        mPrimaryVolumeNameTextView = (TextView) rootView
+                .findViewById(R.id.textview_primary_volume_name);
 
         // Set onClickListener for the primary volume
         Button openPictureButton = (Button) rootView
@@ -125,14 +128,19 @@ public class ScopedDirectoryAccessFragment extends Fragment {
         LinearLayout containerVolumes = (LinearLayout) mActivity
                 .findViewById(R.id.container_volumes);
         for (final StorageVolume volume : storageVolumes) {
+            String volumeDescription = volume.getDescription(mActivity);
             if (volume.isPrimary()) {
-                // Primary volume area is already added
+                // Primary volume area is already added...
+                if (volumeDescription != null) {
+                    // ...but with a default name: set it to the real name when available.
+                    mPrimaryVolumeNameTextView.setText(volumeDescription);
+                }
                 continue;
             }
             LinearLayout volumeArea = (LinearLayout) mActivity.getLayoutInflater()
                     .inflate(R.layout.volume_entry, containerVolumes);
             TextView volumeName = (TextView) volumeArea.findViewById(R.id.textview_volume_name);
-            volumeName.setText(volume.getDescription(mActivity));
+            volumeName.setText(volumeDescription);
             Button button = (Button) volumeArea.findViewById(R.id.button_open_directory);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
