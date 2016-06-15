@@ -22,7 +22,7 @@
     <group>Media</group>
     <package>com.example.android.camera2basic</package>
 
-    <dependency>com.android.support:appcompat-v7:23.0.0</dependency>
+    <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>
     <minSdk>21</minSdk>
     <strings>
         <intro>

@@ -28,11 +28,11 @@
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
-    <dependency>com.android.support:appcompat-v7:24.0.0-alpha1</dependency>
-    <dependency>com.android.support:support-v4:24.0.0-alpha1</dependency>
-    <dependency>com.android.support:support-v13:24.0.0-alpha1</dependency>
-    <dependency>com.android.support:recyclerview-v7:24.0.0-alpha1</dependency>
-    <dependency>com.android.support:design:24.0.0-alpha1</dependency>
+    <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>
+    <dependency>com.android.support:support-v4:24.0.0-beta1</dependency>
+    <dependency>com.android.support:support-v13:24.0.0-beta1</dependency>
+    <dependency>com.android.support:recyclerview-v7:24.0.0-beta1</dependency>
+    <dependency>com.android.support:design:24.0.0-beta1</dependency>
 
     <template src="base" />
 
@@ -99,7 +99,7 @@ Starting from Android N, the system provides two storage locations for user data
     - A new storage location which is always available while the device is booted, both before and after any user credentials are entered
 
 Apps can mark individual components as being direct boot aware which indicates to the system that they can safely run when
-Credential protected storage is unavailable (an direct boot aware component primarily relies on data stored in the new Device protected storage area, 
+Credential protected storage is unavailable (an direct boot aware component primarily relies on data stored in the new Device protected storage area,
 but they may access Credential protected data when unlocked) by adding `directBootAware="true"` in the manifest.
 ```
 <activity|provider|receiver|service ...
