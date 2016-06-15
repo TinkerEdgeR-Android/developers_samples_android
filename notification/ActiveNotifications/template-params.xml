@@ -19,20 +19,20 @@
     <group>Android N Preview</group>
     <package>com.example.android.activenotifications</package>
 
-    <minSdk>"N"</minSdk>
-    <targetSdkVersion>"N"</targetSdkVersion>
-    <compileSdkVersion>"android-N"</compileSdkVersion>
+    <minSdk>24</minSdk>
+    <compileSdkVersion>24</compileSdkVersion>
+    <targetSdkVersion>24</targetSdkVersion>
 
     <strings>
         <intro>
             <![CDATA[
 Notifications can now be grouped in Android N. Since Android M, the
-NotificationManager can tell you how many notifications your application 
-is currently showing. This sample demonstrates how to use these APIs 
-together for a nicer user experience when an app may have multiple 
-notifications. To get started, press the "add a notification" button. 
-If you add more than one notification a notification summary will be 
-added. When a notification is being canceled, the count gets updated 
+NotificationManager can tell you how many notifications your application
+is currently showing. This sample demonstrates how to use these APIs
+together for a nicer user experience when an app may have multiple
+notifications. To get started, press the "add a notification" button.
+If you add more than one notification a notification summary will be
+added. When a notification is being canceled, the count gets updated
 via a PendingIntent.
             ]]>
         </intro>
@@ -76,10 +76,10 @@ Notifications can now be grouped.
 Starting with Android N, you can set notification groups for notifications
 and define a notification group summary.
 
-In Android M, you can query for the active notifications that your app sent 
+In Android M, you can query for the active notifications that your app sent
 sing the [notify][2] methods.
 
-This sample demonstrates simple use of these features by allowing a user 
+This sample demonstrates simple use of these features by allowing a user
 to add notifications and then query how many notifications
 are currently being displayed via the [getActiveNotifications()][3] method.
 
