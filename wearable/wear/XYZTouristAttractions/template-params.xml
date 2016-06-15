@@ -29,9 +29,9 @@
     <dependency>com.google.android.gms:play-services-location</dependency>
     <dependency>com.google.maps.android:android-maps-utils:0.3.4</dependency>
     <dependency>com.github.bumptech.glide:glide:3.6.1</dependency>
-    <dependency>com.android.support:appcompat-v7:23.0.0</dependency>
-    <dependency>com.android.support:recyclerview-v7:23.0.0</dependency>
-    <dependency>com.android.support:design:23.0.0</dependency>
+    <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>
+    <dependency>com.android.support:recyclerview-v7:24.0.0-beta1</dependency>
+    <dependency>com.android.support:design:24.0.0-beta1</dependency>
     <dependency_wearable>com.google.android.gms:play-services-location</dependency_wearable>
     <dependency_shared>com.android.support:support-v13:23.0.0</dependency_shared>
     <dependency_shared>com.google.android.gms:play-services-wearable</dependency_shared>
