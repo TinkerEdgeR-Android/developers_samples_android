@@ -21,10 +21,9 @@
                             and replaced with the "categories" tags below. -->
     <package>com.example.android.scopeddirectoryaccess</package>
 
-    <!-- change minSdk if needed-->
-    <minSdk>"N"</minSdk>
-    <targetSdkVersion>"N"</targetSdkVersion>
-    <compileSdkVersion>"android-N"</compileSdkVersion>
+    <minSdk>24</minSdk>
+    <compileSdkVersion>24</compileSdkVersion>
+    <targetSdkVersion>24</targetSdkVersion>
 
     <!-- Include additional dependencies here.-->
     <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>

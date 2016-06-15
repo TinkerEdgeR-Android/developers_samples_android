@@ -20,9 +20,9 @@
     <group>Android N Preview</group>
     <package>com.example.android.multiwindowplayground</package>
 
-    <minSdk>"N"</minSdk>
-    <targetSdkVersion>"N"</targetSdkVersion>
-    <compileSdkVersion>"android-N"</compileSdkVersion>
+    <minSdk>24</minSdk>
+    <compileSdkVersion>24</compileSdkVersion>
+    <targetSdkVersion>24</targetSdkVersion>
 
     <strings>
         <intro>
