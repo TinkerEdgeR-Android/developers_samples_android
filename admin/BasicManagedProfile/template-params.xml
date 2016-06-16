@@ -22,12 +22,8 @@
     <group>Admin</group>
     <package>com.example.android.basicmanagedprofile</package>
 
-
-
     <!-- change minSdk if needed-->
     <minSdk>21</minSdk>
-    <compileSdkVersion>21</compileSdkVersion>
-
 
     <strings>
         <intro>
