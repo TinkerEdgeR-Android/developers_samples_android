@@ -26,7 +26,6 @@
     <targetSdkVersion>24</targetSdkVersion>
 
     <!-- Include additional dependencies here.-->
-    <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>
     <dependency>com.android.support:recyclerview-v7:24.0.0-beta1</dependency>
     <dependency>com.android.support:support-v4:24.0.0-beta1</dependency>
 

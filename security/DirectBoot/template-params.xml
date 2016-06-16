@@ -27,7 +27,6 @@
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
-    <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>
     <dependency>com.android.support:support-v4:24.0.0-beta1</dependency>
     <dependency>com.android.support:support-v13:24.0.0-beta1</dependency>
     <dependency>com.android.support:recyclerview-v7:24.0.0-beta1</dependency>
