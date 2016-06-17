@@ -20,8 +20,6 @@
     <package>com.example.android.hdrviewfinder</package>
 
     <minSdk>21</minSdk>
-    <targetSdkVersion>23</targetSdkVersion>
-    <compileSdkVersion>23</compileSdkVersion>
 
     <dependency>com.android.support:design:24.0.0-beta1</dependency>
 
