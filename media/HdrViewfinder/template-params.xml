@@ -21,7 +21,7 @@
 
     <minSdk>21</minSdk>
 
-    <dependency>com.android.support:design:24.0.0-beta1</dependency>
+    <dependency>com.android.support:design:24.0.0</dependency>
 
     <strings>
         <intro>

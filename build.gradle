@@ -121,7 +121,11 @@ List<String> samples = [
 List<String> taskNames = [
     "clean",
     "refresh",
+    "assembleDebug",
     "build",
+    "check",
+    "connectedCheck",
+    "deviceCheck",
     "emitAnt",
     "emitGradle",
     "emitBrowseable",
