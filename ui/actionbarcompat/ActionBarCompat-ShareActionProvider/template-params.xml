@@ -19,8 +19,6 @@
     <group>UI</group>
     <package>com.example.android.actionbarcompat.shareactionprovider</package>
 
-    <!-- change minSdk if needed-->
-    <!-- change minSdk if needed-->
     <minSdk>7</minSdk>
 
     <strings>
