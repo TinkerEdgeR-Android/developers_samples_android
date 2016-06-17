@@ -18,9 +18,8 @@
     <name>DirectShare</name>
     <group>Content</group>
     <package>com.example.android.directshare</package>
+
     <minSdk>23</minSdk>
-    <targetSdkVersion>23</targetSdkVersion>
-    <compileSdkVersion>23</compileSdkVersion>
 
     <strings>
         <intro>

@@ -25,8 +25,6 @@
     <package>com.example.android.asymmetricfingerprintdialog</package>
 
     <minSdk>23</minSdk>
-    <targetSdkVersion>23</targetSdkVersion>
-    <compileSdkVersion>23</compileSdkVersion>
 
     <dependency>com.squareup.dagger:dagger:1.2.2</dependency>
     <dependency>com.squareup.dagger:dagger-compiler:1.2.2</dependency>
