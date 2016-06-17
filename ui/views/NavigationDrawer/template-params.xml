@@ -26,8 +26,6 @@
 
     <!-- change minSdk if needed-->
     <minSdk>21</minSdk>
-    <compileSdkVersion>23</compileSdkVersion>
-
 
     <dependency>com.android.support:support-v13:24.0.0-beta1</dependency>
     <dependency>com.android.support:appcompat-v7:24.0.0-beta1</dependency>

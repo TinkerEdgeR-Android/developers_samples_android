@@ -19,7 +19,6 @@
     <group>Media</group>
     <package>com.example.android.midiscope</package>
     <minSdk>23</minSdk>
-    <compileSdkVersion>23</compileSdkVersion>
 
     <strings>
         <intro>
