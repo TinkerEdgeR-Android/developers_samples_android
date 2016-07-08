@@ -763,6 +763,7 @@ public class Camera2RawFragment extends Fragment
     /**
      * Opens the camera specified by {@link #mCameraId}.
      */
+    @SuppressWarnings("MissingPermission")
     private void openCamera() {
         if (!setUpCameraOutputs()) {
             return;
