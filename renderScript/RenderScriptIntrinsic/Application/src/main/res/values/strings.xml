@@ -15,10 +15,7 @@
  limitations under the License.
 -->
 <resources>
-
-    <color name="primary">#FF5722</color>
-    <color name="primary_translucent">#99FF5722</color>
-    <color name="primary_dark">#E64A19</color>
-    <color name="accent">#00BCD4</color>
-
+    <string name="blur">Blur</string>
+    <string name="emboss">Emboss</string>
+    <string name="hue">Hue</string>
 </resources>
