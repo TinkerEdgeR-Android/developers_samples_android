@@ -54,12 +54,12 @@ public class BasicManagedProfileFragment extends Fragment
     /**
      * Tag for logging.
      */
-    private static final String TAG = "BasicManagedProfileFragment";
+    private static final String TAG = "BasicManagedProfile";
 
     /**
      * Package name of calculator
      */
-    private static final String PACKAGE_NAME_CALCULATOR = "com.android.calculator2";
+    private static final String PACKAGE_NAME_CALCULATOR = "com.google.android.calculator";
 
     /**
      * Package name of Chrome
