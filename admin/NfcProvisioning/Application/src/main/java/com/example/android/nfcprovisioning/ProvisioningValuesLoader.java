@@ -175,7 +175,10 @@ public class ProvisioningValuesLoader extends AsyncTaskLoader<Map<String, String
             WifiManager wifiManager = (WifiManager) context
                     .getSystemService(Activity.WIFI_SERVICE);
             WifiInfo info = wifiManager.getConnectionInfo();
-            values.put(DevicePolicyManager.EXTRA_PROVISIONING_WIFI_SSID, trimSsid(info.getSSID()));
+            if (info.getNetworkId() != -1) { // Connected to network
+                values.put(DevicePolicyManager.EXTRA_PROVISIONING_WIFI_SSID,
+                        trimSsid(info.getSSID()));
+            }
         }
     }
 
