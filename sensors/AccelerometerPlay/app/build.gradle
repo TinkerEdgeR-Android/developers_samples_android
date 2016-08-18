@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.android.accelerometerplay"
-        minSdkVersion 5
-        targetSdkVersion 5
+        minSdkVersion 11
+        targetSdkVersion 23
     }
 
     buildTypes {
