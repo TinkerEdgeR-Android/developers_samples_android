@@ -20,6 +20,7 @@ import com.example.android.common.logger.Log;
 
 import android.app.Activity;
 import android.content.ClipDescription;
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -31,6 +32,7 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 
 /**
@@ -58,6 +60,8 @@ public class DropTargetFragment extends Fragment {
 
     private Uri mImageUri;
 
+    private CheckBox mReleasePermissionCheckBox;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -78,6 +82,8 @@ public class DropTargetFragment extends Fragment {
                 imageView.setImageURI(mImageUri);
             }
         }
+
+        mReleasePermissionCheckBox = (CheckBox) rootView.findViewById(R.id.release_checkbox);
 
         return rootView;
     }
@@ -102,35 +108,52 @@ public class DropTargetFragment extends Fragment {
             // Read the string from the clip description extras.
             Log.d(TAG, "ClipDescription extra: " + getExtra(event));
 
-            // Request permissions to access the uri that was dropped.
             Log.d(TAG, "Setting image source to: " + uri.toString());
             mImageUri = uri;
-            DragAndDropPermissionsCompat dropPermissions = ActivityCompat
-                    .requestDragAndDropPermissions(getActivity(), event);
-            Log.d(TAG, "Requesting permissions.");
 
-            if (dropPermissions == null) {
-                // Permission could not be obtained.
-                Log.d(TAG, "Drop permission request failed.");
-                return false;
+            if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+                // Accessing a "content" scheme Uri requires a permission grant.
+                DragAndDropPermissionsCompat dropPermissions = ActivityCompat
+                        .requestDragAndDropPermissions(getActivity(), event);
+                Log.d(TAG, "Requesting permissions.");
+
+                if (dropPermissions == null) {
+                    // Permission could not be obtained.
+                    Log.d(TAG, "Drop permission request failed.");
+                    return false;
+                }
+
+                final boolean result = super.setImageUri(view, event, uri);
+
+                if (mReleasePermissionCheckBox.isChecked()) {
+                    /* Release the permissions if you are done with the URI.
+                     Note that you may need to hold onto the permission until later if other
+                     operations are performed on the content. For instance, releasing the
+                     permissions here will prevent onCreateView from properly restoring the
+                     ImageView state.
+                     If permissions are not explicitly released, the permission grant will be
+                     revoked when the activity is destroyed.
+                     */
+                    dropPermissions.release();
+                    Log.d(TAG, "Permissions released.");
+                }
+
+                return result;
+            } else {
+                // Other schemes (such as "android.resource") do not require a permission grant.
+                return super.setImageUri(view, event, uri);
             }
-
-            ((ImageView) view).setImageURI(uri);
-
-            /* Release the permissions now that we are done with the URI. Note that you may
-             need to hold onto the permission until later if other operations are performed on the
-             content.
-             If permissions are not explicitly released, the permission grant will be revoked when
-             the activity is destroyed.
-             */
-            dropPermissions.release();
-            Log.d(TAG, "Permissions released.");
-
-            return super.setImageUri(view, event, uri);
         }
 
         @Override
         public boolean onDrag(View view, DragEvent event) {
+            // DragTarget is peeking into the MIME types of the dragged event in order to ignore
+            // non-image drags completely.
+            // DragSource does not do that but rejects non-image content once a drop has happened.
+            ClipDescription clipDescription = event.getClipDescription();
+            if (clipDescription != null && !clipDescription.hasMimeType("image/*")) {
+                return false;
+            }
             // Callback received when image is being dragged.
             return super.onDrag(view, event);
         }

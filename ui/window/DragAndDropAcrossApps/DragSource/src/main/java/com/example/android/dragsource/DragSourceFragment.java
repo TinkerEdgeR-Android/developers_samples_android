@@ -158,7 +158,7 @@ public class DragSourceFragment extends Fragment {
                 // Add an optional clip description that that contains an extra String that is
                 // read out by the target app.
                 final ClipDescription clipDescription = new ClipDescription("", new String[]{
-                        ClipDescription.MIMETYPE_TEXT_URILIST});
+                        getContext().getContentResolver().getType(imageUri)});
                 // Extras are stored within a PersistableBundle.
                 PersistableBundle extras = new PersistableBundle(1);
                 // Add a String that the target app will display.
@@ -202,7 +202,9 @@ public class DragSourceFragment extends Fragment {
 
         // Copy a drawable from resources to the internal directory.
         File newFile = new File(filePath, targetName);
-        copyImageResourceToFile(sourceResourceId, newFile);
+        if (!newFile.exists()) {
+            copyImageResourceToFile(sourceResourceId, newFile);
+        }
 
         // Make the file accessible via the FileProvider and retrieve its URI.
         return FileProvider.getUriForFile(getContext(), CONTENT_AUTHORITY, newFile);
