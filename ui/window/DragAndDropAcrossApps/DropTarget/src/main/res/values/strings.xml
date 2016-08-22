@@ -20,5 +20,9 @@
 
     <string name="image_target_prompt">Drop image here.\nThe app will request permission from the source app before displaying the image.</string>
 
-    <string name="intro_message">This sample demonstrates drag and drop functionality and is the \'target\' app for this sample. It shows how data can be received when dragged from another app.\nOpen the \'DragSource\' sample app next to this one and try dragging an image or text into the space below.</string>
+    <string name="intro_message">This sample demonstrates drag and drop functionality and is the \'target\' app for this sample. It shows how data can be received when dragged from another app.\nOpen the \'DragSource\' sample app next to this one and try dragging an image into the space below.</string>
+
+    <string name="release_checkbox_text">Release permissions immediately after a drop</string>
+
+    <string name="release_checkbox_note">Releasing permissions will prevent the image from being properly restored after the activity has been resized.</string>
 </resources>
