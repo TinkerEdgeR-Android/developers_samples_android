@@ -16,24 +16,28 @@
 
 package com.example.android.accelerometerplay;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.BitmapFactory.Options;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 /**
  * This is an example of using the accelerometer to integrate the device's
@@ -41,7 +45,7 @@ import android.view.WindowManager;
  * a very simple particle system comprised of a few iron balls freely moving on
  * an inclined wooden table. The inclination of the virtual table is controlled
  * by the device's accelerometer.
- * 
+ *
  * @see SensorManager
  * @see SensorEvent
  * @see Sensor
@@ -77,6 +81,7 @@ public class AccelerometerPlayActivity extends Activity {
 
         // instantiate our simulation view and set it as the activity's content
         mSimulationView = new SimulationView(this);
+        mSimulationView.setBackgroundResource(R.drawable.wood);
         setContentView(mSimulationView);
     }
 
@@ -109,90 +114,67 @@ public class AccelerometerPlayActivity extends Activity {
         mWakeLock.release();
     }
 
-    class SimulationView extends View implements SensorEventListener {
+    class SimulationView extends FrameLayout implements SensorEventListener {
         // diameter of the balls in meters
         private static final float sBallDiameter = 0.004f;
         private static final float sBallDiameter2 = sBallDiameter * sBallDiameter;
 
-        // friction of the virtual table and air
-        private static final float sFriction = 0.1f;
+        private final int mDstWidth;
+        private final int mDstHeight;
 
         private Sensor mAccelerometer;
         private long mLastT;
-        private float mLastDeltaT;
 
         private float mXDpi;
         private float mYDpi;
         private float mMetersToPixelsX;
         private float mMetersToPixelsY;
-        private Bitmap mBitmap;
-        private Bitmap mWood;
         private float mXOrigin;
         private float mYOrigin;
         private float mSensorX;
         private float mSensorY;
-        private long mSensorTimeStamp;
-        private long mCpuTimeStamp;
         private float mHorizontalBound;
         private float mVerticalBound;
-        private final ParticleSystem mParticleSystem = new ParticleSystem();
-
+        private final ParticleSystem mParticleSystem;
         /*
          * Each of our particle holds its previous and current position, its
          * acceleration. for added realism each particle has its own friction
          * coefficient.
          */
-        class Particle {
-            private float mPosX;
-            private float mPosY;
-            private float mAccelX;
-            private float mAccelY;
-            private float mLastPosX;
-            private float mLastPosY;
-            private float mOneMinusFriction;
+        class Particle extends View {
+            private float mPosX = (float) Math.random();
+            private float mPosY = (float) Math.random();
+            private float mVelX;
+            private float mVelY;
 
-            Particle() {
-                // make each particle a bit different by randomizing its
-                // coefficient of friction
-                final float r = ((float) Math.random() - 0.5f) * 0.2f;
-                mOneMinusFriction = 1.0f - sFriction + r;
+            public Particle(Context context) {
+                super(context);
             }
 
-            public void computePhysics(float sx, float sy, float dT, float dTC) {
-                // Force of gravity applied to our virtual object
-                final float m = 1000.0f; // mass of our virtual object
-                final float gx = -sx * m;
-                final float gy = -sy * m;
+            public Particle(Context context, AttributeSet attrs) {
+                super(context, attrs);
+            }
 
-                /*
-                 * F = mA <=> A = F / m We could simplify the code by
-                 * completely eliminating "m" (the mass) from all the equations,
-                 * but it would hide the concepts from this sample code.
-                 */
-                final float invm = 1.0f / m;
-                final float ax = gx * invm;
-                final float ay = gy * invm;
+            public Particle(Context context, AttributeSet attrs, int defStyleAttr) {
+                super(context, attrs, defStyleAttr);
+            }
 
-                /*
-                 * Time-corrected Verlet integration The position Verlet
-                 * integrator is defined as x(t+dt) = x(t) + x(t) - x(t-dt) +
-                 * a(t).t^2 However, the above equation doesn't handle variable
-                 * dt very well, a time-corrected version is needed: x(t+dt) =
-                 * x(t) + (x(t) - x(t-dt)) * (dt/dt_prev) + a(t).t^2 We also add
-                 * a simple friction term (f) to the equation: x(t+dt) = x(t) +
-                 * (1-f) * (x(t) - x(t-dt)) * (dt/dt_prev) + a(t)t^2
-                 */
-                final float dTdT = dT * dT;
-                final float x = mPosX + mOneMinusFriction * dTC * (mPosX - mLastPosX) + mAccelX
-                        * dTdT;
-                final float y = mPosY + mOneMinusFriction * dTC * (mPosY - mLastPosY) + mAccelY
-                        * dTdT;
-                mLastPosX = mPosX;
-                mLastPosY = mPosY;
-                mPosX = x;
-                mPosY = y;
-                mAccelX = ax;
-                mAccelY = ay;
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            public Particle(Context context, AttributeSet attrs, int defStyleAttr,
+                            int defStyleRes) {
+                super(context, attrs, defStyleAttr, defStyleRes);
+            }
+
+            public void computePhysics(float sx, float sy, float dT) {
+
+                final float ax = -sx/5;
+                final float ay = -sy/5;
+
+                mPosX += mVelX * dT + ax * dT * dT / 2;
+                mPosY += mVelY * dT + ay * dT * dT / 2;
+
+                mVelX += ax * dT;
+                mVelY += ay * dT;
             }
 
             /*
@@ -208,13 +190,17 @@ public class AccelerometerPlayActivity extends Activity {
                 final float y = mPosY;
                 if (x > xmax) {
                     mPosX = xmax;
+                    mVelX = 0;
                 } else if (x < -xmax) {
                     mPosX = -xmax;
+                    mVelX = 0;
                 }
                 if (y > ymax) {
                     mPosY = ymax;
+                    mVelY = 0;
                 } else if (y < -ymax) {
                     mPosY = -ymax;
+                    mVelY = 0;
                 }
             }
         }
@@ -223,7 +209,7 @@ public class AccelerometerPlayActivity extends Activity {
          * A particle system is just a collection of particles
          */
         class ParticleSystem {
-            static final int NUM_PARTICLES = 15;
+            static final int NUM_PARTICLES = 5;
             private Particle mBalls[] = new Particle[NUM_PARTICLES];
 
             ParticleSystem() {
@@ -231,7 +217,10 @@ public class AccelerometerPlayActivity extends Activity {
                  * Initially our particles have no speed or acceleration
                  */
                 for (int i = 0; i < mBalls.length; i++) {
-                    mBalls[i] = new Particle();
+                    mBalls[i] = new Particle(getContext());
+                    mBalls[i].setBackgroundResource(R.drawable.ball);
+                    mBalls[i].setLayerType(LAYER_TYPE_HARDWARE, null);
+                    addView(mBalls[i], new ViewGroup.LayoutParams(mDstWidth, mDstHeight));
                 }
             }
 
@@ -242,16 +231,12 @@ public class AccelerometerPlayActivity extends Activity {
             private void updatePositions(float sx, float sy, long timestamp) {
                 final long t = timestamp;
                 if (mLastT != 0) {
-                    final float dT = (float) (t - mLastT) * (1.0f / 1000000000.0f);
-                    if (mLastDeltaT != 0) {
-                        final float dTC = dT / mLastDeltaT;
+                    final float dT = (float) (t - mLastT) / 1000.f /** (1.0f / 1000000000.0f)*/;
                         final int count = mBalls.length;
                         for (int i = 0; i < count; i++) {
                             Particle ball = mBalls[i];
-                            ball.computePhysics(sx, sy, dT, dTC);
+                            ball.computePhysics(sx, sy, dT);
                         }
-                    }
-                    mLastDeltaT = dT;
                 }
                 mLastT = t;
             }
@@ -297,17 +282,15 @@ public class AccelerometerPlayActivity extends Activity {
                                 // simulate the spring
                                 final float d = (float) Math.sqrt(dd);
                                 final float c = (0.5f * (sBallDiameter - d)) / d;
-                                curr.mPosX -= dx * c;
-                                curr.mPosY -= dy * c;
-                                ball.mPosX += dx * c;
-                                ball.mPosY += dy * c;
+                                final float effectX = dx * c;
+                                final float effectY = dy * c;
+                                curr.mPosX -= effectX;
+                                curr.mPosY -= effectY;
+                                ball.mPosX += effectX;
+                                ball.mPosY += effectY;
                                 more = true;
                             }
                         }
-                        /*
-                         * Finally make sure the particle doesn't intersects
-                         * with the walls.
-                         */
                         curr.resolveCollisionWithBounds();
                     }
                 }
@@ -334,7 +317,7 @@ public class AccelerometerPlayActivity extends Activity {
              * of the acceleration. As an added benefit, we use less power and
              * CPU resources.
              */
-            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         }
 
         public void stopSimulation() {
@@ -353,23 +336,21 @@ public class AccelerometerPlayActivity extends Activity {
             mMetersToPixelsY = mYDpi / 0.0254f;
 
             // rescale the ball so it's about 0.5 cm on screen
-            Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
-            final int dstWidth = (int) (sBallDiameter * mMetersToPixelsX + 0.5f);
-            final int dstHeight = (int) (sBallDiameter * mMetersToPixelsY + 0.5f);
-            mBitmap = Bitmap.createScaledBitmap(ball, dstWidth, dstHeight, true);
+            mDstWidth = (int) (sBallDiameter * mMetersToPixelsX + 0.5f);
+            mDstHeight = (int) (sBallDiameter * mMetersToPixelsY + 0.5f);
+            mParticleSystem = new ParticleSystem();
 
             Options opts = new Options();
             opts.inDither = true;
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
-            mWood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, opts);
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             // compute the origin of the screen relative to the origin of
             // the bitmap
-            mXOrigin = (w - mBitmap.getWidth()) * 0.5f;
-            mYOrigin = (h - mBitmap.getHeight()) * 0.5f;
+            mXOrigin = (w - mDstWidth) * 0.5f;
+            mYOrigin = (h - mDstHeight) * 0.5f;
             mHorizontalBound = ((w / mMetersToPixelsX - sBallDiameter) * 0.5f);
             mVerticalBound = ((h / mMetersToPixelsY - sBallDiameter) * 0.5f);
         }
@@ -405,27 +386,16 @@ public class AccelerometerPlayActivity extends Activity {
                     mSensorY = -event.values[0];
                     break;
             }
-
-            mSensorTimeStamp = event.timestamp;
-            mCpuTimeStamp = System.nanoTime();
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-
             /*
-             * draw the background
-             */
-
-            canvas.drawBitmap(mWood, 0, 0, null);
-
-            /*
-             * compute the new position of our object, based on accelerometer
+             * Compute the new position of our object, based on accelerometer
              * data and present time.
              */
-
             final ParticleSystem particleSystem = mParticleSystem;
-            final long now = mSensorTimeStamp + (System.nanoTime() - mCpuTimeStamp);
+            final long now = System.currentTimeMillis();
             final float sx = mSensorX;
             final float sy = mSensorY;
 
@@ -435,7 +405,6 @@ public class AccelerometerPlayActivity extends Activity {
             final float yc = mYOrigin;
             final float xs = mMetersToPixelsX;
             final float ys = mMetersToPixelsY;
-            final Bitmap bitmap = mBitmap;
             final int count = particleSystem.getParticleCount();
             for (int i = 0; i < count; i++) {
                 /*
@@ -443,10 +412,10 @@ public class AccelerometerPlayActivity extends Activity {
                  * the sensors coordinate system with the origin in the center
                  * of the screen and the unit is the meter.
                  */
-
                 final float x = xc + particleSystem.getPosX(i) * xs;
                 final float y = yc - particleSystem.getPosY(i) * ys;
-                canvas.drawBitmap(bitmap, x, y, null);
+                particleSystem.mBalls[i].setTranslationX(x);
+                particleSystem.mBalls[i].setTranslationY(y);
             }
 
             // and make sure to redraw asap
