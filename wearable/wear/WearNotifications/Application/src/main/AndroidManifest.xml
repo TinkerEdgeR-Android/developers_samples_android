@@ -15,10 +15,10 @@
  limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.wearable.wear.wearnotifications"
-    android:versionCode="1"
-    android:versionName="1.0">
-    <!-- android:icon="@mipmap/ic_launcher" -->
+          package="com.example.android.wearable.wear.wearnotifications"
+          android:versionCode="1"
+          android:versionName="1.0">
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -69,10 +69,12 @@
             android:name=".handlers.BigTextIntentService"
             android:exported="false">
         </service>
+
         <service
             android:name=".handlers.MessagingIntentService"
             android:exported="false">
         </service>
+
         <service
             android:name=".handlers.BigPictureSocialIntentService"
             android:exported="false">
