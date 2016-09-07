@@ -26,6 +26,10 @@
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- Required for complications to receive complication data and open the provider chooser. -->
+    <uses-permission
+        android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+
     <!-- Calendar permission used by CalendarWatchFaceService -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
@@ -157,6 +161,9 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
             </intent-filter>
         </service>
+
+        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
+
         <activity
             android:name=".ComplicationSimpleConfigActivity"
             android:label="@string/complication_simple">
@@ -310,7 +317,8 @@
         <service
             android:name=".provider.RandomNumberProviderService"
             android:label="@string/complications_provider_random_number"
-            android:icon="@drawable/ic_launcher">
+            android:icon="@drawable/ic_launcher"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
 
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
