@@ -21,7 +21,7 @@
 
     <minSdk>18</minSdk>
     <targetSdkVersion>24</targetSdkVersion>
-    <targetSdkVersionWear>23</targetSdkVersionWear>
+    <targetSdkVersionWear>24</targetSdkVersionWear>
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>
@@ -31,7 +31,15 @@
     <dependency>com.android.support:cardview-v7:24.0.0</dependency>
     <dependency>com.android.support:design:24.0.0</dependency>
 
+    <dependency_wearable>com.android.support:appcompat-v7:24.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:design:24.0.0</dependency_wearable>
+
+
+
     <provided_dependency_wearable>com.google.android.wearable:wearable:1.0.0</provided_dependency_wearable>
+
+    <preview_wearable_support_dependency>com.google.android.support:wearable:2.0.0-alpha3</preview_wearable_support_dependency>
+
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
