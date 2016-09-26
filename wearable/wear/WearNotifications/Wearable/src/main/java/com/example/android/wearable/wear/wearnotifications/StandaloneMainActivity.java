@@ -28,18 +28,14 @@ import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.support.v4.app.NotificationCompat.MessagingStyle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
-import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
+import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
-
-
 
 import com.example.android.wearable.wear.wearnotifications.handlers.BigPictureSocialIntentService;
 import com.example.android.wearable.wear.wearnotifications.handlers.BigPictureSocialMainActivity;
@@ -51,13 +47,13 @@ import com.example.android.wearable.wear.wearnotifications.handlers.MessagingMai
 import com.example.android.wearable.wear.wearnotifications.mock.MockDatabase;
 
 /**
- * The Activity demonstrates several popular Notification.Style examples along with their best
- * practices (include proper Android Wear support when you don't have a dedicated Android Wear
- * app).
+ * Demonstrates best practice for Notifications created by local standalone Android Wear apps. All
+ * Notification examples use Notification Styles.
  */
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class StandaloneMainActivity extends WearableActivity
+        implements AdapterView.OnItemSelectedListener {
 
-    public static final String TAG = "MainActivity";
+    private static final String TAG = "StandaloneMainActivity";
 
     public static final int NOTIFICATION_ID = 888;
 
@@ -71,31 +67,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String[] NOTIFICATION_STYLES =
             {BIG_TEXT_STYLE, BIG_PICTURE_STYLE, INBOX_STYLE, MESSAGING_STYLE};
 
-    private static final String[] NOTIFICATION_STYLES_DESCRIPTION =
-            {
-                    "Demos reminder type app using BIG_TEXT_STYLE",
-                    "Demos social type app using BIG_PICTURE_STYLE + inline notification response",
-                    "Demos email type app using INBOX_STYLE",
-                    "Demos messaging app using MESSAGING_STYLE + inline notification responses"
-            };
-
     private NotificationManagerCompat mNotificationManagerCompat;
 
     private int mSelectedNotification = 0;
 
     // RelativeLayout is needed for SnackBars to alert users when Notifications are disabled for app
     private RelativeLayout mMainRelativeLayout;
+    // TODO (jewalker): convert Spinner to WearableRecyclerView
     private Spinner mSpinner;
-    private TextView mNotificationDetailsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate()");
+
         setContentView(R.layout.activity_main);
+        setAmbientEnabled();
+
 
         mMainRelativeLayout = (RelativeLayout) findViewById(R.id.mainRelativeLayout);
-        mNotificationDetailsTextView = (TextView) findViewById(R.id.notificationDetails);
         mSpinner = (Spinner) findViewById(R.id.spinner);
 
         mNotificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
@@ -111,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // Apply the adapter to the spinner
         mSpinner.setAdapter(adapter);
         mSpinner.setOnItemSelectedListener(this);
+
     }
 
     @Override
@@ -118,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onItemSelected(): position: " + position + " id: " + id);
 
         mSelectedNotification = position;
-
-        mNotificationDetailsTextView.setText(
-                NOTIFICATION_STYLES_DESCRIPTION[mSelectedNotification]);
     }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -133,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         boolean areNotificationsEnabled = mNotificationManagerCompat.areNotificationsEnabled();
 
+        // TODO (jewalker): Verify this is required, can't find way to disable in Wear 2.0.
         if (!areNotificationsEnabled) {
             // Because the user took an action to create a notification, we create a prompt to let
             // the user re-enable notifications for this application again.
@@ -177,9 +166,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     /*
-     * Generates a BIG_TEXT_STYLE Notification that supports both phone/tablet and wear. For devices
-     * on API level 16 (4.1.x - Jelly Bean) and after, displays BIG_TEXT_STYLE. Otherwise, displays
-     * a basic notification.
+     * Generates a BIG_TEXT_STYLE Notification that supports both Wear 1.+ and Wear 2.0.
+     *
+     * IMPORTANT NOTE:
+     * This method includes extra code to replicate Notification Styles behavior from Wear 1.+ and
+     * phones on Wear 2.0, i.e., the notification expands on click. To see the specific code in the
+     * method, search for "REPLICATE_NOTIFICATION_STYLE_CODE".
+     *
+     * Notification Styles behave slightly different on Wear 2.0 when they are launched by a
+     * native/local Wear app, i.e., they will NOT expand when the user taps them but will instead
+     * take the user directly into the local app for the richest experience. In contrast, a bridged
+     * Notification launched from the phone will expand with the style details (whether there is a
+     * local app or not).
+     *
+     * If you want to see the new behavior, please review the generateBigPictureStyleNotification()
+     * and generateMessagingStyleNotification() methods.
      */
     private void generateBigTextStyleNotification() {
 
@@ -209,43 +210,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         // 2. Set up main Intent for notification
-        Intent notifyIntent = new Intent(this, BigTextMainActivity.class);
+        Intent mainIntent = new Intent(this, BigTextMainActivity.class);
 
-        // When creating your Intent, you need to take into account the back state, i.e., what
-        // happens after your Activity launches and the user presses the back button.
-
-        // There are two options:
-        //      1. Regular activity - You're starting an Activity that's part of the application's
-        //      normal workflow.
-
-        //      2. Special activity - The user only sees this Activity if it's started from a
-        //      notification. In a sense, the Activity extends the notification by providing
-        //      information that would be hard to display in the notification itself.
-
-        // For the BIG_TEXT_STYLE notification, we will consider the activity launched by the main
-        // Intent as a special activity, so we will follow option 2.
-
-        // For an example of option 1, check either the MESSAGING_STYLE or BIG_PICTURE_STYLE
-        // examples.
-
-        // For more information, check out our dev article:
-        // https://developer.android.com/training/notify-user/navigation.html
-
-        // Sets the Activity to start in a new, empty task
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        PendingIntent notifyPendingIntent =
+        PendingIntent mainPendingIntent =
                 PendingIntent.getActivity(
                         this,
                         0,
-                        notifyIntent,
+                        mainIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
 
         // 3. Create additional Actions (Intents) for the Notification
 
-        // In our case, we create two additional actions: a Snooze action and a Dismiss action
+        // In our case, we create two additional actions: a Snooze action and a Dismiss action.
+
         // Snooze Action
         Intent snoozeIntent = new Intent(this, BigTextIntentService.class);
         snoozeIntent.setAction(BigTextIntentService.ACTION_SNOOZE);
@@ -257,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         "Snooze",
                         snoozePendingIntent)
                         .build();
-
 
         // Dismiss Action
         Intent dismissIntent = new Intent(this, BigTextIntentService.class);
@@ -284,27 +262,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         GlobalNotificationBuilder.setNotificationCompatBuilderInstance(notificationCompatBuilder);
 
-        Notification notification = notificationCompatBuilder
-                // BIG_TEXT_STYLE sets title and content for API 16 (4.1 and after)
+        notificationCompatBuilder
+                // BIG_TEXT_STYLE sets title and content
                 .setStyle(bigTextStyle)
-                // Title for API <16 (4.0 and below) devices
                 .setContentTitle(bigTextStyleReminderAppData.getContentTitle())
-                // Content for API <24 (7.0 and below) devices
                 .setContentText(bigTextStyleReminderAppData.getContentText())
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(
                         getResources(),
                         R.drawable.ic_alarm_white_48dp))
-                .setContentIntent(notifyPendingIntent)
                 // Set primary color (important for Wear 2.0 Notifications)
                 .setColor(getResources().getColor(R.color.colorPrimary))
-
-                // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
-                // devices and all Android Wear devices. If you have more than one notification and
-                // you prefer a different summary notification, set a group key and create a
-                // summary notification via
-                // .setGroupSummary(true)
-                // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
 
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setPriority(Notification.PRIORITY_HIGH)
@@ -314,21 +282,58 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 // Adds additional actions specified above
                 .addAction(snoozeAction)
-                .addAction(dismissAction)
+                .addAction(dismissAction);
 
-                .build();
+        /* REPLICATE_NOTIFICATION_STYLE_CODE:
+         * You can replicate Notification Style functionality on Wear 2.0 (24+) by not setting the
+         * main content intent, that is, skipping the call setContentIntent(). However, you need to
+         * still allow the user to open the native Wear app from the Notification itself, so you
+         * add an action to launch the app.
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+
+            // Enables launching app in Wear 2.0 while keeping the old Notification Style behavior.
+            NotificationCompat.Action mainAction = new NotificationCompat.Action.Builder(
+                    R.drawable.ic_launcher,
+                    "Open",
+                    mainPendingIntent)
+                    .build();
+
+            notificationCompatBuilder.addAction(mainAction);
+
+        } else {
+            // Wear 1.+ still functions the same, so we set the main content intent.
+            notificationCompatBuilder.setContentIntent(mainPendingIntent);
+        }
+
+
+        Notification notification = notificationCompatBuilder.build();
 
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification);
+
+        // Close app to demonstrate notification in steam.
+        finish();
     }
 
     /*
-     * Generates a BIG_PICTURE_STYLE Notification that supports both phone/tablet and wear. For
-     * devices on API level 16 (4.1.x - Jelly Bean) and after, displays BIG_PICTURE_STYLE.
-     * Otherwise, displays a basic notification.
+     * Generates a BIG_PICTURE_STYLE Notification that supports both Wear 1.+ and Wear 2.0.
      *
      * This example Notification is a social post. It allows updating the notification with
      * comments/responses via RemoteInput and the BigPictureSocialIntentService on 24+ (N+) and
      * Android Wear devices.
+     *
+     * IMPORTANT NOTE:
+     * Notification Styles behave slightly different on Wear 2.0 when they are launched by a
+     * native/local Wear app, i.e., they will NOT expand when the user taps them but will instead
+     * take the user directly into the local app for the richest experience. In contrast, a bridged
+     * Notification launched from the phone will expand with the style details (whether there is a
+     * local app or not).
+     *
+     * If you want to enable an action on your Notification without launching the app, you can do so
+     * with the setHintDisplayActionInline() feature (shown below), but this only allows one action.
+     *
+     * If you wish to replicate the original experience of a bridged notification, please review the
+     * generateBigTextStyleNotification() method above to see how.
      */
     private void generateBigPictureStyleNotification() {
 
@@ -360,32 +365,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // 2. Set up main Intent for notification
         Intent mainIntent = new Intent(this, BigPictureSocialMainActivity.class);
 
-        // When creating your Intent, you need to take into account the back state, i.e., what
-        // happens after your Activity launches and the user presses the back button.
-
-        // There are two options:
-        //      1. Regular activity - You're starting an Activity that's part of the application's
-        //      normal workflow.
-
-        //      2. Special activity - The user only sees this Activity if it's started from a
-        //      notification. In a sense, the Activity extends the notification by providing
-        //      information that would be hard to display in the notification itself.
-
-        // Even though this sample's MainActivity doesn't link to the Activity this Notification
-        // launches directly, i.e., it isn't part of the normal workflow, a social app generally
-        // always links to individual posts as part of the app flow, so we will follow option 1.
-
-        // For an example of option 2, check out the BIG_TEXT_STYLE example.
-
-        // For more information, check out our dev article:
-        // https://developer.android.com/training/notify-user/navigation.html
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack
-        stackBuilder.addParentStack(BigPictureSocialMainActivity.class);
-        // Adds the Intent to the top of the stack
-        stackBuilder.addNextIntent(mainIntent);
-        // Gets a PendingIntent containing the entire back stack
         PendingIntent mainPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -394,14 +373,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
-        // 3. Set up RemoteInput, so users can input (keyboard and voice) from notification
+        // 3. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice) directly
+        // from the notification without entering the app.
 
-        // Note: For API <24 (M and below) we need to use an Activity, so the lock-screen presents
-        // the auth challenge. For API 24+ (N and above), we use a Service (could be a
-        // BroadcastReceiver), so the user can input from Notification or lock-screen (they have
-        // choice to allow) without leaving the notification.
-
-        // Create the RemoteInput
+        // Create the RemoteInput.
         String replyLabel = getString(R.string.reply_label);
         RemoteInput remoteInput =
                 new RemoteInput.Builder(BigPictureSocialIntentService.EXTRA_COMMENT)
@@ -410,19 +385,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .setChoices(bigPictureStyleSocialAppData.getPossiblePostResponses())
                         .build();
 
-        // Pending intent =
-        //      API <24 (M and below): activity so the lock-screen presents the auth challenge
-        //      API 24+ (N and above): this should be a Service or BroadcastReceiver
-        PendingIntent replyActionPendingIntent;
+        // Create PendingIntent for service that handles input.
+        Intent replyIntent = new Intent(this, BigPictureSocialIntentService.class);
+        replyIntent.setAction(BigPictureSocialIntentService.ACTION_COMMENT);
+        PendingIntent replyActionPendingIntent = PendingIntent.getService(this, 0, replyIntent, 0);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Intent intent = new Intent(this, BigPictureSocialIntentService.class);
-            intent.setAction(BigPictureSocialIntentService.ACTION_COMMENT);
-            replyActionPendingIntent = PendingIntent.getService(this, 0, intent, 0);
-
-        } else {
-            replyActionPendingIntent = mainPendingIntent;
-        }
+        // Enable action to appear inline on Wear 2.0 (24+). This means it will appear over the
+        // lower portion of the Notification for easy action (only possible for one action).
+        final NotificationCompat.Action.WearableExtender inlineActionForWear2 =
+                new NotificationCompat.Action.WearableExtender()
+                        .setHintDisplayActionInline(true)
+                        .setHintLaunchesActivity(false);
 
         NotificationCompat.Action replyAction =
                 new NotificationCompat.Action.Builder(
@@ -430,6 +403,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         replyLabel,
                         replyActionPendingIntent)
                         .addRemoteInput(remoteInput)
+                        // Add WearableExtender to enable inline actions
+                        .extend(inlineActionForWear2)
                         .build();
 
         // 4. Build and issue the notification
@@ -443,13 +418,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         GlobalNotificationBuilder.setNotificationCompatBuilderInstance(notificationCompatBuilder);
 
-        // 4. Build and issue the notification
+        // Build notification
         notificationCompatBuilder
-                // BIG_PICTURE_STYLE sets title and content for API 16 (4.1 and after)
+                // BIG_PICTURE_STYLE sets title and content
                 .setStyle(bigPictureStyle)
-                // Title for API <16 (4.0 and below) devices
                 .setContentTitle(bigPictureStyleSocialAppData.getContentTitle())
-                // Content for API <24 (7.0 and below) devices
                 .setContentText(bigPictureStyleSocialAppData.getContentText())
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(
@@ -459,20 +432,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 // Set primary color (important for Wear 2.0 Notifications)
                 .setColor(getResources().getColor(R.color.colorPrimary))
 
-                // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
-                // devices and all Android Wear devices. If you have more than one notification and
-                // you prefer a different summary notification, set a group key and create a
-                // summary notification via
-                // .setGroupSummary(true)
-                // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
-
                 .setSubText(Integer.toString(1))
                 .addAction(replyAction)
                 .setCategory(Notification.CATEGORY_SOCIAL)
                 .setPriority(Notification.PRIORITY_HIGH)
 
                 // Hides content on the lock-screen
-                .setVisibility(Notification.VISIBILITY_PRIVATE);
+                .setVisibility(Notification.VISIBILITY_PRIVATE)
+                // Notifies system that the main launch intent is an Activity.
+                .extend(new NotificationCompat.WearableExtender()
+                        .setHintContentIntentLaunchesActivity(true));
 
         // If the phone is in "Do not disturb mode, the user will still be notified if
         // the sender(s) is starred as a favorite.
@@ -481,14 +450,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         Notification notification = notificationCompatBuilder.build();
-
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification);
+
+        // Close app to demonstrate notification in steam.
+        finish();
     }
 
     /*
-     * Generates a INBOX_STYLE Notification that supports both phone/tablet and wear. For devices
-     * on API level 16 (4.1.x - Jelly Bean) and after, displays INBOX_STYLE. Otherwise, displays a
-     * basic notification.
+     * Generates a INBOX_STYLE Notification that supports both Wear 1.+ and Wear 2.0.
      */
     private void generateInboxStyleNotification() {
 
@@ -520,32 +489,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // 2. Set up main Intent for notification
         Intent mainIntent = new Intent(this, InboxMainActivity.class);
 
-        // When creating your Intent, you need to take into account the back state, i.e., what
-        // happens after your Activity launches and the user presses the back button.
-
-        // There are two options:
-        //      1. Regular activity - You're starting an Activity that's part of the application's
-        //      normal workflow.
-
-        //      2. Special activity - The user only sees this Activity if it's started from a
-        //      notification. In a sense, the Activity extends the notification by providing
-        //      information that would be hard to display in the notification itself.
-
-        // Even though this sample's MainActivity doesn't link to the Activity this Notification
-        // launches directly, i.e., it isn't part of the normal workflow, a eamil app generally
-        // always links to individual emails as part of the app flow, so we will follow option 1.
-
-        // For an example of option 2, check out the BIG_TEXT_STYLE example.
-
-        // For more information, check out our dev article:
-        // https://developer.android.com/training/notify-user/navigation.html
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack
-        stackBuilder.addParentStack(InboxMainActivity.class);
-        // Adds the Intent to the top of the stack
-        stackBuilder.addNextIntent(mainIntent);
-        // Gets a PendingIntent containing the entire back stack
         PendingIntent mainPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -567,17 +510,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // 4. Build and issue the notification
         notificationCompatBuilder
-
-                // INBOX_STYLE sets title and content for API 16+ (4.1 and after) when the
-                // notification is expanded
+                // INBOX_STYLE sets title and content
                 .setStyle(inboxStyle)
-
-                // Title for API <16 (4.0 and below) devices and API 16+ (4.1 and after) when the
-                // notification is collapsed
                 .setContentTitle(inboxStyleEmailAppData.getContentTitle())
-
-                // Content for API <24 (7.0 and below) devices and API 16+ (4.1 and after) when the
-                // notification is collapsed
                 .setContentText(inboxStyleEmailAppData.getContentText())
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(
@@ -587,21 +522,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 // Set primary color (important for Wear 2.0 Notifications)
                 .setColor(getResources().getColor(R.color.colorPrimary))
 
-                // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
-                // devices and all Android Wear devices. If you have more than one notification and
-                // you prefer a different summary notification, set a group key and create a
-                // summary notification via
-                // .setGroupSummary(true)
-                // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
-
-                // Sets large number at the right-hand side of the notification for API <24 devices
+                // Sets large number at the right-hand side of the notification for Wear 1.+.
                 .setSubText(Integer.toString(inboxStyleEmailAppData.getNumberOfNewEmails()))
 
                 .setCategory(Notification.CATEGORY_EMAIL)
                 .setPriority(Notification.PRIORITY_HIGH)
 
                 // Hides content on the lock-screen
-                .setVisibility(Notification.VISIBILITY_PRIVATE);
+                .setVisibility(Notification.VISIBILITY_PRIVATE)
+                // Notifies system that the main launch intent is an Activity.
+                .extend(new NotificationCompat.WearableExtender()
+                        .setHintContentIntentLaunchesActivity(true));
 
         // If the phone is in "Do not disturb mode, the user will still be notified if
         // the sender(s) is starred as a favorite.
@@ -610,14 +541,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         Notification notification = notificationCompatBuilder.build();
-
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification);
+
+        // Close app to demonstrate notification in steam.
+        finish();
     }
 
     /*
-     * Generates a MESSAGING_STYLE Notification that supports both phone/tablet and wear. For
-     * devices on API level 24 (7.0 - Nougat) and after, displays MESSAGING_STYLE. Otherwise,
-     * displays a basic BIG_TEXT_STYLE.
+     * Generates a MESSAGING_STYLE Notification that supports both Wear 1.+ and Wear 2.0. For
+     * devices on API level 24 (Wear 2.0) and after, displays MESSAGING_STYLE. Otherwise, displays
+     * a basic BIG_TEXT_STYLE.
+     *
+     * IMPORTANT NOTE:
+     * Notification Styles behave slightly different on Wear 2.0 when they are launched by a
+     * native/local Wear app, i.e., they will NOT expand when the user taps them but will instead
+     * take the user directly into the local app for the richest experience. In contrast, a bridged
+     * Notification launched from the phone will expand with the style details (whether there is a
+     * local app or not).
+     *
+     * If you want to enable an action on your Notification without launching the app, you can do so
+     * with the setHintDisplayActionInline() feature (shown below), but this only allows one action.
+     *
+     * If you wish to replicate the original experience of a bridged notification, please review the
+     * generateBigTextStyleNotification() method above to see how.
      */
     private void generateMessagingStyleNotification() {
 
@@ -670,40 +616,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // Adds page with all text to support Wear 1.+.
         NotificationCompat.WearableExtender wearableExtenderForWearVersion1 =
                 new NotificationCompat.WearableExtender()
+                        .setHintContentIntentLaunchesActivity(true)
                         .addPage(chatHistoryForWearV1);
-
-
 
         // 3. Set up main Intent for notification
         Intent notifyIntent = new Intent(this, MessagingMainActivity.class);
 
-        // When creating your Intent, you need to take into account the back state, i.e., what
-        // happens after your Activity launches and the user presses the back button.
-
-        // There are two options:
-        //      1. Regular activity - You're starting an Activity that's part of the application's
-        //      normal workflow.
-
-        //      2. Special activity - The user only sees this Activity if it's started from a
-        //      notification. In a sense, the Activity extends the notification by providing
-        //      information that would be hard to display in the notification itself.
-
-        // Even though this sample's MainActivity doesn't link to the Activity this Notification
-        // launches directly, i.e., it isn't part of the normal workflow, a chat app generally
-        // always links to individual conversations as part of the app flow, so we will follow
-        // option 1.
-
-        // For an example of option 2, check out the BIG_TEXT_STYLE example.
-
-        // For more information, check out our dev article:
-        // https://developer.android.com/training/notify-user/navigation.html
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack
-        stackBuilder.addParentStack(MessagingMainActivity.class);
-        // Adds the Intent to the top of the stack
-        stackBuilder.addNextIntent(notifyIntent);
-        // Gets a PendingIntent containing the entire back stack
         PendingIntent mainPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -713,32 +631,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 );
 
 
-        // 4. Set up RemoteInput, so users can input (keyboard and voice) from notification
+        // 4. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice) directly
+        // from the notification without entering the app.
 
-        // Note: For API <24 (M and below) we need to use an Activity, so the lock-screen present
-        // the auth challenge. For API 24+ (N and above), we use a Service (could be a
-        // BroadcastReceiver), so the user can input from Notification or lock-screen (they have
-        // choice to allow) without leaving the notification.
-
-        // Create the RemoteInput specifying this key
+        // Create the RemoteInput specifying this key.
         String replyLabel = getString(R.string.reply_label);
         RemoteInput remoteInput = new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
                 .setLabel(replyLabel)
                 .build();
 
-        // Pending intent =
-        //      API <24 (M and below): activity so the lock-screen presents the auth challenge
-        //      API 24+ (N and above): this should be a Service or BroadcastReceiver
-        PendingIntent replyActionPendingIntent;
+        // Create PendingIntent for service that handles input.
+        Intent replyIntent = new Intent(this, MessagingIntentService.class);
+        replyIntent.setAction(MessagingIntentService.ACTION_REPLY);
+        PendingIntent replyActionPendingIntent = PendingIntent.getService(this, 0, replyIntent, 0);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Intent intent = new Intent(this, MessagingIntentService.class);
-            intent.setAction(MessagingIntentService.ACTION_REPLY);
-            replyActionPendingIntent = PendingIntent.getService(this, 0, intent, 0);
-
-        } else {
-            replyActionPendingIntent = mainPendingIntent;
-        }
+        // Enable action to appear inline on Wear 2.0 (24+). This means it will appear over the
+        // lower portion of the Notification for easy action (only possible for one action).
+        final NotificationCompat.Action.WearableExtender inlineActionForWear2 =
+                new NotificationCompat.Action.WearableExtender()
+                        .setHintDisplayActionInline(true)
+                        .setHintLaunchesActivity(false);
 
         NotificationCompat.Action replyAction =
                 new NotificationCompat.Action.Builder(
@@ -748,6 +660,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .addRemoteInput(remoteInput)
                         // Allows system to generate replies by context of conversation
                         .setAllowGeneratedReplies(true)
+                        // Add WearableExtender to enable inline actions
+                        .extend(inlineActionForWear2)
                         .build();
 
 
@@ -764,11 +678,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // Builds and issues notification
         notificationCompatBuilder
-                // MESSAGING_STYLE sets title and content for API 24+ (N and above) devices
+                // MESSAGING_STYLE sets title and content for API 24+ (Wear 2.0) devices
                 .setStyle(messagingStyle)
-                // Title for API <24 (M and below) devices
+                // Title for API <24 (Wear 1.+) devices
                 .setContentTitle(contentTitle)
-                // Content for API <24 (M and below) devices
+                // Content for API <24 (Wear 1.+) devices
                 .setContentText(messagingStyleCommsAppData.getContentText())
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(
@@ -778,14 +692,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 // Set primary color (important for Wear 2.0 Notifications)
                 .setColor(getResources().getColor(R.color.colorPrimary))
 
-                // SIDE NOTE: Auto-bundling is enabled for 4 or more notifications on API 24+ (N+)
-                // devices and all Android Wear devices. If you have more than one notification and
-                // you prefer a different summary notification, set a group key and create a
-                // summary notification via
-                // .setGroupSummary(true)
-                // .setGroup(GROUP_KEY_YOUR_NAME_HERE)
-
-                // Number of new notifications for API <24 (M and below) devices
+                // Number of new notifications for API <24 (Wear 1.+) devices
                 .setSubText(Integer.toString(messagingStyleCommsAppData.getNumberOfNewMessages()))
 
                 .addAction(replyAction)
@@ -806,6 +713,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Notification notification = notificationCompatBuilder.build();
         mNotificationManagerCompat.notify(NOTIFICATION_ID, notification);
+
+        // Close app to demonstrate notification in steam.
+        finish();
     }
 
     /**
