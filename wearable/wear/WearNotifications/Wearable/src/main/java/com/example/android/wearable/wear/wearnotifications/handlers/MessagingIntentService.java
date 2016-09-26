@@ -20,18 +20,16 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat.MessagingStyle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.android.wearable.wear.wearnotifications.GlobalNotificationBuilder;
-import com.example.android.wearable.wear.wearnotifications.MainActivity;
 import com.example.android.wearable.wear.wearnotifications.R;
+import com.example.android.wearable.wear.wearnotifications.StandaloneMainActivity;
 import com.example.android.wearable.wear.wearnotifications.mock.MockDatabase;
 
 /**
@@ -122,7 +120,7 @@ public class MessagingIntentService extends IntentService {
             // Pushes out the updated Notification
             NotificationManagerCompat notificationManagerCompat =
                     NotificationManagerCompat.from(getApplicationContext());
-            notificationManagerCompat.notify(MainActivity.NOTIFICATION_ID, notification);
+            notificationManagerCompat.notify(StandaloneMainActivity.NOTIFICATION_ID, notification);
         }
     }
 
@@ -144,7 +142,7 @@ public class MessagingIntentService extends IntentService {
     private NotificationCompat.Builder recreateBuilderWithMessagingStyle() {
 
         // Main steps for building a MESSAGING_STYLE notification (for more detailed comments on
-        // building this notification, check MainActivity.java)::
+        // building this notification, check StandaloneMainActivity.java)::
         //      0. Get your data
         //      1. Build the MESSAGING_STYLE
         //      2. Add support for Wear 1.+
@@ -152,26 +150,25 @@ public class MessagingIntentService extends IntentService {
         //      4. Set up RemoteInput (users can input directly from notification)
         //      5. Build and issue the notification
 
-        // 0. Get your data
-        MockDatabase.MessagingStyleCommsAppData messagingData =
+        // 0. Get your data (everything unique per Notification)
+        MockDatabase.MessagingStyleCommsAppData messagingStyleCommsAppData =
                 MockDatabase.getMessagingStyleData();
 
         // 1. Build the Notification.Style (MESSAGING_STYLE)
-        String contentTitle = messagingData.getContentTitle();
+        String contentTitle = messagingStyleCommsAppData.getContentTitle();
 
         MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle(messagingData.getReplayName())
+                new NotificationCompat.MessagingStyle(messagingStyleCommsAppData.getReplayName())
                         .setConversationTitle(contentTitle);
 
         // Adds all Messages
-        // Note: Messages include the text, timestamp, and sender
-        for (MessagingStyle.Message message : messagingData.getMessages()) {
+        for (MessagingStyle.Message message : messagingStyleCommsAppData.getMessages()) {
             messagingStyle.addMessage(message);
         }
 
 
-        // 2. Add support for Wear 1.+
-        String fullMessageForWearVersion1 = messagingData.getFullConversation();
+        // 2. Add support for Wear 1.+.
+        String fullMessageForWearVersion1 = messagingStyleCommsAppData.getFullConversation();
 
         Notification chatHistoryForWearV1 = new NotificationCompat.Builder(getApplicationContext())
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(fullMessageForWearVersion1))
@@ -180,18 +177,14 @@ public class MessagingIntentService extends IntentService {
                 .setContentText(fullMessageForWearVersion1)
                 .build();
 
+        // Adds page with all text to support Wear 1.+.
         NotificationCompat.WearableExtender wearableExtenderForWearVersion1 =
                 new NotificationCompat.WearableExtender()
+                        .setHintContentIntentLaunchesActivity(true)
                         .addPage(chatHistoryForWearV1);
-
-
 
         // 3. Set up main Intent for notification
         Intent notifyIntent = new Intent(this, MessagingMainActivity.class);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MessagingMainActivity.class);
-        stackBuilder.addNextIntent(notifyIntent);
 
         PendingIntent mainPendingIntent =
                 PendingIntent.getActivity(
@@ -202,22 +195,23 @@ public class MessagingIntentService extends IntentService {
                 );
 
 
-        // 4. Set up RemoteInput, so users can input (keyboard and voice) from notification
+        // 4. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice) directly
+        // from the notification without entering the app.
         String replyLabel = getString(R.string.reply_label);
         RemoteInput remoteInput = new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
                 .setLabel(replyLabel)
                 .build();
 
-        PendingIntent replyActionPendingIntent;
+        Intent replyIntent = new Intent(this, MessagingIntentService.class);
+        replyIntent.setAction(MessagingIntentService.ACTION_REPLY);
+        PendingIntent replyActionPendingIntent = PendingIntent.getService(this, 0, replyIntent, 0);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Intent intent = new Intent(this, MessagingIntentService.class);
-            intent.setAction(MessagingIntentService.ACTION_REPLY);
-            replyActionPendingIntent = PendingIntent.getService(this, 0, intent, 0);
-
-        } else {
-            replyActionPendingIntent = mainPendingIntent;
-        }
+        // Enable action to appear inline on Wear 2.0 (24+). This means it will appear over the
+        // lower portion of the Notification for easy action (only possible for one action).
+        final NotificationCompat.Action.WearableExtender inlineActionForWear2_0 =
+                new NotificationCompat.Action.WearableExtender()
+                        .setHintDisplayActionInline(true)
+                        .setHintLaunchesActivity(false);
 
         NotificationCompat.Action replyAction =
                 new NotificationCompat.Action.Builder(
@@ -227,6 +221,8 @@ public class MessagingIntentService extends IntentService {
                         .addRemoteInput(remoteInput)
                         // Allows system to generate replies by context of conversation
                         .setAllowGeneratedReplies(true)
+                        // Add WearableExtender to enable inline actions
+                        .extend(inlineActionForWear2_0)
                         .build();
 
 
@@ -236,24 +232,25 @@ public class MessagingIntentService extends IntentService {
 
         GlobalNotificationBuilder.setNotificationCompatBuilderInstance(notificationCompatBuilder);
 
+        // Builds and issues notification
         notificationCompatBuilder
                 .setStyle(messagingStyle)
                 .setContentTitle(contentTitle)
-                .setContentText(messagingData.getContentText())
+                .setContentText(messagingStyleCommsAppData.getContentText())
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(BitmapFactory.decodeResource(
                         getResources(),
                         R.drawable.ic_person_black_48dp))
                 .setContentIntent(mainPendingIntent)
                 .setColor(getResources().getColor(R.color.colorPrimary))
-                .setSubText(Integer.toString(messagingData.getNumberOfNewMessages()))
+                .setSubText(Integer.toString(messagingStyleCommsAppData.getNumberOfNewMessages()))
                 .addAction(replyAction)
                 .setCategory(Notification.CATEGORY_MESSAGE)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVisibility(Notification.VISIBILITY_PRIVATE)
                 .extend(wearableExtenderForWearVersion1);
 
-        for (String name : messagingData.getParticipants()) {
+        for (String name : messagingStyleCommsAppData.getParticipants()) {
             notificationCompatBuilder.addPerson(name);
         }
 
