@@ -16,8 +16,6 @@
 -->
 <resources>
 
-<!--
-TODO: Fix in template
--->
+    <style name="AppThemeOverride" parent="Theme.AppCompat.Light" />
 
 </resources>
