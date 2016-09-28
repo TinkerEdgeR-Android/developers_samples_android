@@ -161,6 +161,7 @@ public class Playback implements AudioManager.OnAudioFocusChangeListener,
             MediaMetadata track = mMusicProvider.getMusic(
                     MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
 
+            //noinspection WrongConstant
             String source = track.getString(MusicProvider.CUSTOM_METADATA_TRACK_SOURCE);
 
             try {

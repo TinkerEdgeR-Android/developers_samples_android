@@ -18,6 +18,7 @@ package com.example.android.mediabrowserservice.model;
 
 import android.media.MediaMetadata;
 import android.os.AsyncTask;
+import android.support.v4.media.MediaMetadataCompat;
 
 import com.example.android.mediabrowserservice.utils.LogHelper;
 
@@ -35,6 +36,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -118,9 +120,9 @@ public class MusicProvider {
             return Collections.emptyList();
         }
         ArrayList<MediaMetadata> result = new ArrayList<>();
-        titleQuery = titleQuery.toLowerCase();
+        titleQuery = titleQuery.toLowerCase(Locale.US);
         for (MutableMediaMetadata track : mMusicListById.values()) {
-            if (track.metadata.getString(MediaMetadata.METADATA_KEY_TITLE).toLowerCase()
+            if (track.metadata.getString(MediaMetadata.METADATA_KEY_TITLE).toLowerCase(Locale.US)
                     .contains(titleQuery)) {
                 result.add(track.metadata);
             }
@@ -275,6 +277,7 @@ public class MusicProvider {
         // mediaSession.setMetadata) is not a good idea for a real world music app, because
         // the session metadata can be accessed by notification listeners. This is done in this
         // sample for convenience only.
+        //noinspection WrongConstant
         return new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, id)
                 .putString(CUSTOM_METADATA_TRACK_SOURCE, source)

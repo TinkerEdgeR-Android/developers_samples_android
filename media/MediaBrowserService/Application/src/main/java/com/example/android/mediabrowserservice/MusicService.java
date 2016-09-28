@@ -546,6 +546,7 @@ package com.example.android.mediabrowserservice;
          final String trackId = track.getString(MediaMetadata.METADATA_KEY_MEDIA_ID);
          if (!musicId.equals(trackId)) {
              IllegalStateException e = new IllegalStateException("track ID should match musicId.");
+             //noinspection WrongConstant
              LogHelper.e(TAG, "track ID should match musicId.",
                  " musicId=", musicId, " trackId=", trackId,
                  " mediaId from queueItem=", queueItem.getDescription().getMediaId(),

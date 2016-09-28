@@ -15,6 +15,7 @@
  */
 package com.example.android.mediabrowserservice;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -88,8 +89,9 @@ public class PackageValidator {
     /**
      * @return false if the caller is not authorized to get data from this MediaBrowserService
      */
+    @SuppressLint("PackageManagerGetSignatures")
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isCallerAllowed(Context context, String callingPackage, int callingUid) {
+    boolean isCallerAllowed(Context context, String callingPackage, int callingUid) {
         // Always allow calls from the framework, self app or development environment.
         if (Process.SYSTEM_UID == callingUid || Process.myUid() == callingUid) {
             return true;

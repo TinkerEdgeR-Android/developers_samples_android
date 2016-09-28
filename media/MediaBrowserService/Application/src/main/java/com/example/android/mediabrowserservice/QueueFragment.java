@@ -15,6 +15,7 @@
  */
 package com.example.android.mediabrowserservice;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.media.browse.MediaBrowser;
@@ -22,6 +23,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,10 +58,6 @@ public class QueueFragment extends Fragment {
         @Override
         public void onConnected() {
             LogHelper.d(TAG, "onConnected: session token ", mMediaBrowser.getSessionToken());
-
-            if (mMediaBrowser.getSessionToken() == null) {
-                throw new IllegalArgumentException("No Session token");
-            }
 
             mMediaController = new MediaController(getActivity(),
                     mMediaBrowser.getSessionToken());
@@ -104,10 +102,7 @@ public class QueueFragment extends Fragment {
         }
 
         @Override
-        public void onPlaybackStateChanged(PlaybackState state) {
-            if (state == null) {
-                return;
-            }
+        public void onPlaybackStateChanged(@NonNull PlaybackState state) {
             LogHelper.d(TAG, "Received playback state change to state ", state.getState());
             mPlaybackState = state;
             QueueFragment.this.onPlaybackStateChanged(state);
@@ -185,7 +180,7 @@ public class QueueFragment extends Fragment {
         }
     }
 
-
+    @SuppressLint("SwitchIntDef")
     private void onPlaybackStateChanged(PlaybackState state) {
         LogHelper.d(TAG, "onPlaybackStateChanged ", state);
         if (state == null) {
