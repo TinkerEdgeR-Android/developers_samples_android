@@ -2,11 +2,13 @@
 Android DragAndDropAcrossApps-new Sample
 ===================================
 
-This sample demonstrates how data can be moved between views within an 
-app or between different apps via drag and drop.
-This sample contains two separate Android applications, DragSource and
-DropTarget that show how data can be dragged and dropped between
-two separate apps.
+This sample contains two separate Android applications: DragSource and
+DropTarget. DragSource contains images and text that can be dropped into the DropTarget
+app. Images are shared between the two apps through a URI for which the receiving app
+must request permission first, before it can be used.
+
+It also demonstrates the use of the DragStartHelper from the v13 support library to easily
+handle drag and drop events.
 
 Introduction
 ------------
@@ -48,14 +50,14 @@ until the activity is alive, or until the `release()` method is called on the
 Pre-requisites
 --------------
 
-- Android SDK vandroid-N
-- Android Build Tools v23.0.0
+- Android SDK 24
+- Android Build Tools v24.0.2
 - Android Support Repository
 
 Screenshots
 -------------
 
-<img src="screenshots/app.png" height="400" alt="Screenshot"/> 
+<img src="screenshots/phone.png" height="400" alt="Screenshot"/> <img src="screenshots/tablet.png" height="400" alt="Screenshot"/> 
 
 Getting Started
 ---------------
@@ -78,7 +80,7 @@ submitting a pull request through GitHub. Please see CONTRIBUTING.md for more de
 License
 -------
 
-Copyright 2014 The Android Open Source Project, Inc.
+Copyright 2016 The Android Open Source Project, Inc.
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.  See the NOTICE file distributed with this work for
