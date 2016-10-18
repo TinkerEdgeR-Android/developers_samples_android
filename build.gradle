@@ -118,6 +118,7 @@ List<String> samples = [
 "wearable/wear/WearDrawers",
 "ui/window/DragAndDropAcrossApps",
 "wearable/wear/WearNotifications",
+"system/AppShortcuts",
 ]
 
 List<String> taskNames = [
