@@ -16,7 +16,6 @@
 
 package com.example.android.pdfrendererbasic;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
@@ -33,8 +32,10 @@ import android.widget.Toast;
 import java.io.IOException;
 
 /**
- * This fragment has a big {@ImageView} that shows PDF pages, and 2 {@link android.widget.Button}s to move between
- * pages. We use a {@link android.graphics.pdf.PdfRenderer} to render PDF pages as {@link android.graphics.Bitmap}s.
+ * This fragment has a big {@ImageView} that shows PDF pages, and 2
+ * {@link android.widget.Button}s to move between pages. We use a
+ * {@link android.graphics.pdf.PdfRenderer} to render PDF pages as
+ * {@link android.graphics.Bitmap}s.
  */
 public class PdfRendererBasicFragment extends Fragment implements View.OnClickListener {
 
@@ -73,6 +74,11 @@ public class PdfRendererBasicFragment extends Fragment implements View.OnClickLi
      */
     private Button mButtonNext;
 
+    /**
+     * PDF page index
+     */
+    private int mPageIndex;
+
     public PdfRendererBasicFragment() {
     }
 
@@ -92,35 +98,34 @@ public class PdfRendererBasicFragment extends Fragment implements View.OnClickLi
         // Bind events.
         mButtonPrevious.setOnClickListener(this);
         mButtonNext.setOnClickListener(this);
-        // Show the first page by default.
-        int index = 0;
+
+        mPageIndex = 0;
         // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
         if (null != savedInstanceState) {
-            index = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, 0);
+            mPageIndex = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, 0);
         }
-        showPage(index);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onStart() {
+        super.onStart();
         try {
-            openRenderer(activity);
+            openRenderer(getActivity());
+            showPage(mPageIndex);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(activity, "Error! " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            activity.finish();
+            Toast.makeText(getActivity(), "Error! " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void onDetach() {
+    public void onStop() {
         try {
             closeRenderer();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        super.onDetach();
+        super.onStop();
     }
 
     @Override
@@ -138,7 +143,9 @@ public class PdfRendererBasicFragment extends Fragment implements View.OnClickLi
         // In this sample, we read a PDF from the assets directory.
         mFileDescriptor = context.getAssets().openFd("sample.pdf").getParcelFileDescriptor();
         // This is the PdfRenderer we use to render the PDF.
-        mPdfRenderer = new PdfRenderer(mFileDescriptor);
+        if (mFileDescriptor != null) {
+            mPdfRenderer = new PdfRenderer(mFileDescriptor);
+        }
     }
 
     /**
