@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.actionbarcompat.shareactionprovider.content;
+package com.example.android.shareactionprovider.content;
 
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +33,7 @@ public class ContentItem {
 
     public final int contentType;
     public final int contentResourceId;
-    public final String contentAssetFilePath;
+    private final String mContentAssetFilePath;
 
     /**
      * Creates a ContentItem with the specified type, referencing a resource id.
@@ -44,7 +44,7 @@ public class ContentItem {
     public ContentItem(int type, int resourceId) {
         contentType = type;
         contentResourceId = resourceId;
-        contentAssetFilePath = null;
+        mContentAssetFilePath = null;
     }
 
     /**
@@ -55,7 +55,7 @@ public class ContentItem {
      */
     public ContentItem(int type, String assetFilePath) {
         contentType = type;
-        contentAssetFilePath = assetFilePath;
+        mContentAssetFilePath = assetFilePath;
         contentResourceId = 0;
     }
 
@@ -63,9 +63,9 @@ public class ContentItem {
      * @return Uri to the content
      */
     public Uri getContentUri() {
-        if (!TextUtils.isEmpty(contentAssetFilePath)) {
+        if (!TextUtils.isEmpty(mContentAssetFilePath)) {
             // If this content has an asset, then return a AssetProvider Uri
-            return Uri.parse("content://" + AssetProvider.CONTENT_URI + "/" + contentAssetFilePath);
+            return Uri.parse("content://" + AssetProvider.CONTENT_URI + "/" + mContentAssetFilePath);
         } else {
             return null;
         }
