@@ -39,7 +39,7 @@
         <languages>Java</languages>
         <solutions>Mobile</solutions>
         <level>INTERMEDIATE</level>
-        <icon>screenshots/web-icon.png</icon>
+        <icon>screenshots/icon-web.png</icon>
         <screenshots>
             <img>screenshots/screenshot-1.png</img>
         </screenshots>
@@ -72,6 +72,11 @@ Android 3.2 (API 13).
 
 With this API, you can build messaging apps that accept rich content from any keyboard, as well as
 keyboards that can send rich content to any app.
+
+**Note:** This sample does not have a default Activity. After installing it, you will need to enable
+this app as a keyboard by navigating to *Settings > Languages & Input > Virtual Keyboard > Manage
+Keyboards*. This keyboard can then be accessed by pressing the virtual keyboard icon in the
+lower-right hand corner of the display while in a text field.
 
 [1]: https://android-dot-devsite.googleplex.com/preview/image-keyboard.html
 ]]>
