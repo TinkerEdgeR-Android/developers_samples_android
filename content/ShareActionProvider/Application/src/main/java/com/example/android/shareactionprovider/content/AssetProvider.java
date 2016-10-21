@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.example.android.actionbarcompat.shareactionprovider.content;
+package com.example.android.shareactionprovider.content;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.io.FileNotFoundException;
@@ -41,38 +43,41 @@ public class AssetProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // Do not support delete requests.
         return 0;
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         // Do not support returning the data type
         return null;
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         // Do not support insert requests.
         return null;
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
+            String[] selectionArgs,
             String sortOrder) {
         // Do not support query requests.
         return null;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection,
+            String[] selectionArgs) {
         // Do not support update requests.
         return 0;
     }
 
     @Override
-    public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException {
+    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
+            throws FileNotFoundException {
         // The asset file name should be the last path segment
         final String assetName = uri.getLastPathSegment();
 
@@ -83,7 +88,11 @@ public class AssetProvider extends ContentProvider {
 
         try {
             // Try and return a file descriptor for the given asset name
-            AssetManager am = getContext().getAssets();
+            Context context = getContext();
+            if (context == null) {
+                return super.openAssetFile(uri, mode);
+            }
+            AssetManager am = context.getAssets();
             return am.openFd(assetName);
         } catch (IOException e) {
             e.printStackTrace();

@@ -15,7 +15,7 @@
 */
 package com.example.android.actionbarcompat.shareactionprovider.tests;
 
-import com.example.android.actionbarcompat.shareactionprovider.*;
+import com.example.android.shareactionprovider.MainActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 

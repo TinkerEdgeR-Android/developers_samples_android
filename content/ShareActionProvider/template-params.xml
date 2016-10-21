@@ -15,17 +15,16 @@
  limitations under the License.
 -->
 <sample>
-    <name>ActionBarCompat-ShareActionProvider</name>
+    <name>ShareActionProvider</name>
     <group>UI</group>
-    <package>com.example.android.actionbarcompat.shareactionprovider</package>
+    <package>com.example.android.shareactionprovider</package>
 
-    <minSdk>7</minSdk>
+    <minSdk>9</minSdk>
 
     <strings>
         <intro>
             <![CDATA[
-            This sample shows you how a provide a context-sensitive ShareActionProvider with
-            ActionBarCompat, backwards compatible to API v7.
+            This sample shows you how a provide a context-sensitive ShareActionProvider.
             ]]>
         </intro>
     </strings>
@@ -34,7 +33,7 @@
 
     <metadata>
         <status>PUBLISHED</status>
-        <categories>UI, ActionBar</categories>
+        <categories>UI</categories>
         <technologies>Android</technologies>
         <languages>Java</languages>
         <solutions>Mobile</solutions>
@@ -46,12 +45,10 @@
         </screenshots>
         <api_refs>
             <android>android.support.v7.widget.ShareActionProvider</android>
-            <android>android.support.v7.app.ActionBarActivity</android>
         </api_refs>
         <description>
 <![CDATA[
-This sample shows you how a provide a context-sensitive ShareActionProvider with
-ActionBarCompat, backwards compatible to API v7.
+This sample shows you how a provide a context-sensitive ShareActionProvider.
 ]]>
         </description>
         <intro>
@@ -60,12 +57,8 @@ The sample contains a [`ViewPager`][1] which displays content of differing types
 text. When a new item is selected in the ViewPager, the [`ShareActionProvider`][2] is updated with
 a share intent specific to that content.
 
-This Activity extends from [`ActionBarActivity`][3], which provides all of the function
-necessary to display a compatible Action Bar on devices running Android v2.1+.
-
 [1]: http://developer.android.com/reference/android/support/v4/view/ViewPager.html
 [2]: http://developer.android.com/reference/android/widget/ShareActionProvider.html
-[3]: https://developer.android.com/reference/android/support/v7/app/ActionBarActivity.html
 ]]>
         </intro>
     </metadata>
