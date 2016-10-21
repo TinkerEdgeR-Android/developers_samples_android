@@ -16,8 +16,7 @@
 -->
 
 <!--
-  As we're using ActionBarCompat, any action item attributes come from ActionBarCompat's XML
-  namespace instead of the android namespace. Here we've added a new support namespace added to
+  Here we've added a new support namespace added to
   the menu element allowing us to use the 'showAsAction' attribute in a backwards compatible way.
   Any other action item attributes used should be referenced from this namespace too
   (actionProviderClass, actionViewClass, actionLayout).
@@ -26,7 +25,7 @@
     xmlns:support="http://schemas.android.com/apk/res-auto">
 
     <!--
-      To use ShareActionProvider provided by ActionBarCompat, we reference the class by set the
+      To use ShareActionProvider, we reference the class by set the
       support:actionProviderClass attribute with the full class name of ShareActionProvider.
     -->
     <item
