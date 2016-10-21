@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.example.android.actionbarcompat.shareactionprovider;
+package com.example.android.shareactionprovider;
+
+import com.example.android.shareactionprovider.content.ContentItem;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,8 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.example.android.actionbarcompat.shareactionprovider.content.ContentItem;
 
 import java.util.ArrayList;
 
@@ -43,10 +43,8 @@ import java.util.ArrayList;
  * text. When a new item is selected in the ViewPager, the ShareActionProvider is updated with
  * a share intent specific to that content.
  * <p>
- * This Activity extends from {@link ActionBarActivity}, which provides all of the function
- * necessary to display a compatible Action Bar on devices running Android v2.1+.
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     // The items to be displayed in the ViewPager
     private final ArrayList<ContentItem> mItems = getSampleContent();
@@ -65,7 +63,7 @@ public class MainActivity extends ActionBarActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.viewpager);
 
         // Set an OnPageChangeListener so we are notified when a new item is selected
-        vp.setOnPageChangeListener(mOnPageChangeListener);
+        vp.addOnPageChangeListener(mOnPageChangeListener);
 
         // Finally set the adapter so the ViewPager can display items
         vp.setAdapter(mPagerAdapter);
