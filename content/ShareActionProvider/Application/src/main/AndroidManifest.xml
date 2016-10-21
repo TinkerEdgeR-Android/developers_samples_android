@@ -16,14 +16,12 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.actionbarcompat.shareactionprovider"
+    package="com.example.android.shareactionprovider"
     android:versionCode="1"
     android:versionName="1.0">
 
-    <!--
-        ActionBarCompat provides an Action Bar from API v7 onwards
-    -->
-    <!-- Min/target SDK versions (<uses-sdk>) managed by build.gradle -->
+    <permission android:name="com.example.android.shareactionprovider.ASSET_ACCESS"
+        android:protectionLevel="signature" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -41,11 +39,13 @@
         </activity>
 
         <!-- ContentProvider which serves files from this application's asset folder -->
+        <!-- Allow the access to only the apps having the same signature for security -->
         <provider
             android:name=".content.AssetProvider"
-            android:authorities="com.example.android.actionbarcompat.shareactionprovider"
+            android:authorities="com.example.android.shareactionprovider"
             android:grantUriPermissions="true"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="com.example.android.shareactionprovider.ASSET_ACCESS" />
 
     </application>
 

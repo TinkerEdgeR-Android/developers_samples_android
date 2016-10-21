@@ -23,7 +23,6 @@ List<String> samples = [
 "ui/actionbarcompat/ActionBarCompat-Basic",
 "ui/actionbarcompat/ActionBarCompat-Styled",
 "ui/actionbarcompat/ActionBarCompat-ListPopupMenu",
-"ui/actionbarcompat/ActionBarCompat-ShareActionProvider",
 "notification/BasicNotifications",
 "notification/CustomNotifications",
 "ui/actionbar/DoneBar",
@@ -121,6 +120,7 @@ List<String> samples = [
 "system/AppShortcuts",
 "input/keyboard/CommitContentSampleApp",
 "input/keyboard/CommitContentSampleIME",
+"content/ShareActionProvider",
 ]
 
 List<String> taskNames = [
