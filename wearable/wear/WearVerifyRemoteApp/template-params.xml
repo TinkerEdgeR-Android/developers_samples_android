@@ -41,10 +41,11 @@
 
     <strings>
         <intro>
-            <![CDATA[
-            Introductory text that explains what the sample is intended to demonstrate. Edit
-            in template-params.xml.
-            ]]>
+<![CDATA[
+Sample demonstrates best practices for checking if the remote version of your app is installed on a
+connected device. This enables standalone Android Wear apps to check if the phone app is installed
+and the other way around.
+]]>
         </intro>
     </strings>
     <template src="base" />
@@ -52,7 +53,7 @@
 
     <metadata>
         <!-- Values: {DRAFT | PUBLISHED | INTERNAL | DEPRECATED | SUPERCEDED} -->
-        <status>DRAFT</status>
+        <status>PUBLISHED</status>
         <!-- See http://go/sample-categories for details on the next 4 fields. -->
         <!-- Most samples just need to udpate the Categories field. This is a comma-
              seperated list of topic tags. Unlike the old category system, samples
@@ -63,25 +64,15 @@
         <languages>Java</languages>
         <solutions>Mobile</solutions>
         <!-- Values: {BEGINNER | INTERMEDIATE | ADVANCED | EXPERT} -->
-        <!-- Beginner is for "getting started" type content, or essential content.
-             (e.g. "Hello World", activities, intents)
-
-             Intermediate is for content that covers material a beginner doesn't need
-             to know, but that a skilled developer is expected to know.
-             (e.g. services, basic styles and theming, sync adapters)
-
-             Advanced is for highly technical content geared towards experienced developers.
-             (e.g. performance optimizations, custom views, bluetooth)
-
-             Expert is reserved for highly technical or specialized content, and should
-             be used sparingly. (e.g. VPN clients, SELinux, custom instrumentation runners) -->
-        <level>BEGINNER</level>
+        <level>INTERMEDIATE</level>
         <!-- Dimensions: 512x512, PNG fomrat -->
         <icon>screenshots/icon-web.png</icon>
         <!-- Path to screenshots. Use <img> tags for each. -->
         <screenshots>
-            <img>screenshots/1-main.png</img>
-            <img>screenshots/2-settings.png</img>
+            <img>screenshots/wear-1.png</img>
+            <img>screenshots/wear-2.png</img>
+            <img>screenshots/mobile-1.png</img>
+            <img>screenshots/mobile-2.png</img>
         </screenshots>
         <!-- List of APIs that this sample should be cross-referenced under. Use <android>
         for fully-qualified Framework class names ("android:" namespace).
@@ -89,7 +80,15 @@
         Use <ext> for custom namespaces, if needed. See "Samples Index API" documentation
         for more details. -->
         <api_refs>
-            <android>android.app.ActionBar</android>
+            <android>android.support.wearable.activity.WearableActivity</android>
+            <android>android.support.wearable.view.ConfirmationOverlay</android>
+            <android>com.google.android.gms.common.api.GoogleApiClient</android>
+            <android>com.google.android.gms.wearable.CapabilityApi</android>
+            <android>com.google.android.gms.wearable.CapabilityInfo</android>
+            <android>com.google.android.gms.wearable.Node</android>
+            <android>com.google.android.gms.wearable.Wearable</android>
+            <android>com.google.android.wearable.intent.RemoteIntent</android>
+            <android>com.google.android.wearable.playstore.PlayStoreAvailability</android>
         </api_refs>
 
         <!-- 1-3 line description of the sample here.
@@ -97,22 +96,36 @@
             Avoid simply rearranging the sample's title. What does this sample actually
             accomplish, and how does it do it? -->
         <description>
-            Sample demonstrating how to instantiate an ActionBar on Android, define
-            action items, and set an "up" navigation link. Uses the Support Library
-            for compatibility with pre-3.0 devices.
+<![CDATA[
+Sample demonstrates best practices for checking if connected mobile device has your app installed
+from an Android Wear 2.+ standalone app and the other way around.
+]]>
         </description>
 
         <!-- Multi-paragraph introduction to sample, from an educational point-of-view.
         Makrdown formatting allowed. This will be used to generate a mini-article for the
         sample on DAC. -->
         <intro>
-            Long intro here.
+            <![CDATA[
+Steps for trying out the sample:
+* Compile and install the mobile app onto your mobile device or emulator (for mobile
+scenario).
+* Compile and install the wearable app onto your Wear device or emulator (for Wear
+scenario).
 
-            Multi-paragraph introduction to sample, from an educational point-of-view.
-            *Makrdown* formatting allowed. See [Markdown Documentation][1]
-            for details.
+This sample demonstrate best practices for using PlayStoreAvailability and RemoteIntent to check
+if the mobile version of your app exists from within your Standalone Wear 2.+ app and the other
+way around. Scenarios:
 
-            [1]: http://daringfireball.net/projects/markdown/syntax
+1. Launch Wear standalone app to verify if the mobile version is installed. If it is not, you will
+be able to open the Play Store on the remote mobile device from the app (if it has the Play Store).
+
+2. Launch Mobile app to verify if the Wear version is installed. If it is not, you will
+be able to open the Play Store on the remote Wear device from the app.
+
+Although there are two apps (Mobile and Wear), each should be looked at as a separate, standalone
+apps/experiences.
+]]>
         </intro>
     </metadata>
 </sample>
