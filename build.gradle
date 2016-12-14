@@ -121,6 +121,8 @@ List<String> samples = [
 "input/keyboard/CommitContentSampleApp",
 "input/keyboard/CommitContentSampleIME",
 "content/ShareActionProvider",
+"wearable/wear/WearVerifyRemoteApp",
+"wearable/wear/WearHighBandwidthNetworking",
 ]
 
 List<String> taskNames = [
