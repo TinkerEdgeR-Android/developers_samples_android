@@ -33,10 +33,6 @@
         </intro>
     </strings>
 
-    <aapt>
-        <noCompress>pdf</noCompress>
-    </aapt>
-
     <template src="base"/>
 
     <metadata>
@@ -71,15 +67,8 @@ rendering with [openPage()][3], then call [render()][4] to turn the opened
 [PdfRenderer.Page][5] into a bitmap.
 
 This sample loads the PDF from assets. Contents of assets are compressed by
-default, but we disable it since PdfRenderer class cannot handle it.
-
-```groovy
-android {
-    aaptOptions {
-        noCompress "pdf"
-    }
-}
-```
+default, and the PdfRenderer class cannot open it. In this sample, we work
+around this by copying the file into the cache directory.
 
 [1]: https://developer.android.com/reference/android/graphics/pdf/PdfRenderer.html
 [2]: https://developer.android.com/reference/android/os/ParcelFileDescriptor.html
