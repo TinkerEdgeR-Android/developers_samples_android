@@ -60,7 +60,7 @@ public class BluetoothChatService {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
-    private int state;
+    private int mNewState;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -77,7 +77,7 @@ public class BluetoothChatService {
     public BluetoothChatService(Context context, Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
-        state = mState;
+        mNewState = mState;
         mHandler = handler;
     }
 
@@ -86,11 +86,11 @@ public class BluetoothChatService {
      */
     private synchronized void updateUserInterfaceTitle() {
         mState = getState();
-        Log.d(TAG, "updateUserInterfaceTitle() " + state + " -> " + mState);
-        state = mState;
+        Log.d(TAG, "updateUserInterfaceTitle() " + mNewState + " -> " + mState);
+        mNewState = mState;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget();
     }
 
     /**
@@ -158,8 +158,8 @@ public class BluetoothChatService {
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device, secure);
         mConnectThread.start();
-	// Update UI title
-	updateUserInterfaceTitle();
+        // Update UI title
+        updateUserInterfaceTitle();
     }
 
     /**
@@ -204,8 +204,8 @@ public class BluetoothChatService {
         bundle.putString(Constants.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
-	// Update UI title
-	updateUserInterfaceTitle();
+        // Update UI title
+        updateUserInterfaceTitle();
     }
 
     /**
@@ -234,8 +234,8 @@ public class BluetoothChatService {
             mInsecureAcceptThread = null;
         }
         mState = STATE_NONE;
-	// Update UI title
-	updateUserInterfaceTitle();
+        // Update UI title
+        updateUserInterfaceTitle();
     }
 
     /**
