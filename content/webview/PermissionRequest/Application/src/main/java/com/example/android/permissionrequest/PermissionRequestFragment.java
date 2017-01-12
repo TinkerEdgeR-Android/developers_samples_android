@@ -16,12 +16,15 @@
 
 package com.example.android.permissionrequest;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +40,13 @@ import com.example.android.common.logger.Log;
  * This fragment shows a {@link WebView} and loads a web app from the {@link SimpleWebServer}.
  */
 public class PermissionRequestFragment extends Fragment
-        implements ConfirmationDialogFragment.Listener {
+        implements ConfirmationDialogFragment.Listener, MessageDialogFragment.Listener {
 
     private static final String TAG = PermissionRequestFragment.class.getSimpleName();
 
     private static final String FRAGMENT_DIALOG = "dialog";
+
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
 
     /**
      * We use this web server to serve HTML files in the assets folder. This is because we cannot
@@ -85,13 +90,46 @@ public class PermissionRequestFragment extends Fragment
         final int port = 8080;
         mWebServer = new SimpleWebServer(port, getResources().getAssets());
         mWebServer.start();
-        mWebView.loadUrl("http://localhost:" + port + "/sample.html");
+        // This is for runtime permission on Marshmallow and above; It is not directly related to
+        // PermissionRequest API.
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestCameraPermission();
+        } else {
+            mWebView.loadUrl("http://localhost:" + port + "/sample.html");
+        }
     }
 
     @Override
     public void onPause() {
         mWebServer.stop();
         super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        // This is for runtime permission on Marshmallow and above; It is not directly related to
+        // PermissionRequest API.
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (permissions.length != 1 || grantResults.length != 1 ||
+                    grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Camera permission not granted.");
+            } else if (mWebView != null && mWebServer != null) {
+                mWebView.loadUrl("http://localhost:" + mWebServer.getPort() + "/sample.html");
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void requestCameraPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            MessageDialogFragment.newInstance(R.string.permission_message)
+                    .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+        } else {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -155,6 +193,11 @@ public class PermissionRequestFragment extends Fragment
     };
 
     @Override
+    public void onOkClicked() {
+        requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+    }
+
+    @Override
     public void onConfirmation(boolean allowed) {
         if (allowed) {
             mPermissionRequest.grant(mPermissionRequest.getResources());
@@ -174,7 +217,7 @@ public class PermissionRequestFragment extends Fragment
      * For testing.
      */
     public interface ConsoleMonitor {
-        public void onConsoleMessage(ConsoleMessage message);
+        void onConsoleMessage(ConsoleMessage message);
     }
 
 }
