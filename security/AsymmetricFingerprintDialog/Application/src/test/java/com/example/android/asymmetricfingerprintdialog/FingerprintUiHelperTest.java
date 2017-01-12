@@ -26,6 +26,8 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for {@link FingerprintUiHelper}.
  */
+// Hide lint warnings about missing USE_FINGERPRINT permission that is granted at app install time.
+@SuppressWarnings("MissingPermission")
 @RunWith(MockitoJUnitRunner.class)
 public class FingerprintUiHelperTest {
 
