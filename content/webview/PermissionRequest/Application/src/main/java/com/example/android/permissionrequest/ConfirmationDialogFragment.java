@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.permissionrequest;
 
 import android.app.AlertDialog;
@@ -47,19 +48,19 @@ public class ConfirmationDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String[] resources = getArguments().getStringArray(ARG_RESOURCES);
+        final String[] resources = getArguments().getStringArray(ARG_RESOURCES);
         return new AlertDialog.Builder(getActivity())
                 .setMessage(getString(R.string.confirmation, TextUtils.join("\n", resources)))
                 .setNegativeButton(R.string.deny, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((Listener) getParentFragment()).onConfirmation(false);
+                        ((Listener) getParentFragment()).onConfirmation(false, resources);
                     }
                 })
                 .setPositiveButton(R.string.allow, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((Listener) getParentFragment()).onConfirmation(true);
+                        ((Listener) getParentFragment()).onConfirmation(true, resources);
                     }
                 })
                 .create();
@@ -68,14 +69,15 @@ public class ConfirmationDialogFragment extends DialogFragment {
     /**
      * Callback for the user's response.
      */
-    public interface Listener {
+    interface Listener {
 
         /**
          * Called when the PermissionRequest is allowed or denied by the user.
          *
-         * @param allowed True if the user allowed the request.
+         * @param allowed   True if the user allowed the request.
+         * @param resources The resources to be granted.
          */
-        void onConfirmation(boolean allowed);
+        void onConfirmation(boolean allowed, String[] resources);
     }
 
 }
