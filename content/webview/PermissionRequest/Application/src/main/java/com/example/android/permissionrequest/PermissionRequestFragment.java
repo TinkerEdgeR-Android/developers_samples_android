@@ -72,7 +72,7 @@ public class PermissionRequestFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_permission_request, container, false);
     }
 
@@ -108,7 +108,7 @@ public class PermissionRequestFragment extends Fragment
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+            @NonNull int[] grantResults) {
         // This is for runtime permission on Marshmallow and above; It is not directly related to
         // PermissionRequest API.
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
@@ -148,8 +148,16 @@ public class PermissionRequestFragment extends Fragment
         public void onPermissionRequest(PermissionRequest request) {
             Log.i(TAG, "onPermissionRequest");
             mPermissionRequest = request;
-            ConfirmationDialogFragment.newInstance(request.getResources())
-                    .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+            final String[] requestedResources = request.getResources();
+            for (String r : requestedResources) {
+                if (r.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+                    // In this sample, we only accept video capture request.
+                    ConfirmationDialogFragment
+                            .newInstance(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE})
+                            .show(getChildFragmentManager(), FRAGMENT_DIALOG);
+                    break;
+                }
+            }
         }
 
         // This method is called when the permission request is canceled by the web content.
@@ -198,9 +206,9 @@ public class PermissionRequestFragment extends Fragment
     }
 
     @Override
-    public void onConfirmation(boolean allowed) {
+    public void onConfirmation(boolean allowed, String[] resources) {
         if (allowed) {
-            mPermissionRequest.grant(mPermissionRequest.getResources());
+            mPermissionRequest.grant(resources);
             Log.d(TAG, "Permission granted.");
         } else {
             mPermissionRequest.deny();

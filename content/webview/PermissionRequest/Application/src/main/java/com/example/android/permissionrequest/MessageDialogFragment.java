@@ -54,7 +54,7 @@ public class MessageDialogFragment extends DialogFragment {
                 .create();
     }
 
-    public interface Listener {
+    interface Listener {
         void onOkClicked();
     }
 
