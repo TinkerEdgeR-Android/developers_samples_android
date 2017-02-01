@@ -30,10 +30,6 @@
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
 
-    <dependency_wearable>com.google.android.gms:play-services-wearable:10.0.1</dependency_wearable>
-    <provided_dependency_wearable>com.google.android.wearable:wearable:1.0.0</provided_dependency_wearable>
-    <preview_wearable_support_dependency>com.google.android.support:wearable:2.0.0-beta1</preview_wearable_support_dependency>
-
     <strings>
         <intro>
 <![CDATA[
