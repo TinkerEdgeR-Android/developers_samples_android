@@ -23,18 +23,14 @@
     <!-- change minSdk if needed-->
     <minSdk>23</minSdk>
     <minSdkVersionWear>23</minSdkVersionWear>
-    <targetSdkVersion>24</targetSdkVersion>
-    <targetSdkVersionWear>24</targetSdkVersionWear>
+    <targetSdkVersion>25</targetSdkVersion>
+    <targetSdkVersionWear>25</targetSdkVersionWear>
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>
     </wearable>
 
-    <dependency>com.google.android.support:wearable:2.0.0-beta1</dependency>
-
-    <provided_dependency_wearable>com.google.android.wearable:wearable:1.0.0</provided_dependency_wearable>
-    <preview_wearable_support_dependency>com.google.android.support:wearable:2.0.0-beta1</preview_wearable_support_dependency>
-
+    <dependency>com.google.android.support:wearable:2.0.0</dependency>
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
