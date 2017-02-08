@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 <sample>
-    <name>Wear Notifications</name>
+    <name>WearNotifications</name>
     <group>Wearable</group>
     <package>com.example.android.wearable.wear.wearnotifications</package>
 
