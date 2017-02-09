@@ -18,7 +18,7 @@
 
 
 <sample>
-    <name>Wearable Notifications</name>
+    <name>Notifications</name>
     <group>Wearable</group>
     <package>com.example.android.support.wearable.notifications</package>
 
