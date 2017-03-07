@@ -112,9 +112,7 @@ public class ProvisioningValuesLoader extends AsyncTaskLoader<Map<String, String
     }
 
     private void loadFromFile(HashMap<String, String> values, File file) throws IOException {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while (null != (line = reader.readLine())) {
                 if (line.startsWith("#")) {
@@ -128,10 +126,6 @@ public class ProvisioningValuesLoader extends AsyncTaskLoader<Map<String, String
                 String value = line.substring(position + 1);
                 values.put(key, value);
                 Log.d(TAG, key + "=" + value);
-            }
-        } finally {
-            if (reader != null) {
-                reader.close();
             }
         }
     }
