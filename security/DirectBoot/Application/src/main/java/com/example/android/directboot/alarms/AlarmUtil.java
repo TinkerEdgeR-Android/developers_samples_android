@@ -50,21 +50,22 @@ public class AlarmUtil {
         intent.putExtras(extras);
 
         PendingIntent pendingIntent = PendingIntent
-                .getService(mContext, alarm.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            .getService(mContext, alarm.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar alarmTime = Calendar.getInstance();
         alarmTime.set(Calendar.MONTH, alarm.month);
         alarmTime.set(Calendar.DATE, alarm.date);
         alarmTime.set(Calendar.HOUR_OF_DAY, alarm.hour);
         alarmTime.set(Calendar.MINUTE, alarm.minute);
+        alarmTime.set(Calendar.SECOND, 0);
 
         AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(
-                alarmTime.getTimeInMillis(),
-                pendingIntent);
+            alarmTime.getTimeInMillis(),
+            pendingIntent);
         mAlarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
         Log.i(TAG,
-                String.format("Alarm scheduled at (%2d:%02d) Date: %d, Month: %d",
-                        alarm.hour, alarm.minute,
-                        alarm.month, alarm.date));
+            String.format("Alarm scheduled at (%2d:%02d) Date: %d, Month: %d",
+                alarm.hour, alarm.minute,
+                alarm.month, alarm.date));
     }
 
     /**
@@ -75,7 +76,7 @@ public class AlarmUtil {
     public void cancelAlarm(Alarm alarm) {
         Intent intent = new Intent(mContext, AlarmIntentService.class);
         PendingIntent pendingIntent = PendingIntent
-                .getService(mContext, alarm.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            .getService(mContext, alarm.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mAlarmManager.cancel(pendingIntent);
     }
 
