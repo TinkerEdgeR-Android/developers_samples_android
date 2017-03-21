@@ -69,9 +69,8 @@ DocumentsProvider#query(Uri, String[], Bundle, CancellationSignal) methods are i
 The Bundle accepts the keys for ContentResolver.QUERY_ARG_OFFSET as an starting offset and
 ContentResolver.QUERY_ARG_LIMIT as the number of items included in the returned Cursor object.
 
-Similarly, the returned Cursor object now has a Bundle object obtained by Cursor#getExtras()
-and the Bundle object has the number of total size of the underlying data set, which can be
-retrieved for the ContentResolver#EXTRA_TOTAL_SIZE key.
+Similarly, the returned Cursor object now has a Bundle object obtained by Cursor#getExtras().
+The Bundle is able to include data such as the  total size of the underlying data set.
 
 [1]: https://developer.android.com/reference/android/content/ContentProvider.html
 [2]: https://developer.android.com/reference/android/provider/DocumentsProvider.html
