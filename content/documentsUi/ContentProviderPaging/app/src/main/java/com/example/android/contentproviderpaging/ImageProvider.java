@@ -51,6 +51,11 @@ public class ImageProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
+    // The key name for the value that indicates the total size in a Cursor object.
+    // The value should indicate the total number of the items even if the Cursor only has the part
+    // of the data set by specifying the offset and limit.
+    static final String EXTRA_TOTAL_SIZE = "extra_total_size";
+
     static {
         sUriMatcher.addURI(ImageContract.AUTHORITY, "images", IMAGES);
         sUriMatcher.addURI(ImageContract.AUTHORITY, "images/#", IMAGE_ID);
@@ -106,13 +111,12 @@ public class ImageProvider extends ContentProvider {
             return result;
         }
 
-        for (int i = offset, maxIndex = Math.min(offset + limit, files.length); i < maxIndex;
-                i++) {
+        for (int i = offset, maxIndex = Math.min(offset + limit, files.length); i < maxIndex; i++) {
             includeFile(result, files[i]);
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt(ContentResolver.EXTRA_TOTAL_SIZE, files.length);
+        bundle.putInt(EXTRA_TOTAL_SIZE, files.length);
         result.setExtras(bundle);
         return result;
     }
