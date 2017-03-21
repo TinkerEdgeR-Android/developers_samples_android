@@ -22,7 +22,7 @@
     <package>com.example.android.notificationchannels</package>
 
     <!-- change minSdk if needed-->
-    <minSdk>16</minSdk>
+    <minSdk>21</minSdk>
     <compileSdkVersion>"android-O"</compileSdkVersion>
 
     <!-- Include additional dependencies here.-->
