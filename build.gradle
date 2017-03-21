@@ -123,6 +123,10 @@ List<String> samples = [
 "content/ShareActionProvider",
 "wearable/wear/WearVerifyRemoteApp",
 "wearable/wear/WearHighBandwidthNetworking",
+"content/documentsUi/ContentProviderPaging",
+"notification/NotificationChannels",
+"media/PictureInPicture",
+"input/autofill/AutofillFramework",
 ]
 
 List<String> taskNames = [
