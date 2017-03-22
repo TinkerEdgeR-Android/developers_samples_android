@@ -22,9 +22,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 
-/**
- * Helper method to tint menu item icons.
- */
+/** Helper method to tint menu item icons. */
 public class MenuTinter {
     private MenuTinter() {}
 
