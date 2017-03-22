@@ -17,7 +17,7 @@
 
 <sample>
     <name>DirectBoot</name>
-    <group>Android N Preview</group>  <!-- This field will be deprecated in the future
+    <group>Security</group>  <!-- This field will be deprecated in the future
                             and replaced with the "categories" tags below. -->
     <package>com.example.android.directboot</package>
 
