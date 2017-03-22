@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
+import com.example.android.wearable.wear.messaging.mock.MockDatabase;
 import com.example.android.wearable.wear.messaging.model.Profile;
 import com.example.android.wearable.wear.messaging.util.SharedPreferencesHelper;
 import com.google.android.gms.auth.api.Auth;
@@ -57,6 +58,7 @@ public abstract class GoogleSignedInActivity extends WearableActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setAmbientEnabled();
+        MockDatabase.init(this);
 
         // Try to get the user if they don't exist, return to sign in.
         try {

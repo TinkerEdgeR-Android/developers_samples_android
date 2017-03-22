@@ -23,6 +23,7 @@ import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import com.example.android.wearable.wear.messaging.chatlist.ChatListActivity;
 import com.example.android.wearable.wear.messaging.mock.MockDatabase;
 import com.example.android.wearable.wear.messaging.model.Profile;
 import com.google.android.gms.auth.api.Auth;
@@ -185,8 +186,8 @@ public class SignInActivity extends WearableActivity
             mSignInButton.setEnabled(false);
         }
 
-//        Intent chatActivityIntent = new Intent(this, ChatListActivity.class);
-//        startActivity(chatActivityIntent);
+        Intent chatActivityIntent = new Intent(this, ChatListActivity.class);
+        startActivity(chatActivityIntent);
         finish();
     }
 
