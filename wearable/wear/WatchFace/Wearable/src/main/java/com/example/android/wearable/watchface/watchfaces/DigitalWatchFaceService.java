@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.watchface.watchfaces;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,6 +46,9 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
+
+import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
+import com.example.android.wearable.watchface.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

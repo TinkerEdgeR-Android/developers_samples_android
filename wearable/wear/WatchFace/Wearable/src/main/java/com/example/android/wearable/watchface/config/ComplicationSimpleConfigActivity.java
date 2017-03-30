@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.watchface.config;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -32,6 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService;
+import com.example.android.wearable.watchface.R;
 
 import java.util.ArrayList;
 import java.util.List;
