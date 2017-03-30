@@ -1,4 +1,20 @@
-package com.example.android.wearable.watchface.provider;
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.android.wearable.watchface.providers;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -28,7 +44,6 @@ public class RandomNumberProviderService extends ComplicationProviderService {
     public void onComplicationActivated(
             int complicationId, int dataType, ComplicationManager complicationManager) {
         Log.d(TAG, "onComplicationActivated(): " + complicationId);
-        super.onComplicationActivated(complicationId, dataType, complicationManager);
     }
 
     /*
@@ -103,17 +118,27 @@ public class RandomNumberProviderService extends ComplicationProviderService {
         }
 
         if (complicationData != null) {
+            // In this case, we have the complication id and ask the system to update only that
+            // complication.
+            //
+            // You could also call ProviderUpdateRequester.requestUpdateAll() instead, which
+            // requests that the system call onComplicationUpdate on the specified provider for ALL
+            // active complications using that provider without requiring the id (a bit easier than
+            // tracking complication id throughout app).
             complicationManager.updateComplicationData(complicationId, complicationData);
+
+        } else {
+            // If no data is sent, we still need to inform the ComplicationManager, so the update
+            // job can finish and the wake lock isn't held any longer than necessary.
+            complicationManager.noUpdateRequired(complicationId);
         }
     }
 
     /*
-     * Called when the complication has been deactivated. If you are updating the complication
-     * manager outside of this class with updates, you will want to update your class to stop.
+     * Called when the complication has been deactivated.
      */
     @Override
     public void onComplicationDeactivated(int complicationId) {
         Log.d(TAG, "onComplicationDeactivated(): " + complicationId);
-        super.onComplicationDeactivated(complicationId);
     }
 }
