@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.watchface.config;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +25,9 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
+
+import com.example.android.wearable.watchface.watchfaces.DigitalWatchFaceService;
+import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
 
 import java.util.concurrent.TimeUnit;
 
