@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface;
+package com.example.android.wearable.watchface.config;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -22,13 +22,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.BoxInsetLayout;
 import android.support.wearable.view.CircledImageView;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -39,6 +37,10 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
+
+import com.example.android.wearable.watchface.watchfaces.DigitalWatchFaceService;
+import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
+import com.example.android.wearable.watchface.R;
 
 /**
  * The watch-side config activity for {@link DigitalWatchFaceService}, which allows for setting the
