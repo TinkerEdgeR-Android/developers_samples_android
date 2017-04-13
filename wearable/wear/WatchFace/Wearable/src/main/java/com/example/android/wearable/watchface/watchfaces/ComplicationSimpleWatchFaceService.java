@@ -38,18 +38,16 @@ import android.support.v7.graphics.Palette;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationHelperActivity;
 import android.support.wearable.complications.ComplicationText;
-import android.support.wearable.complications.SystemProviders;
-import android.support.wearable.complications.rendering.TextRenderer;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.SurfaceHolder;
 
 import com.example.android.wearable.watchface.R;
+import com.example.android.wearable.watchface.config.ComplicationSimpleRecyclerViewAdapter;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -61,18 +59,55 @@ import java.util.concurrent.TimeUnit;
 public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "SimpleComplicationWF";
 
-    // Unique IDs for each complication.
-    private static final int LEFT_DIAL_COMPLICATION = 0;
-    private static final int RIGHT_DIAL_COMPLICATION = 1;
+    /**
+     * Used by {@link ComplicationSimpleRecyclerViewAdapter} to request supported complication
+     * locations and types.
+     */
+    public enum ComplicationLocation {
+        LEFT, RIGHT, TOP, BOTTOM
+    }
+
+    // Unique IDs for each complication. The settings activity that supports allowing users
+    // to select their complication data provider requires numbers to be >= 0.
+    private static final int LEFT_COMPLICATION_ID = 0;
+    private static final int RIGHT_COMPLICATION_ID = 1;
 
     // Left and right complication IDs as array for Complication API.
-    public static final int[] COMPLICATION_IDS = {LEFT_DIAL_COMPLICATION, RIGHT_DIAL_COMPLICATION};
+    public static final int[] COMPLICATION_IDS = {LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID};
 
     // Left and right dial supported types.
     public static final int[][] COMPLICATION_SUPPORTED_TYPES = {
             {ComplicationData.TYPE_SHORT_TEXT},
             {ComplicationData.TYPE_SHORT_TEXT}
     };
+
+    // Used by {@link ComplicationSimpleRecyclerViewAdapter} to check if complication location
+    // is supported in settings config activity.
+    public static int getComplicationId(ComplicationLocation complicationLocation) {
+        // Add any other supported locations here.
+        switch (complicationLocation) {
+            case LEFT:
+                return LEFT_COMPLICATION_ID;
+            case RIGHT:
+                return RIGHT_COMPLICATION_ID;
+            default:
+                return -1;
+        }
+    }
+
+    // Used by {@link ComplicationSimpleRecyclerViewAdapter} to see which complication types are
+    // supported in the settings config activity.
+    public static int[] getSupportedComplicationTypes(ComplicationLocation complicationLocation) {
+        // Add any other supported locations here.
+        switch (complicationLocation) {
+            case LEFT:
+                return COMPLICATION_SUPPORTED_TYPES[0];
+            case RIGHT:
+                return COMPLICATION_SUPPORTED_TYPES[1];
+            default:
+                return new int[]{};
+        }
+    }
 
     /*
      * Update rate in milliseconds for interactive mode. We update once a second to advance the
@@ -88,8 +123,8 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
     private class Engine extends CanvasWatchFaceService.Engine {
         private static final int MSG_UPDATE_TIME = 0;
 
-        private static final float COMPLICATION_MAIN_TEXT_SIZE = 38f;
-        private static final float COMPLICATION_SUB_TEXT_SIZE = 34f;
+        private static final float COMPLICATION_TEXT_SIZE = 38f;
+        private static final int COMPLICATION_TAP_BUFFER = 40;
 
         private static final float HOUR_STROKE_WIDTH = 5f;
         private static final float MINUTE_STROKE_WIDTH = 3f;
@@ -126,21 +161,15 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         private Bitmap mBackgroundBitmap;
         private Bitmap mGrayBackgroundBitmap;
 
-        // Renders text for complications in specified bounds (shrinks text in some cases).
-        private TextRenderer mLeftMainTextComplicationRenderer;
-        private TextRenderer mLeftSubTextComplicationRenderer;
-        private TextRenderer mRightMainTextComplicationRenderer;
-        private TextRenderer mRightSubTextComplicationRenderer;
+        // Variables for painting Complications
+        private Paint mComplicationPaint;
 
-        // Holds Paint style for all complications.
-        private TextPaint mComplicationMainTextPaint;
-        private TextPaint mComplicationSubTextPaint;
-
-        // Bounds for the upper (main text) and lower (subtext) areas of the complications.
-        private Rect mLeftComplicationMainTextBounds;
-        private Rect mLeftComplicationSubTextBounds;
-        private Rect mRightComplicationMainTextBounds;
-        private Rect mRightComplicationSubTextBounds;
+        /* To properly place each complication, we need their x and y coordinates. While the width
+         * may change from moment to moment based on the time, the height will not change, so we
+         * store it as a local variable and only calculate it only when the surface changes
+         * (onSurfaceChanged()).
+         */
+        private int mComplicationsY;
 
         /* Maps active complication ids to the data for that complication. Note: Data will only be
          * present if the user has chosen a provider via the settings activity for the watch face.
@@ -150,6 +179,8 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         private boolean mAmbient;
         private boolean mLowBitAmbient;
         private boolean mBurnInProtection;
+
+        private Rect mPeekCardBounds = new Rect();
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -187,33 +218,16 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
 
-            initializeComplicationDefaults();
+            setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationSimpleWatchFaceService.this)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
+                    .setAcceptsTapEvents(true)
+                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+                    .setShowSystemUiTime(false)
+                    .build());
+
             initializeBackground();
             initializeComplication();
             initializeWatchFace();
-        }
-
-        /*
-        * Sets a system provider as the default provider for the specified watch face
-        * complication id.
-        *
-        * To set a non-system provider as a default, or to clear a default,
-        * use setDefaultComplicationProvider(int, ComponentName, int).
-        *
-        * Important Note: Call these methods before initializing your watch face with
-        * setWatchFaceStyle(). In this example, we call setWatchFaceStyle() in the
-        * initializeWatchFace() method called after this method in onCreate().
-        */
-        private void initializeComplicationDefaults() {
-            setDefaultSystemComplicationProvider(
-                    RIGHT_DIAL_COMPLICATION,
-                    SystemProviders.DATE,
-                    ComplicationData.TYPE_SHORT_TEXT);
-
-            setDefaultSystemComplicationProvider(
-                    LEFT_DIAL_COMPLICATION,
-                    SystemProviders.WATCH_BATTERY,
-                    ComplicationData.TYPE_SHORT_TEXT);
         }
 
         private void initializeBackground() {
@@ -228,38 +242,11 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             }
             mActiveComplicationDataSparseArray = new SparseArray<>(COMPLICATION_IDS.length);
 
-            // Both TextPaint objects are used for all complications.
-            mComplicationMainTextPaint = new TextPaint();
-            mComplicationMainTextPaint.setColor(Color.WHITE);
-            mComplicationMainTextPaint.setTextSize(COMPLICATION_MAIN_TEXT_SIZE);
-            mComplicationMainTextPaint.setTypeface(
-                    Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            mComplicationMainTextPaint.setAntiAlias(true);
-
-            mComplicationSubTextPaint = new TextPaint();
-            mComplicationSubTextPaint.setColor(Color.WHITE);
-            mComplicationSubTextPaint.setTextSize(COMPLICATION_SUB_TEXT_SIZE);
-            mComplicationSubTextPaint.setTypeface(
-                    Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-            mComplicationSubTextPaint.setAntiAlias(true);
-
-            // By default, all text is aligned to the center. If you want to change the text
-            // alignment, use setAlignment() on your TextRenderer instance.
-            mLeftMainTextComplicationRenderer = new TextRenderer();
-            mLeftMainTextComplicationRenderer.setGravity(Gravity.BOTTOM);
-            mLeftMainTextComplicationRenderer.setPaint(mComplicationMainTextPaint);
-
-            mLeftSubTextComplicationRenderer = new TextRenderer();
-            mLeftSubTextComplicationRenderer.setGravity(Gravity.TOP);
-            mLeftSubTextComplicationRenderer.setPaint(mComplicationSubTextPaint);
-
-            mRightMainTextComplicationRenderer = new TextRenderer();
-            mRightMainTextComplicationRenderer.setGravity(Gravity.BOTTOM);
-            mRightMainTextComplicationRenderer.setPaint(mComplicationMainTextPaint);
-
-            mRightSubTextComplicationRenderer = new TextRenderer();
-            mRightSubTextComplicationRenderer.setGravity(Gravity.TOP);
-            mRightSubTextComplicationRenderer.setPaint(mComplicationSubTextPaint);
+            mComplicationPaint = new Paint();
+            mComplicationPaint.setColor(Color.WHITE);
+            mComplicationPaint.setTextSize(COMPLICATION_TEXT_SIZE);
+            mComplicationPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            mComplicationPaint.setAntiAlias(true);
 
             setActiveComplications(COMPLICATION_IDS);
         }
@@ -314,10 +301,6 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                             }
                         }
                     });
-
-            setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationSimpleWatchFaceService.this)
-                    .setAcceptsTapEvents(true)
-                    .build());
         }
 
         @Override
@@ -378,13 +361,34 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                         && (complicationData.getType() != ComplicationData.TYPE_NOT_CONFIGURED)
                         && (complicationData.getType() != ComplicationData.TYPE_EMPTY)) {
 
-                    if (mLeftComplicationMainTextBounds.contains(x, y)
-                            || mLeftComplicationSubTextBounds.contains(x, y)) {
-                        return LEFT_DIAL_COMPLICATION;
-                    } else if (mRightComplicationMainTextBounds.contains(x, y)
-                            || mRightComplicationSubTextBounds.contains(x, y)) {
-                        return RIGHT_DIAL_COMPLICATION;
+                    Rect complicationBoundingRect = new Rect(0, 0, 0, 0);
 
+                    switch (COMPLICATION_IDS[i]) {
+                        case LEFT_COMPLICATION_ID:
+                            complicationBoundingRect.set(
+                                    0,                                          // left
+                                    mComplicationsY - COMPLICATION_TAP_BUFFER,  // top
+                                    (mWidth / 2),                               // right
+                                    ((int) COMPLICATION_TEXT_SIZE               // bottom
+                                            + mComplicationsY
+                                            + COMPLICATION_TAP_BUFFER));
+                            break;
+
+                        case RIGHT_COMPLICATION_ID:
+                            complicationBoundingRect.set(
+                                    (mWidth / 2),                               // left
+                                    mComplicationsY - COMPLICATION_TAP_BUFFER,  // top
+                                    mWidth,                                     // right
+                                    ((int) COMPLICATION_TEXT_SIZE               // bottom
+                                            + mComplicationsY
+                                            + COMPLICATION_TAP_BUFFER));
+                            break;
+                    }
+
+                    if (complicationBoundingRect.width() > 0) {
+                        if (complicationBoundingRect.contains(x, y)) {
+                            return COMPLICATION_IDS[i];
+                        }
                     } else {
                         Log.e(TAG, "Not a recognized complication id.");
                     }
@@ -452,17 +456,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             updateWatchHandStyle();
 
             // Updates complication style
-            mComplicationMainTextPaint.setAntiAlias(!inAmbientMode);
-            mComplicationSubTextPaint.setAntiAlias(!inAmbientMode);
-
-            // If the properties of the TextPaint have changed, then the TextRenderer may not be
-            // aware that the layout needs to be updated. In this case, a layout update should be
-            // forced by calling requestUpdateLayout().
-            mLeftMainTextComplicationRenderer.requestUpdateLayout();
-            mLeftSubTextComplicationRenderer.requestUpdateLayout();
-
-            mRightMainTextComplicationRenderer.requestUpdateLayout();
-            mRightSubTextComplicationRenderer.requestUpdateLayout();
+            mComplicationPaint.setAntiAlias(!inAmbientMode);
 
             // Check and trigger whether or not timer should be running (only in active mode).
             updateTimer();
@@ -534,28 +528,11 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             mCenterX = mWidth / 2f;
             mCenterY = mHeight / 2f;
 
-            // Calculates Left and Right complications' bounds for TextRenderer.
-            int top, left, bottom, right = 0;
-            int heightOfComplication = height / 6;
-
-            left = 0;
-            top = (height / 2) - heightOfComplication;
-            right = width / 2;
-            bottom = height / 2;
-            mLeftComplicationMainTextBounds = new Rect(left, top, right, bottom);
-
-            left = right;
-            right = width;
-            mRightComplicationMainTextBounds = new Rect(left, top, right, bottom);
-
-            top = height / 2;
-            bottom = top + heightOfComplication;
-            mRightComplicationSubTextBounds = new Rect(left, top, right, bottom);
-
-            right = left;
-            left = 0;
-            mLeftComplicationSubTextBounds = new Rect(left, top, right, bottom);
-
+            /*
+             * Since the height of the complications text does not change, we only have to
+             * recalculate when the surface changes.
+             */
+            mComplicationsY = (int) ((mHeight / 2) + (mComplicationPaint.getTextSize() / 2));
 
             /*
              * Calculate lengths of different hands based on watch screen size.
@@ -617,6 +594,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawBackground(Canvas canvas) {
+
             if (mAmbient && (mLowBitAmbient || mBurnInProtection)) {
                 canvas.drawColor(Color.BLACK);
             } else if (mAmbient) {
@@ -643,52 +621,47 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                     if (complicationData.getType() == ComplicationData.TYPE_SHORT_TEXT
                             || complicationData.getType() == ComplicationData.TYPE_NO_PERMISSION) {
 
-                        if (COMPLICATION_IDS[i] == LEFT_DIAL_COMPLICATION) {
-                            // Set the text every time you draw, even if the ComplicationData has
-                            // not changed, in case the text includes a time-dependent value.
-                            mLeftMainTextComplicationRenderer.setText(
-                                    ComplicationText.getText(
-                                            getApplicationContext(),
-                                            complicationData.getShortTitle(),
-                                            currentTimeMillis));
+                        ComplicationText mainText = complicationData.getShortText();
+                        ComplicationText subText = complicationData.getShortTitle();
 
-                            mLeftSubTextComplicationRenderer.setText(
-                                    ComplicationText.getText(
-                                            getApplicationContext(),
-                                            complicationData.getShortText(),
-                                            currentTimeMillis));
+                        CharSequence complicationMessage =
+                                mainText.getText(getApplicationContext(), currentTimeMillis);
 
-                            // Assuming both the title and text exist.
-                            mLeftMainTextComplicationRenderer.draw(
-                                    canvas,
-                                    mLeftComplicationMainTextBounds);
-                            mLeftSubTextComplicationRenderer.draw(
-                                    canvas,
-                                    mLeftComplicationSubTextBounds);
-
-                        } else if (COMPLICATION_IDS[i] == RIGHT_DIAL_COMPLICATION) {
-                            // Set the text every time you draw, even if the ComplicationData has
-                            // not changed, in case the text includes a time-dependent value.
-                            mRightMainTextComplicationRenderer.setText(
-                                    ComplicationText.getText(
-                                            getApplicationContext(),
-                                            complicationData.getShortTitle(),
-                                            currentTimeMillis));
-
-                            mRightSubTextComplicationRenderer.setText(
-                                    ComplicationText.getText(
-                                            getApplicationContext(),
-                                            complicationData.getShortText(),
-                                            currentTimeMillis));
-
-                            // Assuming both the title and text exist.
-                            mRightMainTextComplicationRenderer.draw(
-                                    canvas,
-                                    mRightComplicationMainTextBounds);
-                            mRightSubTextComplicationRenderer.draw(
-                                    canvas,
-                                    mRightComplicationSubTextBounds);
+                        /* In most cases you would want the subText (Title) under the
+                         * mainText (Text), but to keep it simple for the code lab, we are
+                         * concatenating them all on one line.
+                         */
+                        if (subText != null) {
+                            complicationMessage = TextUtils.concat(
+                                    complicationMessage,
+                                    " ",
+                                    subText.getText(getApplicationContext(), currentTimeMillis));
                         }
+
+                        //Log.d(TAG, "Com id: " + COMPLICATION_IDS[i] + "\t" + complicationMessage);
+                        double textWidth =
+                                mComplicationPaint.measureText(
+                                        complicationMessage,
+                                        0,
+                                        complicationMessage.length());
+
+                        int complicationsX;
+
+                        if (COMPLICATION_IDS[i] == LEFT_COMPLICATION_ID) {
+                            complicationsX = (int) ((mWidth / 2) - textWidth) / 2;
+                        } else {
+                            // RIGHT_COMPLICATION_ID calculations
+                            int offset = (int) ((mWidth / 2) - textWidth) / 2;
+                            complicationsX = (mWidth / 2) + offset;
+                        }
+
+                        canvas.drawText(
+                                complicationMessage,
+                                0,
+                                complicationMessage.length(),
+                                complicationsX,
+                                mComplicationsY,
+                                mComplicationPaint);
                     }
                 }
             }
@@ -768,6 +741,11 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             /* Restore the canvas' original orientation. */
             canvas.restore();
+
+            /* Draw rectangle behind peek card in ambient mode to improve readability. */
+            if (mAmbient) {
+                canvas.drawRect(mPeekCardBounds, mBackgroundPaint);
+            }
         }
 
         @Override
@@ -785,6 +763,12 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             /* Check and trigger whether or not timer should be running (only in active mode). */
             updateTimer();
+        }
+
+        @Override
+        public void onPeekCardPositionUpdate(Rect rect) {
+            super.onPeekCardPositionUpdate(rect);
+            mPeekCardBounds.set(rect);
         }
 
         private void registerReceiver() {
