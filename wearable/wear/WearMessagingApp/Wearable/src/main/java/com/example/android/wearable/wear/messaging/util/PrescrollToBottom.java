@@ -19,9 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewTreeObserver;
 
-/**
- * Prescrolls to the last element in the adapter before draw and removes itself.
- */
+/** Prescrolls to the last element in the adapter before draw and removes itself. */
 public class PrescrollToBottom implements ViewTreeObserver.OnPreDrawListener {
 
     private static final String TAG = "PrescrollToBottom";
