@@ -43,14 +43,14 @@ public class MockDatabase {
     private static Context mContext;
 
     /** A callback for events when retrieving a user asynchronously */
-    interface RetrieveUserCallback {
+    public interface RetrieveUserCallback {
         void retrieved(Profile user);
 
         void error(Exception e);
     }
 
     /** A callback for getting events during the creation of a user */
-    interface CreateUserCallback {
+    public interface CreateUserCallback {
         void onSuccess();
 
         void onError(Exception e);
