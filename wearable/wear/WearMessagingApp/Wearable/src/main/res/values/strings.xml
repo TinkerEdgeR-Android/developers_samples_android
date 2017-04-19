@@ -38,4 +38,7 @@
     <string name="open_keyboard_input">Open keyboard input</string>
     <string name="wear_messaging_app">Wear Messaging App</string>
     <string name="you_have_no_messages">You have no messages.\nStart a message with the actions below!</string>
+    <string name="google_signin_failed">Google Sign-In Failed.</string>
+    <string name="authentication_failed">Authentication Failed.</string>
+    <string name="connection_failed">Connection failed.</string>
 </resources>
