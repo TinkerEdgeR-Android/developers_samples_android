@@ -41,4 +41,10 @@
     <string name="google_signin_failed">Google Sign-In Failed.</string>
     <string name="authentication_failed">Authentication Failed.</string>
     <string name="connection_failed">Connection failed.</string>
+
+    <string-array name="mock_reply_messages">
+        <item>I like the sound of that!</item>
+        <item>That's a great idea!</item>
+        <item>I do not think so.</item>
+    </string-array>
 </resources>
