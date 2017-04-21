@@ -24,34 +24,34 @@ import android.support.wearable.view.WearableRecyclerView;
 import android.util.Log;
 
 import com.example.android.wearable.watchface.R;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData;
-import com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData;
+import com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService;
 
 /**
- * The watch-side config activity for {@link ComplicationSimpleWatchFaceService}, which
+ * The watch-side config activity for {@link AnalogComplicationWatchFaceService}, which
  * allows for setting the left and right complications of watch face along with the second's marker
  * color, background color, unread notifications toggle, and background complication image.
  */
-public class ComplicationSimpleConfigActivity extends Activity {
+public class AnalogComplicationConfigActivity extends Activity {
 
-    private static final String TAG = ComplicationSimpleConfigActivity.class.getSimpleName();
+    private static final String TAG = AnalogComplicationConfigActivity.class.getSimpleName();
 
     static final int COMPLICATION_CONFIG_REQUEST_CODE = 1001;
     static final int UPDATE_COLORS_CONFIG_REQUEST_CODE = 1002;
 
     private WearableRecyclerView mWearableRecyclerView;
-    private ComplicationSimpleRecyclerViewAdapter mAdapter;
+    private AnalogComplicationConfigRecyclerViewAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_complication_simple_config);
+        setContentView(R.layout.activity_analog_complication_config);
 
-        mAdapter = new ComplicationSimpleRecyclerViewAdapter(
+        mAdapter = new AnalogComplicationConfigRecyclerViewAdapter(
                 getApplicationContext(),
-                ComplicationsSimpleWatchFaceSettingsConfigData.getWatchFaceServiceClass(),
-                ComplicationsSimpleWatchFaceSettingsConfigData.getDataToPopulateAdapter(this));
+                AnalogComplicationConfigData.getWatchFaceServiceClass(),
+                AnalogComplicationConfigData.getDataToPopulateAdapter(this));
 
         mWearableRecyclerView =
                 (WearableRecyclerView) findViewById(R.id.wearable_recycler_view);

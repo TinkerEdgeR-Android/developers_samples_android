@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface.watchfaces;
+package com.example.android.wearable.watchface.watchface;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -43,7 +43,7 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 
 import com.example.android.wearable.watchface.R;
-import com.example.android.wearable.watchface.config.ComplicationSimpleRecyclerViewAdapter;
+import com.example.android.wearable.watchface.config.AnalogComplicationConfigRecyclerViewAdapter;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Demonstrates two simple complications in a watch face.
  */
-public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
+public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "SimpleComplicationWF";
 
     // Unique IDs for each complication. The settings activity that supports allowing users
@@ -69,10 +69,10 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             {ComplicationData.TYPE_SHORT_TEXT}
     };
 
-    // Used by {@link ComplicationSimpleRecyclerViewAdapter} to check if complication location
+    // Used by {@link AnalogComplicationConfigRecyclerViewAdapter} to check if complication location
     // is supported in settings config activity.
     public static int getComplicationId(
-            ComplicationSimpleRecyclerViewAdapter.ComplicationLocation complicationLocation) {
+            AnalogComplicationConfigRecyclerViewAdapter.ComplicationLocation complicationLocation) {
         // Add any other supported locations here.
         switch (complicationLocation) {
             case LEFT:
@@ -84,10 +84,10 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         }
     }
 
-    // Used by {@link ComplicationSimpleRecyclerViewAdapter} to see which complication types are
+    // Used by {@link AnalogComplicationConfigRecyclerViewAdapter} to see which complication types are
     // supported in the settings config activity.
     public static int[] getSupportedComplicationTypes(
-            ComplicationSimpleRecyclerViewAdapter.ComplicationLocation complicationLocation) {
+            AnalogComplicationConfigRecyclerViewAdapter.ComplicationLocation complicationLocation) {
         // Add any other supported locations here.
         switch (complicationLocation) {
             case LEFT:
@@ -224,7 +224,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
 
-            setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationSimpleWatchFaceService.this)
+            setWatchFaceStyle(new WatchFaceStyle.Builder(AnalogComplicationWatchFaceService.this)
                     .setAcceptsTapEvents(true)
                     .build());
 
@@ -460,7 +460,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                     // permission request.
                     ComponentName componentName = new ComponentName(
                             getApplicationContext(),
-                            ComplicationSimpleWatchFaceService.class);
+                            AnalogComplicationWatchFaceService.class);
 
                     Intent permissionRequestIntent =
                             ComplicationHelperActivity.createPermissionRequestHelperIntent(
@@ -856,7 +856,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            ComplicationSimpleWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
+            AnalogComplicationWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
         private void unregisterReceiver() {
@@ -864,7 +864,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredTimeZoneReceiver = false;
-            ComplicationSimpleWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
+            AnalogComplicationWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         /**
