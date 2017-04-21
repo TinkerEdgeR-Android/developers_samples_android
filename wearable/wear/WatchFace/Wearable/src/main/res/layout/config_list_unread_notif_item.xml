@@ -14,16 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
+<Switch
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/unread_notification_switch"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_grey"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp">
-    <android.support.wearable.view.WearableRecyclerView
-        android:id="@+id/wearable_recycler_view"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
-    </android.support.wearable.view.WearableRecyclerView>
-</FrameLayout>
+    style="@style/ButtonConfigurationStyle"
+    android:text="Notification"/>

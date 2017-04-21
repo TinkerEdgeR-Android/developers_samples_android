@@ -22,19 +22,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.graphics.Palette;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationHelperActivity;
 import android.support.wearable.complications.ComplicationText;
@@ -59,18 +55,10 @@ import java.util.concurrent.TimeUnit;
 public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "SimpleComplicationWF";
 
-    /**
-     * Used by {@link ComplicationSimpleRecyclerViewAdapter} to request supported complication
-     * locations and types.
-     */
-    public enum ComplicationLocation {
-        LEFT, RIGHT, TOP, BOTTOM
-    }
-
     // Unique IDs for each complication. The settings activity that supports allowing users
     // to select their complication data provider requires numbers to be >= 0.
-    private static final int LEFT_COMPLICATION_ID = 0;
-    private static final int RIGHT_COMPLICATION_ID = 1;
+    public static final int LEFT_COMPLICATION_ID = 0;
+    public static final int RIGHT_COMPLICATION_ID = 1;
 
     // Left and right complication IDs as array for Complication API.
     public static final int[] COMPLICATION_IDS = {LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID};
@@ -83,7 +71,8 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
     // Used by {@link ComplicationSimpleRecyclerViewAdapter} to check if complication location
     // is supported in settings config activity.
-    public static int getComplicationId(ComplicationLocation complicationLocation) {
+    public static int getComplicationId(
+            ComplicationSimpleRecyclerViewAdapter.ComplicationLocation complicationLocation) {
         // Add any other supported locations here.
         switch (complicationLocation) {
             case LEFT:
@@ -97,7 +86,8 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
     // Used by {@link ComplicationSimpleRecyclerViewAdapter} to see which complication types are
     // supported in the settings config activity.
-    public static int[] getSupportedComplicationTypes(ComplicationLocation complicationLocation) {
+    public static int[] getSupportedComplicationTypes(
+            ComplicationSimpleRecyclerViewAdapter.ComplicationLocation complicationLocation) {
         // Add any other supported locations here.
         switch (complicationLocation) {
             case LEFT:
@@ -148,18 +138,22 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         private float mHourHandLength;
 
         // Colors for all hands (hour, minute, seconds, ticks) based on photo loaded.
-        private int mWatchHandColor;
+        private int mWatchHandAndComplicationsColor;
         private int mWatchHandHighlightColor;
         private int mWatchHandShadowColor;
 
+        private int mBackgroundColor;
+
         private Paint mHourPaint;
         private Paint mMinutePaint;
-        private Paint mSecondPaint;
+        private Paint mSecondAndHighlightPaint;
         private Paint mTickAndCirclePaint;
 
         private Paint mBackgroundPaint;
+
+        /* TODO (jewalker): code to be reused with followup CL for complication Background image.
         private Bitmap mBackgroundBitmap;
-        private Bitmap mGrayBackgroundBitmap;
+        private Bitmap mGrayBackgroundBitmap;*/
 
         // Variables for painting Complications
         private Paint mComplicationPaint;
@@ -180,7 +174,13 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         private boolean mLowBitAmbient;
         private boolean mBurnInProtection;
 
-        private Rect mPeekCardBounds = new Rect();
+        // Used to pull user's preferences for background color, highlight color, and visual
+        // indicating there are unread notifications.
+        SharedPreferences mSharedPref;
+
+        // User's preference for if they want visual shown to indicate unread notifications.
+        private boolean mUnreadNotificationsPreference;
+        private int mNumberOfUnreadNotifications = 0;
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -216,24 +216,62 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             }
             super.onCreate(holder);
 
+            // Used throughout watch face to pull user's preferences.
+            Context context = getApplicationContext();
+            mSharedPref = context.getSharedPreferences(
+                    getString(R.string.analog_complication_preference_file_key),
+                    Context.MODE_PRIVATE);
+
             mCalendar = Calendar.getInstance();
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationSimpleWatchFaceService.this)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setAcceptsTapEvents(true)
-                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
-                    .setShowSystemUiTime(false)
                     .build());
 
+            loadSavedPreferences();
             initializeBackground();
             initializeComplication();
             initializeWatchFace();
         }
 
+        // Pulls all user's preferences for watch face appearance.
+        private void loadSavedPreferences() {
+
+            String backgroundColorResourceName =
+                    getApplicationContext().getString(R.string.saved_background_color);
+
+            mBackgroundColor =
+                    mSharedPref.getInt(backgroundColorResourceName, Color.BLACK);
+
+            String markerColorResourceName =
+                    getApplicationContext().getString(R.string.saved_marker_color);
+
+            // Set defaults for colors
+            mWatchHandHighlightColor = mSharedPref.getInt(markerColorResourceName, Color.RED);
+
+            if (mBackgroundColor == Color.WHITE) {
+                mWatchHandAndComplicationsColor = Color.BLACK;
+                mWatchHandShadowColor = Color.WHITE;
+            } else {
+                mWatchHandAndComplicationsColor = Color.WHITE;
+                mWatchHandShadowColor = Color.BLACK;
+
+            }
+
+            String unreadNotificationPreferenceResourceName =
+                    getApplicationContext().getString(R.string.saved_unread_notifications_pref);
+
+            mUnreadNotificationsPreference =
+                    mSharedPref.getBoolean(unreadNotificationPreferenceResourceName, true);
+        }
+
         private void initializeBackground() {
+
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(Color.BLACK);
-            mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+            mBackgroundPaint.setColor(mBackgroundColor);
+
+            /* TODO(jewalker): code to be reused with followup CL for complication Background image.
+            mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);*/
         }
 
         private void initializeComplication() {
@@ -243,64 +281,63 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             mActiveComplicationDataSparseArray = new SparseArray<>(COMPLICATION_IDS.length);
 
             mComplicationPaint = new Paint();
-            mComplicationPaint.setColor(Color.WHITE);
+            mComplicationPaint.setColor(mWatchHandAndComplicationsColor);
             mComplicationPaint.setTextSize(COMPLICATION_TEXT_SIZE);
             mComplicationPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             mComplicationPaint.setAntiAlias(true);
+            mComplicationPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
 
             setActiveComplications(COMPLICATION_IDS);
         }
 
         private void initializeWatchFace() {
-            /* Set defaults for colors */
-            mWatchHandColor = Color.WHITE;
-            mWatchHandHighlightColor = Color.RED;
-            mWatchHandShadowColor = Color.BLACK;
 
             mHourPaint = new Paint();
-            mHourPaint.setColor(mWatchHandColor);
+            mHourPaint.setColor(mWatchHandAndComplicationsColor);
             mHourPaint.setStrokeWidth(HOUR_STROKE_WIDTH);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
             mHourPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
 
             mMinutePaint = new Paint();
-            mMinutePaint.setColor(mWatchHandColor);
+            mMinutePaint.setColor(mWatchHandAndComplicationsColor);
             mMinutePaint.setStrokeWidth(MINUTE_STROKE_WIDTH);
             mMinutePaint.setAntiAlias(true);
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
             mMinutePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
 
-            mSecondPaint = new Paint();
-            mSecondPaint.setColor(mWatchHandHighlightColor);
-            mSecondPaint.setStrokeWidth(SECOND_TICK_STROKE_WIDTH);
-            mSecondPaint.setAntiAlias(true);
-            mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
-            mSecondPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+            mSecondAndHighlightPaint = new Paint();
+            mSecondAndHighlightPaint.setColor(mWatchHandHighlightColor);
+            mSecondAndHighlightPaint.setStrokeWidth(SECOND_TICK_STROKE_WIDTH);
+            mSecondAndHighlightPaint.setAntiAlias(true);
+            mSecondAndHighlightPaint.setStrokeCap(Paint.Cap.ROUND);
+            mSecondAndHighlightPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
 
             mTickAndCirclePaint = new Paint();
-            mTickAndCirclePaint.setColor(mWatchHandColor);
+            mTickAndCirclePaint.setColor(mWatchHandAndComplicationsColor);
             mTickAndCirclePaint.setStrokeWidth(SECOND_TICK_STROKE_WIDTH);
             mTickAndCirclePaint.setAntiAlias(true);
             mTickAndCirclePaint.setStyle(Paint.Style.STROKE);
             mTickAndCirclePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
 
+
+        /* TODO (jewalker): code to be reused with followup CL for complication Background image.
             // Asynchronous call extract colors from background image to improve watch face style.
             Palette.from(mBackgroundBitmap).generate(
                     new Palette.PaletteAsyncListener() {
                         public void onGenerated(Palette palette) {
-                            /*
+                            *//*
                              * Sometimes, palette is unable to generate a color palette
                              * so we need to check that we have one.
-                             */
+                             *//*
                             if (palette != null) {
                                 Log.d("onGenerated", palette.toString());
-                                mWatchHandColor = palette.getVibrantColor(Color.WHITE);
+                             mWatchHandAndComplicationsColor = palette.getVibrantColor(Color.WHITE);
                                 mWatchHandShadowColor = palette.getDarkMutedColor(Color.BLACK);
-                                updateWatchHandStyle();
+                                updateWatchPaintStyles();
                             }
                         }
-                    });
+                    });*/
         }
 
         @Override
@@ -453,47 +490,57 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             }
             mAmbient = inAmbientMode;
 
-            updateWatchHandStyle();
-
-            // Updates complication style
-            mComplicationPaint.setAntiAlias(!inAmbientMode);
+            updateWatchPaintStyles();
 
             // Check and trigger whether or not timer should be running (only in active mode).
             updateTimer();
         }
 
-        private void updateWatchHandStyle(){
+        private void updateWatchPaintStyles(){
             if (mAmbient){
+
+                mBackgroundPaint.setColor(Color.BLACK);
+
                 mHourPaint.setColor(Color.WHITE);
                 mMinutePaint.setColor(Color.WHITE);
-                mSecondPaint.setColor(Color.WHITE);
+                mSecondAndHighlightPaint.setColor(Color.WHITE);
                 mTickAndCirclePaint.setColor(Color.WHITE);
+                mComplicationPaint.setColor(Color.WHITE);
 
                 mHourPaint.setAntiAlias(false);
                 mMinutePaint.setAntiAlias(false);
-                mSecondPaint.setAntiAlias(false);
+                mSecondAndHighlightPaint.setAntiAlias(false);
                 mTickAndCirclePaint.setAntiAlias(false);
+                mComplicationPaint.setAntiAlias(false);
 
                 mHourPaint.clearShadowLayer();
                 mMinutePaint.clearShadowLayer();
-                mSecondPaint.clearShadowLayer();
+                mSecondAndHighlightPaint.clearShadowLayer();
                 mTickAndCirclePaint.clearShadowLayer();
+                mComplicationPaint.clearShadowLayer();
 
             } else {
-                mHourPaint.setColor(mWatchHandColor);
-                mMinutePaint.setColor(mWatchHandColor);
-                mSecondPaint.setColor(mWatchHandHighlightColor);
-                mTickAndCirclePaint.setColor(mWatchHandColor);
+
+                mBackgroundPaint.setColor(mBackgroundColor);
+
+                mHourPaint.setColor(mWatchHandAndComplicationsColor);
+                mMinutePaint.setColor(mWatchHandAndComplicationsColor);
+                mTickAndCirclePaint.setColor(mWatchHandAndComplicationsColor);
+                mComplicationPaint.setColor(mWatchHandAndComplicationsColor);
+
+                mSecondAndHighlightPaint.setColor(mWatchHandHighlightColor);
 
                 mHourPaint.setAntiAlias(true);
                 mMinutePaint.setAntiAlias(true);
-                mSecondPaint.setAntiAlias(true);
+                mSecondAndHighlightPaint.setAntiAlias(true);
                 mTickAndCirclePaint.setAntiAlias(true);
+                mComplicationPaint.setAntiAlias(true);
 
                 mHourPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
                 mMinutePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
-                mSecondPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+                mSecondAndHighlightPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
                 mTickAndCirclePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+                mComplicationPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
             }
         }
 
@@ -507,7 +554,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                 mMuteMode = inMuteMode;
                 mHourPaint.setAlpha(inMuteMode ? 100 : 255);
                 mMinutePaint.setAlpha(inMuteMode ? 100 : 255);
-                mSecondPaint.setAlpha(inMuteMode ? 80 : 255);
+                mSecondAndHighlightPaint.setAlpha(inMuteMode ? 80 : 255);
                 invalidate();
             }
         }
@@ -543,11 +590,12 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
 
             /* Scale loaded background image (more efficient) if surface dimensions change. */
+            /* TODO (jewalker): code to be reused with followup CL for complication Background image
             float scale = ((float) width) / (float) mBackgroundBitmap.getWidth();
 
             mBackgroundBitmap = Bitmap.createScaledBitmap(mBackgroundBitmap,
                     (int) (mBackgroundBitmap.getWidth() * scale),
-                    (int) (mBackgroundBitmap.getHeight() * scale), true);
+                    (int) (mBackgroundBitmap.getHeight() * scale), true);*/
 
             /*
              * Create a gray version of the image only if it will look nice on the device in
@@ -565,6 +613,8 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void initGrayBackgroundBitmap() {
+
+        /* TODO (jewalker): code to be reused with followup CL for complication Background image.
             mGrayBackgroundBitmap = Bitmap.createBitmap(
                     mBackgroundBitmap.getWidth(),
                     mBackgroundBitmap.getHeight(),
@@ -575,7 +625,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             colorMatrix.setSaturation(0);
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
             grayPaint.setColorFilter(filter);
-            canvas.drawBitmap(mBackgroundBitmap, 0, 0, grayPaint);
+            canvas.drawBitmap(mBackgroundBitmap, 0, 0, grayPaint);*/
         }
 
         @Override
@@ -588,20 +638,42 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             drawBackground(canvas);
             drawComplications(canvas, now);
+            drawUnreadNotificationIcon(canvas);
             drawWatchFace(canvas);
+        }
 
+        private void drawUnreadNotificationIcon(Canvas canvas) {
 
+            if (mUnreadNotificationsPreference && (mNumberOfUnreadNotifications > 0)) {
+                canvas.drawCircle(mWidth / 2, mHeight - 40, 10, mTickAndCirclePaint);
+
+                /*
+                 * Ensure center highlight circle is only drawn in interactive mode. This ensures
+                 * we don't burn the screen with a solid circle in ambient mode.
+                 */
+                if (!mAmbient) {
+                    canvas.drawCircle(mWidth / 2, mHeight - 40, 4, mSecondAndHighlightPaint);
+                }
+            }
         }
 
         private void drawBackground(Canvas canvas) {
 
+
             if (mAmbient && (mLowBitAmbient || mBurnInProtection)) {
                 canvas.drawColor(Color.BLACK);
+
+            } else {
+                canvas.drawColor(mBackgroundColor);
+            }
+
+
+            /* TODO (jewalker): code to be reused with followup CL for complication Background image
             } else if (mAmbient) {
                 canvas.drawBitmap(mGrayBackgroundBitmap, 0, 0, mBackgroundPaint);
             } else {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
-            }
+            }*/
         }
 
         private void drawComplications(Canvas canvas, long currentTimeMillis) {
@@ -730,7 +802,7 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
                         mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
                         mCenterX,
                         mCenterY - mSecondHandLength,
-                        mSecondPaint);
+                        mSecondAndHighlightPaint);
 
             }
             canvas.drawCircle(
@@ -741,11 +813,6 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
 
             /* Restore the canvas' original orientation. */
             canvas.restore();
-
-            /* Draw rectangle behind peek card in ambient mode to improve readability. */
-            if (mAmbient) {
-                canvas.drawRect(mPeekCardBounds, mBackgroundPaint);
-            }
         }
 
         @Override
@@ -753,6 +820,11 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
+
+                // Preferences might have changed since last time watch face was visible.
+                loadSavedPreferences();
+                updateWatchPaintStyles();
+
                 registerReceiver();
                 // Update time zone in case it changed while we weren't visible.
                 mCalendar.setTimeZone(TimeZone.getDefault());
@@ -766,9 +838,16 @@ public class ComplicationSimpleWatchFaceService extends CanvasWatchFaceService {
         }
 
         @Override
-        public void onPeekCardPositionUpdate(Rect rect) {
-            super.onPeekCardPositionUpdate(rect);
-            mPeekCardBounds.set(rect);
+        public void onUnreadCountChanged(int count) {
+            Log.d(TAG, "onUnreadCountChanged(): " + count);
+
+            if (mUnreadNotificationsPreference) {
+
+                if (mNumberOfUnreadNotifications != count) {
+                    mNumberOfUnreadNotifications = count;
+                    invalidate();
+                }
+            }
         }
 
         private void registerReceiver() {
