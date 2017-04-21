@@ -34,7 +34,6 @@
 
     <!-- Location permission used by FitDistanceWatchFaceService -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -43,11 +42,9 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
-
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="true" />
-
+            android:value="true"/>
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
@@ -291,6 +288,7 @@
             android:name=".providers.UpdateComplicationDataService"
             android:exported="false">
         </service>
-    </application>
 
+        <activity android:name=".config.ColorSelectionActivity"/>
+    </application>
 </manifest>
