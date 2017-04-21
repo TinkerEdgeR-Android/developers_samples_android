@@ -29,18 +29,18 @@ import com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatch
 
 /**
  * The watch-side config activity for {@link ComplicationSimpleWatchFaceService}, which
- * allows for setting the left and right complications of watch face along with the marker (watch
- * face arms, ticks) color, unread notifications toggle, and background complication.
+ * allows for setting the left and right complications of watch face along with the second's marker
+ * color, background color, unread notifications toggle, and background complication image.
  */
 public class ComplicationSimpleConfigActivity extends Activity {
 
     private static final String TAG = ComplicationSimpleConfigActivity.class.getSimpleName();
 
-    static final int COMPLICATION_CONFIG_REQUEST_CODE = 888;
+    static final int COMPLICATION_CONFIG_REQUEST_CODE = 1001;
+    static final int UPDATE_COLORS_CONFIG_REQUEST_CODE = 1002;
 
-    private WearableRecyclerView mConfigWearableRecyclerView;
-
-    private ComplicationSimpleRecyclerViewAdapter mWearableRecyclerViewAdapter;
+    private WearableRecyclerView mWearableRecyclerView;
+    private ComplicationSimpleRecyclerViewAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,33 +48,44 @@ public class ComplicationSimpleConfigActivity extends Activity {
 
         setContentView(R.layout.activity_complication_simple_config);
 
-        mWearableRecyclerViewAdapter =
-                new ComplicationSimpleRecyclerViewAdapter(
-                        ComplicationsSimpleWatchFaceSettingsConfigData.getSettingsData());
+        mAdapter = new ComplicationSimpleRecyclerViewAdapter(
+                getApplicationContext(),
+                ComplicationsSimpleWatchFaceSettingsConfigData.getWatchFaceServiceClass(),
+                ComplicationsSimpleWatchFaceSettingsConfigData.getDataToPopulateAdapter(this));
 
-        mConfigWearableRecyclerView =
+        mWearableRecyclerView =
                 (WearableRecyclerView) findViewById(R.id.wearable_recycler_view);
 
         // Aligns the first and last items on the list vertically centered on the screen.
-        mConfigWearableRecyclerView.setCenterEdgeItems(true);
+        mWearableRecyclerView.setCenterEdgeItems(true);
 
         // Improves performance because we know changes in content do not change the layout size of
         // the RecyclerView.
-        mConfigWearableRecyclerView.setHasFixedSize(true);
+        mWearableRecyclerView.setHasFixedSize(true);
 
-        mConfigWearableRecyclerView.setAdapter(mWearableRecyclerViewAdapter);
+        mWearableRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == COMPLICATION_CONFIG_REQUEST_CODE
                 && resultCode == RESULT_OK) {
 
             // Retrieves information for selected Complication provider.
             ComplicationProviderInfo complicationProviderInfo =
                     data.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO);
+            Log.d(TAG, "Provider: " + complicationProviderInfo);
 
-            Log.d(TAG, "Selected Provider: " + complicationProviderInfo);
+            // Updates preview with new complication information for selected complication id.
+            // Note: complication id is saved and tracked in the adapter class.
+            mAdapter.updateSelectedComplication(complicationProviderInfo);
+
+        } else if (requestCode == UPDATE_COLORS_CONFIG_REQUEST_CODE
+                && resultCode == RESULT_OK) {
+
+            // Updates highlight and background colors based on the user preference.
+            mAdapter.updatePreviewColors();
         }
     }
 }
