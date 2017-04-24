@@ -143,7 +143,7 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
     }
 
     /**
-     * Converts time since epoch to Month Date Time
+     * Converts time since epoch to Month Date Time.
      *
      * @param time since epoch
      * @return String formatted in Month Date HH:MM
