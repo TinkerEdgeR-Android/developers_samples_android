@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface.providers;
+package com.example.android.wearable.watchface.provider;
 
 import android.app.PendingIntent;
 import android.content.Intent;

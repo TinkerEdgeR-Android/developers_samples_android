@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.wearable.view.WearableRecyclerView;
 
 import com.example.android.wearable.watchface.R;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData;
 
 /**
  * Allows user to select color for something on the watch face (background, highlight,etc.) and
@@ -41,14 +41,14 @@ public class ColorSelectionActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_color_selection_settings);
+        setContentView(R.layout.activity_color_selection_config);
 
         // Assigns SharedPreference String used to save color selected.
         String sharedPrefString = getIntent().getStringExtra(EXTRA_SHARED_PREF);
 
         mColorSelectionRecyclerViewAdapter = new ColorSelectionRecyclerViewAdapter(
                 sharedPrefString,
-                ComplicationsSimpleWatchFaceSettingsConfigData.getColorOptionsDataSet());
+                AnalogComplicationConfigData.getColorOptionsDataSet());
 
         mConfigAppearanceWearableRecyclerView =
                 (WearableRecyclerView) findViewById(R.id.wearable_recycler_view);

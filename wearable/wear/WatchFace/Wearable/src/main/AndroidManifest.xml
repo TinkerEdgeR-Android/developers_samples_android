@@ -29,15 +29,6 @@
     <!-- Required for complications to receive complication data and open the provider chooser. -->
     <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA"/>
 
-    <!-- Calendar permission used by CalendarWatchFaceService -->
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
-
-    <!-- Location permission used by FitDistanceWatchFaceService -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -54,30 +45,7 @@
             android:required="false"/>
 
         <service
-            android:name=".watchfaces.AnalogWatchFaceService"
-            android:label="@string/analog_name"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_analog"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_analog_circular"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                android:value="com.example.android.wearable.watchface.CONFIG_ANALOG"/>
-
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService"/>
-
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
-            </intent-filter>
-        </service>
-        <service
-            android:name=".watchfaces.OpenGLWatchFaceService"
+            android:name=".watchface.OpenGLWatchFaceService"
             android:label="@string/opengl_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
@@ -100,19 +68,19 @@
             </intent-filter>
         </service>
         <service
-            android:name=".watchfaces.ComplicationSimpleWatchFaceService"
+            android:name=".watchface.AnalogComplicationWatchFaceService"
             android:enabled="true"
-            android:label="@string/complication_simple"
+            android:label="@string/analog_complication"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_complication_simple"/>
+                android:resource="@drawable/preview_analog_complication"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_complication_simple"/>
+                android:resource="@drawable/preview_analog_complication_circular"/>
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="com.example.android.wearable.watchface.CONFIG_COMPLICATION_SIMPLE"/>
@@ -126,8 +94,8 @@
 
         <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
         <activity
-            android:name=".config.ComplicationSimpleConfigActivity"
-            android:label="@string/complication_simple">
+            android:name=".config.AnalogComplicationConfigActivity"
+            android:label="@string/analog_complication_config">
             <intent-filter>
                 <action android:name="com.example.android.wearable.watchface.CONFIG_COMPLICATION_SIMPLE"/>
 
@@ -137,7 +105,7 @@
         </activity>
 
         <service
-            android:name=".watchfaces.InteractiveWatchFaceService"
+            android:name=".watchface.InteractiveWatchFaceService"
             android:label="@string/interactive_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
@@ -158,7 +126,7 @@
         </service>
 
         <service
-            android:name=".watchfaces.DigitalWatchFaceService"
+            android:name=".watchface.DigitalWatchFaceService"
             android:label="@string/digital_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
@@ -211,52 +179,9 @@
                     android:scheme="wear"/>
             </intent-filter>
         </service>
-        <service
-            android:name=".watchfaces.FitDistanceWatchFaceService"
-            android:label="@string/fit_distance_name"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_distance"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_distance_circular"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                android:value="com.example.android.wearable.watchface.CONFIG_FIT_DISTANCE"/>
-
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService"/>
-
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
-            </intent-filter>
-        </service>
-        <service
-            android:name=".watchfaces.FitStepsWatchFaceService"
-            android:label="@string/fit_steps_name"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_fit"/>
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_fit_circular"/>
-
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService"/>
-
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
-            </intent-filter>
-        </service>
 
         <service
-            android:name=".providers.RandomNumberProviderService"
+            android:name=".provider.RandomNumberProviderService"
             android:icon="@drawable/ic_launcher"
             android:label="@string/complications_provider_random_number"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
@@ -285,7 +210,7 @@
                 android:value="600"/>
         </service>
         <service
-            android:name=".providers.UpdateComplicationDataService"
+            android:name=".provider.UpdateComplicationDataService"
             android:exported="false">
         </service>
 
