@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface.watchfaces;
+package com.example.android.wearable.watchface.watchface;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;

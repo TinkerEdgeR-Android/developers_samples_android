@@ -15,10 +15,10 @@
 -->
 <resources>
     <string name="app_name">WatchFace</string>
+
     <string name="opengl_name">Sample OpenGL</string>
     <string name="interactive_name">Sample Interactive</string>
-    <string name="analog_name">Sample Analog</string>
-    <string name="complication_simple">Sample Complication</string>
+    <string name="analog_complication">Sample Analog with Complications</string>
     <string name="digital_name">Sample Digital</string>
 
     <string name="digital_background_color">Background color</string>
@@ -26,15 +26,9 @@
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
 
-    <string name="fit_steps_name">Sample Fit Steps</string>
-    <string name="fit_distance_name">Sample Fit Distance</string>
-    <string name="fit_am">AM</string>
-    <string name="fit_pm">PM</string>
-    <string name="fit_steps">%1$d steps</string>
-    <string name="fit_distance">%1$,.2f meters</string>
 
 
-    <string name="complication_simple_config_name">Configuration</string>
+    <string name="analog_complication_config_name">Configuration</string>
     <string name="complications_provider_random_number">Random Number</string>
 
     <string name="analog_complication_preference_file_key">com.example.android.wearable.watchface.ANALOG_COMPLICATION_PREFERENCE_FILE_KEY</string>
@@ -56,6 +50,7 @@
     <string name="color_navy">Navy</string>
     <string name="color_red">Red</string>
     <string name="color_white">White</string>
+    <string name="analog_complication_config">Analog Complication Config</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
