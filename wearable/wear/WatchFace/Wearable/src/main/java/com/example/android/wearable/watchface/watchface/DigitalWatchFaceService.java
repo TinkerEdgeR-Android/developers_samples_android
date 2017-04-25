@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface.watchfaces;
+package com.example.android.wearable.watchface.watchface;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,7 +47,7 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
-import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
+import com.example.android.wearable.watchface.util.DigitalWatchFaceUtil;
 import com.example.android.wearable.watchface.R;
 
 import java.text.SimpleDateFormat;

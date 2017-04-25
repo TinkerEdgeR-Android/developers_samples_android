@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.wearable.watchface.models;
+package com.example.android.wearable.watchface.model;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -21,19 +21,19 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.android.wearable.watchface.R;
+import com.example.android.wearable.watchface.config.AnalogComplicationConfigRecyclerViewAdapter;
 import com.example.android.wearable.watchface.config.ColorSelectionActivity;
-import com.example.android.wearable.watchface.config.ComplicationSimpleConfigActivity;
-import com.example.android.wearable.watchface.config.ComplicationSimpleRecyclerViewAdapter;
-import com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService;
+import com.example.android.wearable.watchface.config.AnalogComplicationConfigActivity;
+import com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService;
 
 import java.util.ArrayList;
 
 /**
  * Data represents different views for configuring the
- * {@link ComplicationSimpleWatchFaceService} watch face's appearance and complications
- * via {@link ComplicationSimpleConfigActivity}.
+ * {@link AnalogComplicationWatchFaceService} watch face's appearance and complications
+ * via {@link AnalogComplicationConfigActivity}.
  */
-public class ComplicationsSimpleWatchFaceSettingsConfigData {
+public class AnalogComplicationConfigData {
 
 
     /**
@@ -48,7 +48,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
      * Returns Watch Face Service class associated with configuration Activity.
      */
     public static Class getWatchFaceServiceClass() {
-        return ComplicationSimpleWatchFaceService.class;
+        return AnalogComplicationWatchFaceService.class;
     }
 
     /**
@@ -88,7 +88,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
     /**
      * Includes all data to populate each of the 5 different custom
-     * {@link ViewHolder} types in {@link ComplicationSimpleRecyclerViewAdapter}.
+     * {@link ViewHolder} types in {@link AnalogComplicationConfigRecyclerViewAdapter}.
      */
     public static ArrayList<ConfigItemType> getDataToPopulateAdapter(Context context) {
 
@@ -159,7 +159,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
         @Override
         public int getConfigType() {
-            return ComplicationSimpleRecyclerViewAdapter.TYPE_PREVIEW_AND_COMPLICATIONS_CONFIG;
+            return AnalogComplicationConfigRecyclerViewAdapter.TYPE_PREVIEW_AND_COMPLICATIONS_CONFIG;
         }
     }
 
@@ -180,7 +180,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
         @Override
         public int getConfigType() {
-            return ComplicationSimpleRecyclerViewAdapter.TYPE_MORE_OPTIONS;
+            return AnalogComplicationConfigRecyclerViewAdapter.TYPE_MORE_OPTIONS;
         }
     }
 
@@ -223,7 +223,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
         @Override
         public int getConfigType() {
-            return ComplicationSimpleRecyclerViewAdapter.TYPE_COLOR_CONFIG;
+            return AnalogComplicationConfigRecyclerViewAdapter.TYPE_COLOR_CONFIG;
         }
     }
 
@@ -266,7 +266,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
         @Override
         public int getConfigType() {
-            return ComplicationSimpleRecyclerViewAdapter.TYPE_UNREAD_NOTIFICATION_CONFIG;
+            return AnalogComplicationConfigRecyclerViewAdapter.TYPE_UNREAD_NOTIFICATION_CONFIG;
         }
     }
 
@@ -296,7 +296,7 @@ public class ComplicationsSimpleWatchFaceSettingsConfigData {
 
         @Override
         public int getConfigType() {
-            return ComplicationSimpleRecyclerViewAdapter.TYPE_BACKGROUND_COMPLICATION_IMAGE_CONFIG;
+            return AnalogComplicationConfigRecyclerViewAdapter.TYPE_BACKGROUND_COMPLICATION_IMAGE_CONFIG;
         }
     }
 }
