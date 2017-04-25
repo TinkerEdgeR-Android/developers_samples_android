@@ -26,8 +26,8 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
-import com.example.android.wearable.watchface.watchfaces.DigitalWatchFaceService;
-import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
+import com.example.android.wearable.watchface.watchface.DigitalWatchFaceService;
+import com.example.android.wearable.watchface.util.DigitalWatchFaceUtil;
 
 import java.util.concurrent.TimeUnit;
 

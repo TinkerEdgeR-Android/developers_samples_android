@@ -17,9 +17,9 @@
 package com.example.android.wearable.watchface.config;
 
 import static com.example.android.wearable.watchface.config.ColorSelectionActivity.EXTRA_SHARED_PREF;
-import static com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService.COMPLICATION_IDS;
-import static com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService.LEFT_COMPLICATION_ID;
-import static com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService.RIGHT_COMPLICATION_ID;
+import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.COMPLICATION_IDS;
+import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.LEFT_COMPLICATION_ID;
+import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.RIGHT_COMPLICATION_ID;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -47,14 +47,14 @@ import android.widget.ImageView;
 import android.widget.Switch;
 
 import com.example.android.wearable.watchface.R;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.BackgroundComplicationConfigItem;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.ColorConfigItem;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.ConfigItemType;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.PreviewAndComplicationsConfigItem;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.MoreOptionsConfigItem;
-import com.example.android.wearable.watchface.models.ComplicationsSimpleWatchFaceSettingsConfigData.UnreadNotificationConfigItem;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.BackgroundComplicationConfigItem;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.ColorConfigItem;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.ConfigItemType;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.PreviewAndComplicationsConfigItem;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.MoreOptionsConfigItem;
+import com.example.android.wearable.watchface.model.AnalogComplicationConfigData.UnreadNotificationConfigItem;
 
-import com.example.android.wearable.watchface.watchfaces.ComplicationSimpleWatchFaceService;
+import com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -79,13 +79,13 @@ import java.util.concurrent.Executors;
  * <p>
  * Background image complication configuration for changing background image of watch face.
  */
-public class ComplicationSimpleRecyclerViewAdapter extends
+public class AnalogComplicationConfigRecyclerViewAdapter extends
         RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "CompConfigAdapter";
 
     /**
-     * Used by associated watch face ({@link ComplicationSimpleWatchFaceService}) to let this
+     * Used by associated watch face ({@link AnalogComplicationWatchFaceService}) to let this
      * adapter know which complication locations are supported, their ids, and supported
      * complication data types.
      */
@@ -119,7 +119,7 @@ public class ComplicationSimpleRecyclerViewAdapter extends
     // notifyItemChanged(int position) to avoid flicker and re-inflating the view.
     private PreviewAndComplicationsViewHolder mPreviewAndComplicationsViewHolder;
 
-    public ComplicationSimpleRecyclerViewAdapter(
+    public AnalogComplicationConfigRecyclerViewAdapter(
             Context context,
             Class watchFaceServiceClass,
             ArrayList<ConfigItemType> settingsDataSet) {
@@ -410,18 +410,18 @@ public class ComplicationSimpleRecyclerViewAdapter extends
                 ComplicationLocation complicationLocation) {
 
             mSelectedComplicationId =
-                    ComplicationSimpleWatchFaceService.getComplicationId(complicationLocation);
+                    AnalogComplicationWatchFaceService.getComplicationId(complicationLocation);
 
             if (mSelectedComplicationId >= 0) {
 
-                int[] supportedTypes = ComplicationSimpleWatchFaceService
+                int[] supportedTypes = AnalogComplicationWatchFaceService
                         .getSupportedComplicationTypes(complicationLocation);
 
                 if (supportedTypes.length > 0) {
 
                     ComponentName watchFace = new ComponentName(
                             currentActivity,
-                            ComplicationSimpleWatchFaceService.class);
+                            AnalogComplicationWatchFaceService.class);
 
                     currentActivity.startActivityForResult(
                             ComplicationHelperActivity.createProviderChooserHelperIntent(
@@ -429,7 +429,7 @@ public class ComplicationSimpleRecyclerViewAdapter extends
                                     watchFace,
                                     mSelectedComplicationId,
                                     supportedTypes),
-                            ComplicationSimpleConfigActivity.COMPLICATION_CONFIG_REQUEST_CODE);
+                            AnalogComplicationConfigActivity.COMPLICATION_CONFIG_REQUEST_CODE);
                 } else {
                     Log.d(TAG, "Complication has no supported types.");
                 }
@@ -574,7 +574,7 @@ public class ComplicationSimpleRecyclerViewAdapter extends
                 Activity activity = (Activity) view.getContext();
                 activity.startActivityForResult(
                         launchIntent,
-                        ComplicationSimpleConfigActivity.UPDATE_COLORS_CONFIG_REQUEST_CODE);
+                        AnalogComplicationConfigActivity.UPDATE_COLORS_CONFIG_REQUEST_CODE);
             }
         }
     }
