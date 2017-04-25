@@ -26,10 +26,8 @@
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
 
-
-
     <string name="analog_complication_config_name">Configuration</string>
-    <string name="complications_provider_random_number">Random Number</string>
+    <string name="complications_provider_incrementing_number">Incrementing Number</string>
 
     <string name="analog_complication_preference_file_key">com.example.android.wearable.watchface.ANALOG_COMPLICATION_PREFERENCE_FILE_KEY</string>
     <string name="saved_marker_color">saved_markers_color</string>

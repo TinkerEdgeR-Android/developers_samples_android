@@ -17,21 +17,24 @@
 package com.example.android.wearable.watchface.provider;
 
 import android.app.PendingIntent;
-import android.content.Intent;
+import android.content.ComponentName;
+import android.content.SharedPreferences;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationManager;
 import android.support.wearable.complications.ComplicationProviderService;
 import android.support.wearable.complications.ComplicationText;
 import android.util.Log;
 
+import com.example.android.wearable.watchface.provider.ComplicationToggleReceiver;
+
 import java.util.Locale;
 
 /**
- * Example Watch Face Complication data provider provides a random number on every update.
+ * Example Watch Face Complication data provider provides a number that can be incremented on tap.
  */
-public class RandomNumberProviderService extends ComplicationProviderService {
+public class IncrementingNumberComplicationProviderService extends ComplicationProviderService {
 
-    private static final String TAG = "RandomNumberProvider";
+    private static final String TAG = "ComplicationProvider";
 
     /*
      * Called when a complication has been activated. The method is for any one-time
@@ -61,55 +64,48 @@ public class RandomNumberProviderService extends ComplicationProviderService {
             int complicationId, int dataType, ComplicationManager complicationManager) {
         Log.d(TAG, "onComplicationUpdate() id: " + complicationId);
 
-
-        // Retrieve your data, in this case, we simply create a random number to display.
-        int randomNumber = (int) Math.floor(Math.random() * 10);
-
-        String randomNumberText =
-                String.format(Locale.getDefault(), "%d!", randomNumber);
-
         // Create Tap Action so that the user can trigger an update by tapping the complication.
-        Intent updateIntent =
-                new Intent(getApplicationContext(), UpdateComplicationDataService.class);
-        updateIntent.setAction(UpdateComplicationDataService.ACTION_UPDATE_COMPLICATION);
+        ComponentName thisProvider = new ComponentName(this, getClass());
         // We pass the complication id, so we can only update the specific complication tapped.
-        updateIntent.putExtra(UpdateComplicationDataService.EXTRA_COMPLICATION_ID, complicationId);
+        PendingIntent complicationTogglePendingIntent =
+                ComplicationToggleReceiver.getToggleIntent(this, thisProvider, complicationId);
 
-        PendingIntent pendingIntent = PendingIntent.getService(
-                getApplicationContext(),
-                // Set the requestCode to the complication id. This ensures the system doesn't
-                // combine other PendingIntents with the same context with this one (basically it
-                // would then reuse the Extra you set in the initial PendingIntent). If you don't
-                // do this and multiple complications with your data are active, every PendingIntent
-                // assigned for tap, would use the same complication id (first one created).
-                complicationId,
-                updateIntent,
-                0);
+        // Retrieves your data, in this case, we grab an incrementing number from SharedPrefs.
+        SharedPreferences preferences =
+                getSharedPreferences(
+                        ComplicationToggleReceiver.COMPLICATION_PROVIDER_PREFERENCES_FILE_KEY, 0);
+        int number =
+                preferences.getInt(
+                        ComplicationToggleReceiver.getPreferenceKey(thisProvider, complicationId),
+                        0);
+        String numberText = String.format(Locale.getDefault(), "%d!", number);
 
         ComplicationData complicationData = null;
 
         switch (dataType) {
             case ComplicationData.TYPE_RANGED_VALUE:
-                complicationData = new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
-                        .setValue(randomNumber)
-                        .setMinValue(0)
-                        .setMaxValue(10)
-                        .setShortText(ComplicationText.plainText(randomNumberText))
-                        .setTapAction(pendingIntent)
-                        .build();
+                complicationData =
+                        new ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
+                                .setValue(number)
+                                .setMinValue(0)
+                                .setMaxValue(ComplicationToggleReceiver.MAX_NUMBER)
+                                .setShortText(ComplicationText.plainText(numberText))
+                                .setTapAction(complicationTogglePendingIntent)
+                                .build();
                 break;
             case ComplicationData.TYPE_SHORT_TEXT:
-                complicationData = new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortText(ComplicationText.plainText(randomNumberText))
-                        .setTapAction(pendingIntent)
-                        .build();
+                complicationData =
+                        new ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                                .setShortText(ComplicationText.plainText(numberText))
+                                .setTapAction(complicationTogglePendingIntent)
+                                .build();
                 break;
             case ComplicationData.TYPE_LONG_TEXT:
-                complicationData = new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                        .setLongText(
-                                ComplicationText.plainText("Random Number: " + randomNumberText))
-                        .setTapAction(pendingIntent)
-                        .build();
+                complicationData =
+                        new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                                .setLongText(ComplicationText.plainText("Number: " + numberText))
+                                .setTapAction(complicationTogglePendingIntent)
+                                .build();
                 break;
             default:
                 if (Log.isLoggable(TAG, Log.WARN)) {
