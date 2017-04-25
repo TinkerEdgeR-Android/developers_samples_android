@@ -181,9 +181,9 @@
         </service>
 
         <service
-            android:name=".provider.RandomNumberProviderService"
-            android:icon="@drawable/ic_launcher"
-            android:label="@string/complications_provider_random_number"
+            android:name=".provider.IncrementingNumberComplicationProviderService"
+            android:icon="@drawable/icn_complications"
+            android:label="@string/complications_provider_incrementing_number"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
@@ -194,25 +194,23 @@
                 android:value="RANGED_VALUE,SHORT_TEXT,LONG_TEXT"/>
             <!--
             When your complication data provider is active, UPDATE_PERIOD_SECONDS specifies how
-            often you want the system to check for updates to the data. In this case, the time is
-            specified to 600 seconds (10 minutes).
+            often you want the system to check for updates to the data.
 
-            In general, you want to set this value high and manually trigger updates only when your
-            complication data actually changes via ProviderUpdateRequester (check
-            UpdateComplicationDataService.java for an example).
+            In general, you want to manually trigger updates only when your complication data
+            actually changes via ProviderUpdateRequester (check UpdateComplicationDataService.java
+            for an example).
 
-            In everyday use, developers should consider intervals in the order of minutes.
+            If you do decide to use UPDATE_PERIOD_SECONDS, set the interval in the order of minutes.
+            A good value might be 600 seconds (10 minutes) if you need updates pulled often.
+
             Also, remember that this is only a guidance for the system. Android Wear may update less
             frequently.
             -->
             <meta-data
                 android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-                android:value="600"/>
+                android:value="0"/>
         </service>
-        <service
-            android:name=".provider.UpdateComplicationDataService"
-            android:exported="false">
-        </service>
+        <receiver android:name=".provider.ComplicationToggleReceiver"/>
 
         <activity android:name=".config.ColorSelectionActivity"/>
     </application>
