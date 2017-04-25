@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.wearable.watchface.utils;
+package com.example.android.wearable.watchface.util;
 
 import android.graphics.Color;
 import android.net.Uri;
@@ -30,7 +30,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
-import com.example.android.wearable.watchface.watchfaces.DigitalWatchFaceService;
+import com.example.android.wearable.watchface.watchface.DigitalWatchFaceService;
 
 public final class DigitalWatchFaceUtil {
     private static final String TAG = "DigitalWatchFaceUtil";

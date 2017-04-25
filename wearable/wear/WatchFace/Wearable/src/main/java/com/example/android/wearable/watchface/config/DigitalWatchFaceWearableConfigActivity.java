@@ -38,8 +38,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
 
-import com.example.android.wearable.watchface.watchfaces.DigitalWatchFaceService;
-import com.example.android.wearable.watchface.utils.DigitalWatchFaceUtil;
+import com.example.android.wearable.watchface.watchface.DigitalWatchFaceService;
+import com.example.android.wearable.watchface.util.DigitalWatchFaceUtil;
 import com.example.android.wearable.watchface.R;
 
 /**
@@ -224,7 +224,7 @@ public class DigitalWatchFaceWearableConfigActivity extends Activity implements
 
         public ColorItem(Context context) {
             super(context);
-            View.inflate(context, R.layout.color_picker_item, this);
+            View.inflate(context, R.layout.digital_color_picker_item, this);
 
             mLabel = (TextView) findViewById(R.id.label);
             mColor = (CircledImageView) findViewById(R.id.color);
