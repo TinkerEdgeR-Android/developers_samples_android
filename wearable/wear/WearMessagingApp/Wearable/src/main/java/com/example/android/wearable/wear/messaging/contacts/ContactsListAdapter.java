@@ -160,7 +160,7 @@ public class ContactsListAdapter extends WearableRecyclerView.Adapter<RecyclerVi
             viewHolderContent.name.setText(contact.getName());
 
             Glide.with(mContext)
-                    .load(contact.getProfileImageUri())
+                    .load(contact.getProfileImageResource())
                     .placeholder(R.drawable.ic_face_white_24dp)
                     .dontAnimate()
                     .into(viewHolderContent.profileImage);
