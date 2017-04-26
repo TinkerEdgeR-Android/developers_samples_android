@@ -21,10 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
-
 import com.example.android.wearable.wear.messaging.chat.MockIncomingMessageReceiver;
 import com.example.android.wearable.wear.messaging.model.Chat;
 import com.example.android.wearable.wear.messaging.model.Message;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manage an alarm manager to trigger a notification after 5 seconds.
@@ -41,14 +42,14 @@ public class SchedulerHelper {
         PendingIntent alarmIntent = createPendingIntentToNotifyMessage(context, chat, message);
 
         Log.d(TAG, "Setting up alarm to be triggered shortly.");
-        alarmManger.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + (5 * 1000), alarmIntent);
+        alarmManger.set(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + TimeUnit.SECONDS.toMillis(5),
+                alarmIntent);
     }
 
     private static PendingIntent createPendingIntentToNotifyMessage(
-            Context context,
-            Chat chat,
-            Message message) {
+            Context context, Chat chat, Message message) {
         Intent intent = new Intent(context, MockIncomingMessageReceiver.class);
         intent.setAction(Constants.ACTION_RECEIVE_MESSAGE);
         intent.putExtra(Constants.EXTRA_CHAT, chat.getId());
