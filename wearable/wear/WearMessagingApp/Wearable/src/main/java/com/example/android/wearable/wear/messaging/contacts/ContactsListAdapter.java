@@ -16,7 +16,10 @@
 package com.example.android.wearable.wear.messaging.contacts;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.WearableRecyclerView;
@@ -25,11 +28,13 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.android.wearable.wear.messaging.R;
 import com.example.android.wearable.wear.messaging.model.Profile;
-import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,10 +165,23 @@ public class ContactsListAdapter extends WearableRecyclerView.Adapter<RecyclerVi
             viewHolderContent.name.setText(contact.getName());
 
             Glide.with(mContext)
-                    .load(contact.getProfileImageResource())
+                    .load(contact.getProfileImageSource())
+                    .asBitmap()
                     .placeholder(R.drawable.ic_face_white_24dp)
-                    .dontAnimate()
-                    .into(viewHolderContent.profileImage);
+                    .into(
+                            new SimpleTarget<Bitmap>(100, 100) {
+                                @Override
+                                public void onResourceReady(
+                                        Bitmap resource,
+                                        GlideAnimation<? super Bitmap> glideAnimation) {
+                                    RoundedBitmapDrawable circularBitmapDrawable =
+                                            RoundedBitmapDrawableFactory.create(
+                                                    mContext.getResources(), resource);
+                                    circularBitmapDrawable.setCircular(true);
+                                    viewHolderContent.profileImage.setImageDrawable(
+                                            circularBitmapDrawable);
+                                }
+                            });
 
             viewHolderContent.itemView.setOnClickListener(
                     new View.OnClickListener() {
@@ -245,13 +263,13 @@ public class ContactsListAdapter extends WearableRecyclerView.Adapter<RecyclerVi
     /** Holds references each contact layout element. */
     public static class ViewHolderContent extends RecyclerView.ViewHolder {
 
-        protected final CircleImageView profileImage;
+        protected final ImageView profileImage;
         protected final TextView name;
 
         public ViewHolderContent(View itemView) {
             super(itemView);
 
-            profileImage = (CircleImageView) itemView.findViewById(R.id.profile_img);
+            profileImage = (ImageView) itemView.findViewById(R.id.profile_img);
             name = (TextView) itemView.findViewById(R.id.text_contact_name);
         }
     }
