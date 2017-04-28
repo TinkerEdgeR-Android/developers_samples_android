@@ -39,7 +39,7 @@ import java.util.ArrayList;
  *
  * <p>Uses a simple mocked backend solution with shared preferences.
  *
- * TODO: Processes database activities on the UI thread, move to async.
+ * <p>TODO: Processes database activities on the UI thread, move to async.
  */
 public class ChatListActivity extends GoogleSignedInActivity {
 
