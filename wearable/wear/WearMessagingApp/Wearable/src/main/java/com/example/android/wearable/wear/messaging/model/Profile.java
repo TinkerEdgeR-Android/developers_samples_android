@@ -18,6 +18,7 @@ package com.example.android.wearable.wear.messaging.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 /** Represents a user profile. Parcelable to pass between activities. */
@@ -86,6 +87,17 @@ public class Profile implements Parcelable {
 
     public String getProfileImageUri() {
         return profileImageUri;
+    }
+
+    @JsonIgnore
+    public Object getProfileImageSource() {
+        if (profileImageUri != null) {
+            return profileImageResource;
+        }
+        if (profileImageResource > 0) {
+            return profileImageResource;
+        }
+        return null;
     }
 
     public String getEmail() {
@@ -204,6 +216,7 @@ public class Profile implements Parcelable {
         dest.writeString(this.email);
         dest.writeString(this.name);
         dest.writeString(this.profileImageUri);
+        dest.writeInt(this.profileImageResource);
         dest.writeValue(this.lastUpdatedTime);
     }
 
@@ -212,6 +225,7 @@ public class Profile implements Parcelable {
         this.email = in.readString();
         this.name = in.readString();
         this.profileImageUri = in.readString();
+        this.profileImageResource = in.readInt();
         this.lastUpdatedTime = (Long) in.readValue(Long.class.getClassLoader());
     }
 

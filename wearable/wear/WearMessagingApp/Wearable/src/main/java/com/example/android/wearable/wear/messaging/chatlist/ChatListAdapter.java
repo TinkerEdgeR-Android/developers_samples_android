@@ -16,19 +16,24 @@
 package com.example.android.wearable.wear.messaging.chatlist;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.android.wearable.wear.messaging.R;
 import com.example.android.wearable.wear.messaging.model.Chat;
 import com.example.android.wearable.wear.messaging.model.Message;
 import com.example.android.wearable.wear.messaging.model.Profile;
-import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.Collection;
 
 /**
@@ -49,13 +54,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private static final int INDEX_OFFSET = 1;
 
-    private final Context context;
-    private final ChatAdapterListener listener;
+    private final Context mContext;
+    private final ChatAdapterListener mListener;
     private final SortedList<Chat> mChats;
 
     public ChatListAdapter(Context context, ChatAdapterListener listener) {
-        this.context = context;
-        this.listener = listener;
+        this.mContext = context;
+        this.mListener = listener;
         mChats =
                 new SortedList<>(
                         Chat.class,
@@ -108,9 +113,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * A listener for a client to receive events about which actionable items occurred in the
-     * adapter; i.e., either the user wants a brand new chat started or they are opening an existing
-     * chat.
+     * Listens for actions that occur in the adapter; i.e., either the user wants a new chat started
+     * or they are opening an existing chat.
      */
     public interface ChatAdapterListener {
         void newChatSelected();
@@ -149,7 +153,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 @Override
                                 public void onClick(View v) {
                                     Log.d(TAG, "New chat has been selected");
-                                    listener.newChatSelected();
+                                    mListener.newChatSelected();
                                 }
                             });
         } else if (holder instanceof ChatItemViewHolder) {
@@ -162,7 +166,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            listener.openChat(chat);
+                            mListener.openChat(chat);
                         }
                     });
 
@@ -187,10 +191,24 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                     chatItemViewHolder.lastMessage.setText(messageString);
 
-                    Glide.with(context)
-                            .load(lastMessageSender.getProfileImageUri())
+                    Glide.with(mContext)
+                            .load(lastMessageSender.getProfileImageSource())
+                            .asBitmap()
                             .placeholder(R.drawable.ic_face_white_24dp)
-                            .into(chatItemViewHolder.aliasImage);
+                            .into(
+                                    new SimpleTarget<Bitmap>(100, 100) {
+                                        @Override
+                                        public void onResourceReady(
+                                                Bitmap resource,
+                                                GlideAnimation<? super Bitmap> glideAnimation) {
+                                            RoundedBitmapDrawable circularBitmapDrawable =
+                                                    RoundedBitmapDrawableFactory.create(
+                                                            mContext.getResources(), resource);
+                                            circularBitmapDrawable.setCircular(true);
+                                            chatItemViewHolder.aliasImage.setImageDrawable(
+                                                    circularBitmapDrawable);
+                                        }
+                                    });
                 }
             }
 
@@ -234,7 +252,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private ViewGroup row;
         private final TextView alias;
-        private final CircleImageView aliasImage;
+        private final ImageView aliasImage;
         private final TextView lastMessage;
 
         ChatItemViewHolder(View itemView) {
@@ -242,7 +260,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             row = (ViewGroup) itemView.findViewById(R.id.layout_chat_list_item);
             alias = (TextView) itemView.findViewById(R.id.text_alias);
-            aliasImage = (CircleImageView) itemView.findViewById(R.id.profile);
+            aliasImage = (ImageView) itemView.findViewById(R.id.profile);
             lastMessage = (TextView) itemView.findViewById(R.id.text_last_message);
         }
     }
