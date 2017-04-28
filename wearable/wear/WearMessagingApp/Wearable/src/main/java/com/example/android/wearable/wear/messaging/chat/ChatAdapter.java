@@ -16,8 +16,11 @@
 package com.example.android.wearable.wear.messaging.chat;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.util.SortedListAdapterCallback;
@@ -25,13 +28,15 @@ import android.support.wearable.view.WearableRecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.android.wearable.wear.messaging.R;
 import com.example.android.wearable.wear.messaging.model.Chat;
 import com.example.android.wearable.wear.messaging.model.Message;
 import com.example.android.wearable.wear.messaging.model.Profile;
-import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Locale;
@@ -89,7 +94,7 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
     }
 
     @Override
-    public void onBindViewHolder(MessageViewHolder holder, int position) {
+    public void onBindViewHolder(final MessageViewHolder holder, int position) {
         Message message = mMessages.get(position);
         Profile sender = mChat.getParticipants().get(mMessages.get(position).getSenderId());
         if (sender == null) {
@@ -97,9 +102,22 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
         }
 
         Glide.with(mContext)
-                .load(sender.getProfileImageUri())
+                .load(sender.getProfileImageSource())
+                .asBitmap()
                 .placeholder(R.drawable.ic_face_white_24dp)
-                .into(holder.profileImage);
+                .into(
+                        new SimpleTarget<Bitmap>(100, 100) {
+                            @Override
+                            public void onResourceReady(
+                                    Bitmap resource,
+                                    GlideAnimation<? super Bitmap> glideAnimation) {
+                                RoundedBitmapDrawable circularBitmapDrawable =
+                                        RoundedBitmapDrawableFactory.create(
+                                                mContext.getResources(), resource);
+                                circularBitmapDrawable.setCircular(true);
+                                holder.profileImage.setImageDrawable(circularBitmapDrawable);
+                            }
+                        });
 
         // Convert to just the first name of the sender or short hand it if the sender is you.
         String name;
@@ -143,7 +161,7 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
     }
 
     /**
-     * Converts time since epoch to Month Date Time
+     * Converts time since epoch to Month Date Time.
      *
      * @param time since epoch
      * @return String formatted in Month Date HH:MM
@@ -169,7 +187,7 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
         final ViewGroup parentLayout;
         final TextView textContent;
         final TextView textName;
-        final CircleImageView profileImage;
+        final ImageView profileImage;
         final TextView textTime;
 
         public MessageViewHolder(View itemView) {
@@ -179,7 +197,7 @@ class ChatAdapter extends WearableRecyclerView.Adapter<ChatAdapter.MessageViewHo
             textContent = (TextView) itemView.findViewById(R.id.text_content);
             textName = (TextView) itemView.findViewById(R.id.text_name);
             textTime = (TextView) itemView.findViewById(R.id.text_time);
-            profileImage = (CircleImageView) itemView.findViewById(R.id.profile_img);
+            profileImage = (ImageView) itemView.findViewById(R.id.profile_img);
         }
     }
 }
