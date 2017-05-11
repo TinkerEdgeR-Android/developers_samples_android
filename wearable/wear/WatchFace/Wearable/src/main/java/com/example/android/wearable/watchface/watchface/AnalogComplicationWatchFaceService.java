@@ -51,14 +51,14 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
 
     // Unique IDs for each complication. The settings activity that supports allowing users
     // to select their complication data provider requires numbers to be >= 0.
-    public static final int LEFT_COMPLICATION_ID = 0;
-    public static final int RIGHT_COMPLICATION_ID = 1;
+    private static final int LEFT_COMPLICATION_ID = 0;
+    private static final int RIGHT_COMPLICATION_ID = 1;
 
     // Left and right complication IDs as array for Complication API.
-    public static final int[] COMPLICATION_IDS = {LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID};
+    private static final int[] COMPLICATION_IDS = {LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID};
 
     // Left and right dial supported types.
-    public static final int[][] COMPLICATION_SUPPORTED_TYPES = {
+    private static final int[][] COMPLICATION_SUPPORTED_TYPES = {
         {
             ComplicationData.TYPE_RANGED_VALUE,
             ComplicationData.TYPE_ICON,
@@ -417,9 +417,9 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
             mActiveComplicationDataSparseArray.put(complicationId, complicationData);
 
             // Updates correct ComplicationDrawable with updated data.
-            mComplicationDrawableSparseArray
-                    .get(complicationId)
-                    .setComplicationData(complicationData);
+            ComplicationDrawable complicationDrawable =
+                    mComplicationDrawableSparseArray.get(complicationId);
+            complicationDrawable.setComplicationData(complicationData);
 
             invalidate();
         }
@@ -443,6 +443,8 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
         private int getTappedComplicationId(int x, int y) {
             int complicationId;
             ComplicationData complicationData;
+            ComplicationDrawable complicationDrawable;
+
             long currentTimeMillis = System.currentTimeMillis();
 
             for (int i = 0; i < COMPLICATION_IDS.length; i++) {
@@ -454,8 +456,8 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
                         && (complicationData.getType() != ComplicationData.TYPE_NOT_CONFIGURED)
                         && (complicationData.getType() != ComplicationData.TYPE_EMPTY)) {
 
-                    Rect complicationBoundingRect =
-                            mComplicationDrawableSparseArray.get(complicationId).getBounds();
+                    complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
+                    Rect complicationBoundingRect = complicationDrawable.getBounds();
 
                     if (complicationBoundingRect.width() > 0) {
                         if (complicationBoundingRect.contains(x, y)) {
@@ -643,7 +645,10 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
                             verticalOffset,
                             (horizontalOffset + sizeOfComplication),
                             (verticalOffset + sizeOfComplication));
-            mComplicationDrawableSparseArray.get(LEFT_COMPLICATION_ID).setBounds(leftBounds);
+
+            ComplicationDrawable leftComplicationDrawable =
+                    mComplicationDrawableSparseArray.get(LEFT_COMPLICATION_ID);
+            leftComplicationDrawable.setBounds(leftBounds);
 
             Rect rightBounds =
                     // Left, Top, Right, Bottom
@@ -652,7 +657,10 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
                             verticalOffset,
                             (midpointOfScreen + horizontalOffset + sizeOfComplication),
                             (verticalOffset + sizeOfComplication));
-            mComplicationDrawableSparseArray.get(RIGHT_COMPLICATION_ID).setBounds(rightBounds);
+
+            ComplicationDrawable rightComplicationDrawable =
+                    mComplicationDrawableSparseArray.get(RIGHT_COMPLICATION_ID);
+            rightComplicationDrawable.setBounds(rightBounds);
 
             /* Scale loaded background image (more efficient) if surface dimensions change. */
             /* TODO (jewalker): code to be reused with followup CL for complication Background image
@@ -745,17 +753,13 @@ public class AnalogComplicationWatchFaceService extends CanvasWatchFaceService {
 
         private void drawComplications(Canvas canvas, long currentTimeMillis) {
             int complicationId;
-            ComplicationData complicationData;
+            ComplicationDrawable complicationDrawable;
 
             for (int i = 0; i < COMPLICATION_IDS.length; i++) {
                 complicationId = COMPLICATION_IDS[i];
-                complicationData = mActiveComplicationDataSparseArray.get(complicationId);
+                complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
 
-                if ((complicationData != null) && (complicationData.isActive(currentTimeMillis))) {
-                    mComplicationDrawableSparseArray
-                            .get(complicationId)
-                            .draw(canvas, currentTimeMillis);
-                }
+                complicationDrawable.draw(canvas, currentTimeMillis);
             }
         }
 
