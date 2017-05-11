@@ -17,9 +17,6 @@
 package com.example.android.wearable.watchface.config;
 
 import static com.example.android.wearable.watchface.config.ColorSelectionActivity.EXTRA_SHARED_PREF;
-import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.COMPLICATION_IDS;
-import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.LEFT_COMPLICATION_ID;
-import static com.example.android.wearable.watchface.watchface.AnalogComplicationWatchFaceService.RIGHT_COMPLICATION_ID;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -112,6 +109,9 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
     // Selected complication id by user.
     private int mSelectedComplicationId;
 
+    private int mLeftComplicationId;
+    private int mRightComplicationId;
+
     // Required to retrieve complication data from watch face for preview.
     private ProviderInfoRetriever mProviderInfoRetriever;
 
@@ -130,6 +130,11 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
 
         // Default value is invalid (only changed when user taps to change complication).
         mSelectedComplicationId = -1;
+
+        mLeftComplicationId =
+                AnalogComplicationWatchFaceService.getComplicationId(ComplicationLocation.LEFT);
+        mRightComplicationId =
+                AnalogComplicationWatchFaceService.getComplicationId(ComplicationLocation.RIGHT);
 
         mSharedPref = context.getSharedPreferences(
                 context.getString(R.string.analog_complication_preference_file_key),
@@ -417,22 +422,17 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
                 int[] supportedTypes = AnalogComplicationWatchFaceService
                         .getSupportedComplicationTypes(complicationLocation);
 
-                if (supportedTypes.length > 0) {
+                ComponentName watchFace = new ComponentName(
+                        currentActivity,
+                        AnalogComplicationWatchFaceService.class);
 
-                    ComponentName watchFace = new ComponentName(
-                            currentActivity,
-                            AnalogComplicationWatchFaceService.class);
-
-                    currentActivity.startActivityForResult(
-                            ComplicationHelperActivity.createProviderChooserHelperIntent(
-                                    currentActivity,
-                                    watchFace,
-                                    mSelectedComplicationId,
-                                    supportedTypes),
-                            AnalogComplicationConfigActivity.COMPLICATION_CONFIG_REQUEST_CODE);
-                } else {
-                    Log.d(TAG, "Complication has no supported types.");
-                }
+                currentActivity.startActivityForResult(
+                        ComplicationHelperActivity.createProviderChooserHelperIntent(
+                                currentActivity,
+                                watchFace,
+                                mSelectedComplicationId,
+                                supportedTypes),
+                        AnalogComplicationConfigActivity.COMPLICATION_CONFIG_REQUEST_CODE);
 
             } else {
                 Log.d(TAG, "Complication not supported by watch face.");
@@ -456,7 +456,7 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
             Log.d(TAG, "updateComplicationViews(): id: " + watchFaceComplicationId);
             Log.d(TAG, "\tinfo: " + complicationProviderInfo);
 
-            if (watchFaceComplicationId == LEFT_COMPLICATION_ID) {
+            if (watchFaceComplicationId == mLeftComplicationId) {
                 if (complicationProviderInfo != null) {
                     mLeftComplication.setImageIcon(complicationProviderInfo.providerIcon);
                     mLeftComplicationBackground.setVisibility(View.VISIBLE);
@@ -466,7 +466,7 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
                     mLeftComplicationBackground.setVisibility(View.INVISIBLE);
                 }
 
-            } else if (watchFaceComplicationId == RIGHT_COMPLICATION_ID) {
+            } else if (watchFaceComplicationId == mRightComplicationId) {
                 if (complicationProviderInfo != null) {
                     mRightComplication.setImageIcon(complicationProviderInfo.providerIcon);
                     mRightComplicationBackground.setVisibility(View.VISIBLE);
@@ -479,6 +479,8 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
         }
 
         public void retrieveInitialComplicationsData() {
+
+            final int[] complicationIds = new int[] {mLeftComplicationId, mRightComplicationId};
 
             mProviderInfoRetriever.retrieveProviderInfo(
                     new OnProviderInfoReceivedCallback() {
@@ -495,7 +497,7 @@ public class AnalogComplicationConfigRecyclerViewAdapter extends
                         }
                     },
                     mWatchFaceComponentName,
-                    COMPLICATION_IDS);
+                    complicationIds);
         }
     }
 
