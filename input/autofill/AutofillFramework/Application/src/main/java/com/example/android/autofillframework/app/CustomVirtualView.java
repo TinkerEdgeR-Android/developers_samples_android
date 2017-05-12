@@ -241,13 +241,11 @@ public class CustomVirtualView extends View {
 
     private final class Line {
 
+        // Boundaries of the text field, relative to the CustomView
+        final Rect bounds = new Rect();
         private Item labelItem;
         private Item fieldTextItem;
         private String idEntry;
-
-        // Boundaries of the text field, relative to the CustomView
-        final Rect bounds = new Rect();
-
         private boolean focused;
 
         private Line(String idEntry, String label, String text, boolean sanitized) {

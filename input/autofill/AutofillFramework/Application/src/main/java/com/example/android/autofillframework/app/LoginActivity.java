@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.autofill.AutofillManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -44,10 +45,14 @@ public class LoginActivity extends Activity {
 
         setContentView(R.layout.login_activity);
 
-        mLoginButton = (Button) findViewById(R.id.login);
-        mClearButton = (Button) findViewById(R.id.clear);
-        mUsernameEditText = (EditText) findViewById(R.id.usernameField);
-        mPasswordEditText = (EditText) findViewById(R.id.passwordField);
+        mLoginButton = findViewById(R.id.login);
+        mClearButton = findViewById(R.id.clear);
+        mUsernameEditText = findViewById(R.id.usernameField);
+        mPasswordEditText = findViewById(R.id.passwordField);
+        mUsernameEditText.setAutofillHints(View.AUTOFILL_HINT_USERNAME);
+        mPasswordEditText.setAutofillHints(View.AUTOFILL_HINT_PASSWORD);
+        mUsernameEditText.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
+        mPasswordEditText.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +82,7 @@ public class LoginActivity extends Activity {
         if (valid) {
             Intent intent = WelcomeActivity.getStartActivityIntent(LoginActivity.this);
             startActivity(intent);
+            finish();
         } else {
             Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
         }

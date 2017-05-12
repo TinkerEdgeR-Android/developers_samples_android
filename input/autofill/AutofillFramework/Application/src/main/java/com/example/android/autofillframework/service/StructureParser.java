@@ -19,6 +19,14 @@ import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.util.Log;
+import android.view.View;
+
+import com.example.android.autofillframework.service.datasource.AutofillRepository;
+import com.example.android.autofillframework.service.model.AutofillField;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 
@@ -30,14 +38,13 @@ import static com.example.android.autofillframework.CommonUtil.TAG;
  */
 final class StructureParser {
 
-    // This simple AutoFill service is capable of parsing these fields:
-    private final AutofillField usernameField = new AutofillField("usernameField");
-    private final AutofillField passwordField = new AutofillField("passwordField");
-    private final AssistStructure structure;
-
+    private AssistStructure structure;
+    private int mSaveTypes = 0;
+    private List<AutofillField> mAutofillFields;
 
     StructureParser(AssistStructure structure) {
         this.structure = structure;
+        mAutofillFields = new ArrayList<>();
     }
 
     /**
@@ -46,23 +53,30 @@ final class StructureParser {
      */
     void parse() {
         Log.d(TAG, "Parsing structure for " + structure.getActivityComponent());
-        final int nodes = structure.getWindowNodeCount();
+        int nodes = structure.getWindowNodeCount();
         for (int i = 0; i < nodes; i++) {
             WindowNode node = structure.getWindowNodeAt(i);
             ViewNode view = node.getRootViewNode();
             parseLocked(view);
         }
+        updateSaveTypes();
+    }
+
+    private void updateSaveTypes() {
+        mSaveTypes = 0;
+        for (int i = 0; i < mAutofillFields.size(); i++) {
+            AutofillField field = mAutofillFields.get(i);
+            mSaveTypes |= field.getSaveType();
+        }
     }
 
     private void parseLocked(ViewNode view) {
-        final String resourceId = view.getIdEntry();
-        Log.d(TAG, "resourceId == " + resourceId);
-        if (resourceId != null && resourceId.equals(usernameField.getDescription())) {
-            usernameField.setFrom(view);
-        } else if (resourceId != null && resourceId.equals(passwordField.getDescription())) {
-            passwordField.setFrom(view);
+        if (view.getAutofillType() != View.AUTOFILL_TYPE_NONE) {
+            AutofillField field = new AutofillField();
+            field.setFrom(view);
+            mAutofillFields.add(field);
         }
-        final int childrenSize = view.getChildCount();
+        int childrenSize = view.getChildCount();
         if (childrenSize > 0) {
             for (int i = 0; i < childrenSize; i++) {
                 parseLocked(view.getChildAt(i));
@@ -70,11 +84,19 @@ final class StructureParser {
         }
     }
 
-    public AutofillField getUsernameField() {
-        return usernameField;
+    public List<AutofillField> getAutofillFields() {
+        return mAutofillFields;
     }
 
-    public AutofillField getPasswordField() {
-        return passwordField;
+    public int getSaveTypes() {
+        return mSaveTypes;
+    }
+
+    /**
+     * Is this View structure
+     */
+    public boolean isLoginPage() {
+        // TODO remove this.
+        return true;
     }
 }
