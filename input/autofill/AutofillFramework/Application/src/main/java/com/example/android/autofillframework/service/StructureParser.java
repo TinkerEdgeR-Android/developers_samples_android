@@ -21,12 +21,11 @@ import android.app.assist.AssistStructure.WindowNode;
 import android.util.Log;
 import android.view.View;
 
-import com.example.android.autofillframework.service.datasource.AutofillRepository;
 import com.example.android.autofillframework.service.model.AutofillField;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
+import com.example.android.autofillframework.service.model.CreditCardInfo;
+import com.example.android.autofillframework.service.model.DatasetModel;
+import com.example.android.autofillframework.service.model.LoginCredential;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 
@@ -38,13 +37,17 @@ import static com.example.android.autofillframework.CommonUtil.TAG;
  */
 final class StructureParser {
 
-    private AssistStructure structure;
-    private int mSaveTypes = 0;
-    private List<AutofillField> mAutofillFields;
+    public static final int CLIENT_PAGE_TYPE_UNRECOGNIZED = 0;
+    public static final int CLIENT_PAGE_TYPE_LOGIN = 1;
+    public static final int CLIENT_PAGE_TYPE_CREDIT_CARD_INFO = 2;
+
+    private final AutofillFieldsCollection mAutofillFields = new AutofillFieldsCollection();
+    private final AssistStructure structure;
+    private int mClientPageType = CLIENT_PAGE_TYPE_UNRECOGNIZED;
+    private DatasetModel mDatasetModel;
 
     StructureParser(AssistStructure structure) {
         this.structure = structure;
-        mAutofillFields = new ArrayList<>();
     }
 
     /**
@@ -59,15 +62,7 @@ final class StructureParser {
             ViewNode view = node.getRootViewNode();
             parseLocked(view);
         }
-        updateSaveTypes();
-    }
-
-    private void updateSaveTypes() {
-        mSaveTypes = 0;
-        for (int i = 0; i < mAutofillFields.size(); i++) {
-            AutofillField field = mAutofillFields.get(i);
-            mSaveTypes |= field.getSaveType();
-        }
+        updateClientPageType();
     }
 
     private void parseLocked(ViewNode view) {
@@ -84,19 +79,38 @@ final class StructureParser {
         }
     }
 
-    public List<AutofillField> getAutofillFields() {
+    public AutofillFieldsCollection getAutofillFields() {
         return mAutofillFields;
     }
 
     public int getSaveTypes() {
-        return mSaveTypes;
+        return mAutofillFields.getSaveType();
     }
 
-    /**
-     * Is this View structure
-     */
-    public boolean isLoginPage() {
-        // TODO remove this.
-        return true;
+    private void updateClientPageType() {
+        if (mAutofillFields.containsHint(View.AUTOFILL_HINT_USERNAME) &&
+                mAutofillFields.containsHint(View.AUTOFILL_HINT_PASSWORD)) {
+            mClientPageType = CLIENT_PAGE_TYPE_LOGIN;
+            // This only takes the value from one view with USERNAME hint.
+            // In a real service we would save all of the username values.
+            String username = mAutofillFields.getFieldsForHint
+                    (View.AUTOFILL_HINT_USERNAME).get(0).getValue();
+            String password = mAutofillFields.getFieldsForHint
+                    (View.AUTOFILL_HINT_PASSWORD).get(0).getValue();
+            mDatasetModel = new LoginCredential(username, password);
+        } else if (mAutofillFields.containsHint(View.AUTOFILL_HINT_CREDIT_CARD_NUMBER)) {
+            mClientPageType = CLIENT_PAGE_TYPE_CREDIT_CARD_INFO;
+            String creditCardNumber = mAutofillFields.getFieldsForHint
+                    (View.AUTOFILL_HINT_CREDIT_CARD_NUMBER).get(0).getValue();
+            mDatasetModel = new CreditCardInfo(creditCardNumber);
+        }
+    }
+
+    public int getClientPageType() {
+        return mClientPageType;
+    }
+
+    public DatasetModel getDatasetModel() {
+        return mDatasetModel;
     }
 }
