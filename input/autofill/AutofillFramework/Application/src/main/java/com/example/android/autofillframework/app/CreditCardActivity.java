@@ -15,24 +15,18 @@
  */
 package com.example.android.autofillframework.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.android.autofillframework.R;
 
-import java.util.List;
-
-public class CreditCardActivity extends Activity {
+public class CreditCardActivity extends AppCompatActivity {
 
     private Spinner mCcExpirationDaySpinner;
     private Spinner mCcExpirationMonthSpinner;
@@ -51,11 +45,11 @@ public class CreditCardActivity extends Activity {
 
         setContentView(R.layout.credit_card_activity);
 
-        mSubmitButton = findViewById(R.id.submit);
-        mClearButton = findViewById(R.id.clear);
-        mCcExpirationDaySpinner = findViewById(R.id.expirationDay);
-        mCcExpirationMonthSpinner = findViewById(R.id.expirationMonth);
-        mCcExpirationYearSpinner = findViewById(R.id.expirationYear);
+        mSubmitButton = (Button) findViewById(R.id.submit);
+        mClearButton = (Button) findViewById(R.id.clear);
+        mCcExpirationDaySpinner = (Spinner) findViewById(R.id.expirationDay);
+        mCcExpirationMonthSpinner = (Spinner) findViewById(R.id.expirationMonth);
+        mCcExpirationYearSpinner = (Spinner) findViewById(R.id.expirationYear);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> dayAdapter = ArrayAdapter.createFromResource
