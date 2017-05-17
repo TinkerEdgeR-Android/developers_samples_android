@@ -19,6 +19,7 @@ import android.app.assist.AssistStructure;
 import android.service.autofill.SaveInfo;
 import android.view.View;
 import android.view.autofill.AutofillId;
+import android.view.autofill.AutofillValue;
 
 /**
  * Class that represents a field that can be autofilled. It will contain a description
@@ -26,63 +27,75 @@ import android.view.autofill.AutofillId;
  * and a value (what data is currently in the field).
  */
 public class AutofillField {
-    private int saveType = 0;
-    private String[] hints;
-    private AutofillId id;
+    private int mSaveType = 0;
+    private String[] mHints;
+    private AutofillId mId;
+    private AutofillValue mValue;
+    private int mAutofillType;
+    private String[] mAutofillOptions;
+    private boolean mFocused;
 
-    // TODO support multiple value types.
-    private String value;
-
-    public AutofillField() {
+    public AutofillField(AssistStructure.ViewNode view) {
+        mId = view.getAutofillId();
+        setHints(view.getAutofillHints());
+        mValue = view.getAutofillValue();
+        mAutofillType = view.getAutofillType();
+        mAutofillOptions = view.getAutofillOptions();
+        mFocused = view.isFocused();
     }
 
-    public void setFrom(AssistStructure.ViewNode view) {
-        id = view.getAutofillId();
-        // TODO support multiple value types.
-        value = view.getText().toString();
-        setHints(view.getAutofillHints());
+    public AutofillValue getValue() {
+        return mValue;
     }
 
     public String[] getHints() {
-        return hints;
+        return mHints;
     }
 
     public void setHints(String[] hints) {
-        this.hints = hints;
+        mHints = hints;
         updateSaveTypeFromHints();
     }
 
     public int getSaveType() {
-        return saveType;
+        return mSaveType;
     }
 
     public AutofillId getId() {
-        return id;
+        return mId;
     }
 
     public void setId(AutofillId id) {
-        this.id = id;
+        mId = id;
     }
 
-    public String getValue() {
-        return value;
+    public int getAutofillType() {
+        return mAutofillType;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setAutofillType(int autofillType) {
+        this.mAutofillType = autofillType;
     }
 
-    @Override
-    public String toString() {
-        return "AutofillField: [id=" + id + ", value=" + value + "]";
+    public int getAutofillOptionIndex(String value) {
+        for (int i = 0; i < mAutofillOptions.length; i++) {
+            if (mAutofillOptions[i].equals(value)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean isFocused() {
+        return mFocused;
     }
 
     private void updateSaveTypeFromHints() {
-        saveType = 0;
-        if (hints == null) {
+        mSaveType = 0;
+        if (mHints == null) {
             return;
         }
-        for (String hint : hints) {
+        for (String hint : mHints) {
             switch (hint) {
                 case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE:
                 case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY:
@@ -90,28 +103,26 @@ public class AutofillField {
                 case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
                 case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
                 case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD;
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD;
                     break;
                 case View.AUTOFILL_HINT_EMAIL_ADDRESS:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_EMAIL_ADDRESS;
-                    break;
-                case View.AUTOFILL_HINT_NAME:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_GENERIC;
-                    break;
-                case View.AUTOFILL_HINT_PASSWORD:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_PASSWORD;
-                    saveType &= ~SaveInfo.SAVE_DATA_TYPE_EMAIL_ADDRESS;
-                    saveType &= ~SaveInfo.SAVE_DATA_TYPE_USERNAME;
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_EMAIL_ADDRESS;
                     break;
                 case View.AUTOFILL_HINT_PHONE:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_GENERIC;
+                case View.AUTOFILL_HINT_NAME:
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_GENERIC;
+                    break;
+                case View.AUTOFILL_HINT_PASSWORD:
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_PASSWORD;
+                    mSaveType &= ~SaveInfo.SAVE_DATA_TYPE_EMAIL_ADDRESS;
+                    mSaveType &= ~SaveInfo.SAVE_DATA_TYPE_USERNAME;
                     break;
                 case View.AUTOFILL_HINT_POSTAL_ADDRESS:
                 case View.AUTOFILL_HINT_POSTAL_CODE:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_ADDRESS;
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_ADDRESS;
                     break;
                 case View.AUTOFILL_HINT_USERNAME:
-                    saveType |= SaveInfo.SAVE_DATA_TYPE_USERNAME;
+                    mSaveType |= SaveInfo.SAVE_DATA_TYPE_USERNAME;
                     break;
             }
         }

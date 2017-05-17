@@ -18,6 +18,7 @@ package com.example.android.autofillframework.service.model;
 import android.view.autofill.AutofillId;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public final class AutofillFieldsCollection {
 
     private final List<AutofillId> mAutofillIds = new ArrayList<>();
     private final HashMap<String, List<AutofillField>> mAutofillHintsToFieldsMap = new HashMap<>();
+    private final List<String> mAllAutofillHints = new ArrayList<>();
+    private final List<String> mFocusedAutofillHints = new ArrayList<>();
     private int size = 0;
     private int mSaveType = 0;
 
@@ -32,6 +35,11 @@ public final class AutofillFieldsCollection {
         mSaveType |= autofillField.getSaveType();
         size++;
         mAutofillIds.add(autofillField.getId());
+        List<String> hintsList = Arrays.asList(autofillField.getHints());
+        mAllAutofillHints.addAll(hintsList);
+        if (autofillField.isFocused()) {
+            mFocusedAutofillHints.addAll(hintsList);
+        }
         for (String hint : autofillField.getHints()) {
             if (mAutofillHintsToFieldsMap.get(hint) == null) {
                 mAutofillHintsToFieldsMap.put(hint, new ArrayList<AutofillField>());
@@ -52,7 +60,11 @@ public final class AutofillFieldsCollection {
         return mAutofillHintsToFieldsMap.get(hint);
     }
 
-    public boolean containsHint(String hint) {
-        return !getFieldsForHint(hint).isEmpty();
+    public List<String> getFocusedHints() {
+        return mFocusedAutofillHints;
+    }
+
+    public List<String> getAllHints() {
+        return mAllAutofillHints;
     }
 }

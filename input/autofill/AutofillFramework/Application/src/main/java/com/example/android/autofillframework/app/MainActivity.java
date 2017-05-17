@@ -23,6 +23,9 @@ import android.view.View;
 
 import com.example.android.autofillframework.R;
 
+/**
+ * This is used to launch sample activities that showcase autofill.
+ */
 public class MainActivity extends Activity {
 
     @Override
@@ -41,6 +44,17 @@ public class MainActivity extends Activity {
                 virtualViewSignIn();
             }
         });
+        findViewById(R.id.creditCardCheckoutButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                creditCardCheckout();
+            }
+        });
+    }
+
+    private void creditCardCheckout() {
+        Intent intent = CreditCardActivity.getStartActivityIntent(this);
+        startActivity(intent);
     }
 
     private void standardViewSignIn() {

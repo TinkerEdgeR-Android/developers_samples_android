@@ -36,8 +36,7 @@ import android.widget.Toast;
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
 import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.service.model.CreditCardInfo;
-import com.example.android.autofillframework.service.model.LoginCredential;
+import com.example.android.autofillframework.service.model.ClientFormData;
 
 import java.util.HashMap;
 
@@ -104,7 +103,7 @@ public class AuthActivity extends Activity {
     }
 
     private void login() {
-        // TODO set master username/password to Settings.
+        // TODO set master username/password in Settings.
         Editable password = mMasterPassword.getText();
         Log.d(TAG, "login: " + password);
         if (password.length() == 0) {
@@ -140,39 +139,16 @@ public class AuthActivity extends Activity {
         AutofillFieldsCollection autofillFields = parser.getAutofillFields();
         int saveTypes = parser.getSaveTypes();
         mReplyIntent = new Intent();
-        switch (parser.getClientPageType()) {
-            case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
-                HashMap<String, LoginCredential> loginCredentialMap =
-                        LocalAutofillRepository.getInstance(this).getLoginCredentials();
-                if (loginCredentialMap == null || loginCredentialMap.isEmpty()) {
-                    Log.d(TAG, "No Autofill data found for this Activity.");
-                    return;
-                }
-                if (forResponse) {
-                    setResponseIntent(AutofillHelper.newResponse
-                            (this, false, autofillFields, saveTypes, loginCredentialMap));
-                } else {
-                    String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
-                    setDatasetIntent(AutofillHelper.newDataset
-                            (this, autofillFields, loginCredentialMap.get(datasetName)));
-                }
-                break;
-            case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
-                HashMap<String, CreditCardInfo> creditCardInfoMap =
-                        LocalAutofillRepository.getInstance(this).getCreditCardInfo();
-                if (creditCardInfoMap == null || creditCardInfoMap.isEmpty()) {
-                    Log.d(TAG, "No Autofill data found for this Activity.");
-                    return;
-                }
-                if (forResponse) {
-                    setResponseIntent(AutofillHelper.newResponse
-                            (this, false, autofillFields, saveTypes, creditCardInfoMap));
-                } else {
-                    String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
-                    setDatasetIntent(AutofillHelper.newDataset
-                            (this, autofillFields, creditCardInfoMap.get(datasetName)));
-                }
-                break;
+        HashMap<String, ClientFormData> clientFormDataMap =
+                LocalAutofillRepository.getInstance(this).getClientFormData
+                        (autofillFields.getFocusedHints(), autofillFields.getAllHints());
+        if (forResponse) {
+            setResponseIntent(AutofillHelper.newResponse
+                    (this, false, autofillFields, saveTypes, clientFormDataMap));
+        } else {
+            String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
+            setDatasetIntent(AutofillHelper.newDataset
+                    (this, autofillFields, clientFormDataMap.get(datasetName)));
         }
     }
 
