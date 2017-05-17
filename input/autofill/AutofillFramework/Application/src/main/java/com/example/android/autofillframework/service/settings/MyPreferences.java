@@ -17,6 +17,8 @@ package com.example.android.autofillframework.service.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.service.autofill.Dataset;
+import android.service.autofill.FillResponse;
 import android.util.Log;
 
 public class MyPreferences {

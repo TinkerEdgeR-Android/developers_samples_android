@@ -1,17 +1,31 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.android.autofillframework.service.datasource;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.ArraySet;
 
-import com.example.android.autofillframework.service.model.CreditCardInfo;
-import com.example.android.autofillframework.service.model.DatasetModel;
-import com.example.android.autofillframework.service.model.LoginCredential;
+import com.example.android.autofillframework.service.model.ClientFormData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,8 +35,7 @@ import java.util.Set;
  */
 public class LocalAutofillRepository implements AutofillRepository {
     private static final String SHARED_PREF_KEY = "com.example.android.autofillframework.service";
-    private static final String LOGIN_CREDENTIAL_DATASETS_KEY = "loginCredentialDatasets";
-    private static final String CREDIT_CARD_INFO_DATASETS_KEY = "creditCardInfoDatasets";
+    private static final String CLIENT_FORM_DATA_KEY = "loginCredentialDatasets";
     private static final String DATASET_NUMBER_KEY = "datasetNumber";
 
     private static LocalAutofillRepository sInstance;
@@ -31,8 +44,7 @@ public class LocalAutofillRepository implements AutofillRepository {
 
     // TODO prepend with autofill data set in Settings.
     private LocalAutofillRepository(Context context) {
-        mPrefs = context.getApplicationContext().getSharedPreferences(SHARED_PREF_KEY,
-                Context.MODE_PRIVATE);
+        mPrefs = context.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static LocalAutofillRepository getInstance(Context context) {
@@ -43,61 +55,52 @@ public class LocalAutofillRepository implements AutofillRepository {
     }
 
     @Override
-    public HashMap<String, LoginCredential> getLoginCredentials() {
+    public HashMap<String, ClientFormData> getClientFormData(List<String> focusedAutofillHints,
+            List<String> allAutofillHints) {
         try {
-            HashMap<String, LoginCredential> loginCredentials = new HashMap<>();
-            Set<String> loginCredentialStringSet =
-                    mPrefs.getStringSet(LOGIN_CREDENTIAL_DATASETS_KEY, new ArraySet<String>());
-            for (String loginCredentialString : loginCredentialStringSet) {
-                LoginCredential loginCredential = LoginCredential
-                        .fromJson(new JSONObject(loginCredentialString));
-                if (loginCredential != null) {
-                    loginCredentials.put(loginCredential.getDatasetName(), loginCredential);
+            // TODO use sqlite instead.
+            boolean hasDataForFocusedAutofillHints = false;
+            HashMap<String, ClientFormData> clientFormDataMap = new HashMap<>();
+            Set<String> clientFormDataStringSet = getAllAutofillDataStringSet();
+            for (String clientFormDataString : clientFormDataStringSet) {
+                ClientFormData clientFormData = ClientFormData
+                        .fromJson(new JSONObject(clientFormDataString));
+                if (clientFormData != null) {
+                    if (clientFormData.helpsWithHints(focusedAutofillHints)) {
+                        hasDataForFocusedAutofillHints = true;
+                    }
+                    if (clientFormData.helpsWithHints(allAutofillHints)) {
+                        clientFormDataMap.put(clientFormData.getDatasetName(), clientFormData);
+                    }
                 }
             }
-            return loginCredentials;
+            if (hasDataForFocusedAutofillHints) {
+                return clientFormDataMap;
+            } else {
+                return null;
+            }
         } catch (JSONException e) {
             return null;
         }
     }
 
     @Override
-    public HashMap<String, CreditCardInfo> getCreditCardInfo() {
-        try {
-            HashMap<String, CreditCardInfo> creditCardInfoMap = new HashMap<>();
-            Set<String> creditCardInfoStringSet =
-                    mPrefs.getStringSet(CREDIT_CARD_INFO_DATASETS_KEY, new ArraySet<String>());
-            for (String creditCardInfoString : creditCardInfoStringSet) {
-                CreditCardInfo creditCardInfo = CreditCardInfo
-                        .fromJson(new JSONObject(creditCardInfoString));
-                if (creditCardInfo != null) {
-                    creditCardInfoMap.put(creditCardInfo.getDatasetName(), creditCardInfo);
-                }
-            }
-            return creditCardInfoMap;
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public void saveLoginCredential(DatasetModel loginCredential) {
-        saveDatasetModel(loginCredential, LOGIN_CREDENTIAL_DATASETS_KEY);
-    }
-
-    @Override
-    public void saveCreditCardInfo(DatasetModel creditCardInfo) {
-        saveDatasetModel(creditCardInfo, CREDIT_CARD_INFO_DATASETS_KEY);
-    }
-
-    private void saveDatasetModel(DatasetModel datasetModel, String key) {
+    public void saveClientFormData(ClientFormData clientFormData) {
+        //TODO use sqlite instead.
         String datasetName = "dataset-" + getDatasetNumber();
-        datasetModel.setDatasetName(datasetName);
-        Set<String> datasetModelStringSet =
-                mPrefs.getStringSet(key, new ArraySet<String>());
-        datasetModelStringSet.add(datasetModel.toJson().toString());
-        mPrefs.edit().putStringSet(key, datasetModelStringSet).apply();
+        clientFormData.setDatasetName(datasetName);
+        Set<String> allAutofillData = getAllAutofillDataStringSet();
+        allAutofillData.add(clientFormData.toJson().toString());
+        saveAllAutofillDataStringSet(allAutofillData);
         incrementDatasetNumber();
+    }
+
+    private Set<String> getAllAutofillDataStringSet() {
+        return mPrefs.getStringSet(CLIENT_FORM_DATA_KEY, new ArraySet<String>());
+    }
+
+    private void saveAllAutofillDataStringSet(Set<String> allAutofillDataStringSet) {
+        mPrefs.edit().putStringSet(CLIENT_FORM_DATA_KEY, allAutofillDataStringSet).apply();
     }
 
     /**
