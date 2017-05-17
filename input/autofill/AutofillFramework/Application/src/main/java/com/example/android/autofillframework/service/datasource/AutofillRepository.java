@@ -35,7 +35,7 @@ public interface AutofillRepository {
     void saveClientFormData(ClientFormData clientFormData);
 
     /**
-     * Clear all data.
+     * Clears all data.
      */
     void clear();
 }
