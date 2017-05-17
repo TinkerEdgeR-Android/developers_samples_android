@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.service;
+package com.example.android.autofillframework.service.settings;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -39,11 +39,11 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.settings_activity);
-        mNumberDatasets = (EditText) findViewById(R.id.number_datasets);
-        mResponseAuth = (CheckBox) findViewById(R.id.response_auth);
-        mDatasetAuth = (CheckBox) findViewById(R.id.dataset_auth);
-        mSave = (Button) findViewById(R.id.save);
-        mCancel = (Button) findViewById(R.id.cancel);
+        mNumberDatasets = findViewById(R.id.number_datasets);
+        mResponseAuth = findViewById(R.id.response_auth);
+        mDatasetAuth = findViewById(R.id.dataset_auth);
+        mSave = findViewById(R.id.save);
+        mCancel = findViewById(R.id.cancel);
 
         final MyPreferences p = MyPreferences.getInstance(this);
 

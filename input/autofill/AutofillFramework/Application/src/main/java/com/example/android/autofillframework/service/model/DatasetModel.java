@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.service;
+package com.example.android.autofillframework.service.model;
 
 /**
  * Blueprint for Objects that are the underlying data model for Autofill Datasets. In this basic

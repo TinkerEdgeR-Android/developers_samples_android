@@ -29,14 +29,17 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.autofill.AutofillId;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
+import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
+import com.example.android.autofillframework.service.model.AutofillField;
+import com.example.android.autofillframework.service.model.LoginCredential;
 
-import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
@@ -133,12 +136,11 @@ public class AuthActivity extends Activity {
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         StructureParser parser = new StructureParser(structure);
         parser.parse();
-        AutofillId usernameId = parser.getUsernameField().getId();
-        AutofillId passwordId = parser.getPasswordField().getId();
-        Map<String, LoginCredential> loginCredentialMap =
-                AutofillData.getInstance().getCredentialsMap(this);
-        if (usernameId == null || passwordId == null || loginCredentialMap == null ||
-                loginCredentialMap.isEmpty()) {
+        List<AutofillField> autofillFields = parser.getAutofillFields();
+        HashMap<String, LoginCredential> loginCredentialMap =
+                LocalAutofillRepository.getInstance(this).getLoginCredentials();
+        int saveType = parser.getSaveTypes();
+        if (loginCredentialMap == null || loginCredentialMap.isEmpty()) {
             Log.d(TAG, "No Autofill data found for this Activity.");
             return;
         }
@@ -146,8 +148,8 @@ public class AuthActivity extends Activity {
         if (forResponse) {
             // The response protected by auth, so we can send the entire response since we
             // passed auth.
-            FillResponse response = AutofillHelper.newCredentialsResponse(this, false, usernameId,
-                    passwordId, loginCredentialMap);
+            FillResponse response = AutofillHelper
+                    .newCredentialResponse(this, false, autofillFields, saveType, loginCredentialMap);
             if (response != null) {
                 mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, response);
             }
@@ -157,7 +159,7 @@ public class AuthActivity extends Activity {
             if (loginCredentialMap.containsKey(datasetName)) {
                 LoginCredential credential = loginCredentialMap.get(datasetName);
                 Dataset dataset = AutofillHelper
-                        .newCredentialDataset(this, credential, usernameId, passwordId);
+                        .newCredentialDataset(this, autofillFields, credential);
                 mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, dataset);
             }
         }

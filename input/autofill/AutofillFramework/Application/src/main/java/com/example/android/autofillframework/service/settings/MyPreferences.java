@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.service;
+package com.example.android.autofillframework.service.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-final class MyPreferences {
+public class MyPreferences {
     private static final String TAG = "MyPreferences";
 
     private static final String PREF_NUMBER_DATASET = "number_datasets";
@@ -33,7 +33,7 @@ final class MyPreferences {
                 Context.MODE_PRIVATE);
     }
 
-    static MyPreferences getInstance(Context context) {
+    public static MyPreferences getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new MyPreferences(context);
         }
@@ -43,14 +43,14 @@ final class MyPreferences {
     /**
      * Gets the number of {@link Dataset}s that should be added to a {@link FillResponse}.
      */
-    int getNumberDatasets() {
+    public int getNumberDatasets() {
         return mPrefs.getInt(PREF_NUMBER_DATASET, 2);
     }
 
     /**
      * Gets whether {@link FillResponse}s should require authentication.
      */
-    boolean isResponseAuth() {
+    public boolean isResponseAuth() {
         return mPrefs.getBoolean(PREF_RESPONSE_AUTH, false);
     }
 
@@ -58,11 +58,11 @@ final class MyPreferences {
     /**
      * Gets whether {@link Dataset}s should require authentication.
      */
-    boolean isDatasetAuth() {
+    public boolean isDatasetAuth() {
         return mPrefs.getBoolean(PREF_DATASET_AUTH, false);
     }
 
-    void bulkEdit(int numberDatasets, boolean responseAuth, boolean datasetAuth) {
+    public void bulkEdit(int numberDatasets, boolean responseAuth, boolean datasetAuth) {
         Log.v(TAG, "bulk edit:" + numberDatasets + ":" + responseAuth + ":" + datasetAuth);
         mPrefs.edit()
                 .putInt(PREF_NUMBER_DATASET, numberDatasets)
