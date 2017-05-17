@@ -75,7 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (MyPreferences.getInstance(SettingsActivity.this).getMasterPassword() != null) {
+                        if (preferences.getMasterPassword() != null) {
                             buildCurrentCredentialsDialog().show();
                         } else {
                             buildNewCredentialsDialog().show();
