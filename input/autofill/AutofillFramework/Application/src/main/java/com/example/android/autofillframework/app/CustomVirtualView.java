@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.example.android.autofillframework.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.example.android.autofillframework.CommonUtil.bundleToString;
 
@@ -83,8 +84,10 @@ public class CustomVirtualView extends View {
 
         mLineLength = mTextHeight + mVerticalGap;
         mTextPaint.setTextSize(mTextHeight);
-        mUsernameLine = addLine("usernameField", context.getString(R.string.username_label), "         ", true);
-        mPasswordLine = addLine("passwordField", context.getString(R.string.password_label), "         ", false);
+        mUsernameLine = addLine("usernameField", context.getString(R.string.username_label),
+                "         ", true);
+        mPasswordLine = addLine("passwordField", context.getString(R.string.password_label),
+                "         ", false);
 
         Log.d(TAG, "Text height: " + mTextHeight);
     }
@@ -140,15 +143,24 @@ public class CustomVirtualView extends View {
         super.onDraw(canvas);
 
         Log.d(TAG, "onDraw: " + mLines.size() + " lines; canvas:" + canvas);
-        float x = mLeftMargin;
+        float x;
         float y = mTopMargin + mLineLength;
         for (int i = 0; i < mLines.size(); i++) {
-            final Line line = mLines.get(i);
+            x = mLeftMargin;
+            Line line = mLines.get(i);
             Log.v(TAG, "Drawing '" + line + "' at " + x + "x" + y);
             mTextPaint.setColor(line.focused ? mFocusedColor : mUnfocusedColor);
-            final String text = line.labelItem.text + ":  [" + line.fieldTextItem.text + "]";
-            canvas.drawText(text, x, y, mTextPaint);
-            line.setBounds(x, y);
+            String readOnlyText = line.labelItem.text + ":  [";
+            String writeText = line.fieldTextItem.text + "]";
+            // Paints the label first...
+            canvas.drawText(readOnlyText, x, y, mTextPaint);
+            // ...then paints the edit text and sets the proper boundary
+            float deltaX = mTextPaint.measureText(readOnlyText);
+            x += deltaX;
+            line.bounds.set((int) x, (int) (y - mLineLength),
+                    (int) (x + mTextPaint.measureText(writeText)), (int) y);
+            Log.d(TAG, "setBounds(" + x + ", " + y + "): " + line.bounds);
+            canvas.drawText(writeText, x, y, mTextPaint);
             y += mLineLength;
         }
     }
@@ -233,7 +245,8 @@ public class CustomVirtualView extends View {
         private Item fieldTextItem;
         private String idEntry;
 
-        private Rect bounds;
+        // Boundaries of the text field, relative to the CustomView
+        final Rect bounds = new Rect();
 
         private boolean focused;
 
@@ -243,29 +256,27 @@ public class CustomVirtualView extends View {
             this.fieldTextItem = new Item(this, ++nextId, text, true, sanitized);
         }
 
-        void setBounds(float x, float y) {
-            // This determines the location / size of the autofill dropdown because we pass these
-            // bounds in the AutofillManager.virtualFocusChanged() call.
-            int left = (int) (x + mTextPaint.measureText(labelItem.text.toString() + ": ["));
-            int right = (int) (left + mTextPaint.measureText(fieldTextItem.text.toString()));
-            int top = (int) (y + mTextHeight);
-            int bottom = (int) (y + 3 * mTextHeight);
-            if (bounds == null) {
-                bounds = new Rect(left, top, right, bottom);
-            } else {
-                bounds.set(left, top, right, bottom);
-            }
-            Log.d(TAG, "setBounds(" + x + ", " + y + "): " + bounds);
-        }
-
         void changeFocus(boolean focused) {
-            Log.d(TAG, "onChangeFocus() on " + fieldTextItem.id + ": " + focused + " bounds: " + bounds);
-            this.focused = focused;
             if (focused) {
-                mAfm.notifyViewEntered(CustomVirtualView.this, fieldTextItem.id, bounds);
+                final Rect absBounds = getAbsCoordinates();
+                Log.d(TAG, "focus gained on " + fieldTextItem.id + "; absBounds=" + absBounds);
+                mAfm.notifyViewEntered(CustomVirtualView.this, fieldTextItem.id, absBounds);
             } else {
+                Log.d(TAG, "focus lost on " + fieldTextItem.id);
                 mAfm.notifyViewExited(CustomVirtualView.this, fieldTextItem.id);
             }
+        }
+
+        private Rect getAbsCoordinates() {
+            // Must offset the boundaries so they're relative to the CustomView.
+            final int offset[] = new int[2];
+            getLocationOnScreen(offset);
+            final Rect absBounds = new Rect(bounds.left + offset[0],
+                    bounds.top + offset[1],
+                    bounds.right + offset[0], bounds.bottom + offset[1]);
+            Log.v(TAG, "getAbsCoordinates() for " + fieldTextItem.id + ": bounds=" + bounds
+                    + " offset: " + Arrays.toString(offset) + " absBounds: " + absBounds);
+            return absBounds;
         }
 
         public void reset() {
