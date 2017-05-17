@@ -27,6 +27,23 @@
     <string name="credit_card_number_label">CC Number</string>
     <string name="credit_card_expiration_label">CC Exp</string>
     <string name="credit_card_security_code_label">CC Security Code</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_authenticate_responses">Authenticate responses</string>
+    <string name="settings_authenticate_datasets">Authenticate datasets</string>
+    <string name="settings_clear_data_label">Clear all data (including credentials)</string>
+    <string name="settings_clear_data_confirmation">Are you sure you want to delete all autofill
+        data from the sample service?
+    </string>
+    <string name="settings_clear_data_confirmation_title">Confirmation</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings_authentication_header">Authentication</string>
+    <string name="settings_data_header">Data</string>
+    <string name="settings_auth_credentials_label">Update credentials</string>
+    <string name="settings_auth_enter_current_password">Enter current password</string>
+    <string name="settings_auth_enter_new_password">Enter new password</string>
+    <string name="settings_auth_change_credentials_title">Change credentials</string>
     <string-array name="month_array">
         <item>Jan</item>
         <item>Feb</item>
