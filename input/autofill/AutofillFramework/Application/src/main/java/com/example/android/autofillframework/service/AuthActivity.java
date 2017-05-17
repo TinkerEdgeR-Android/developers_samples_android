@@ -103,8 +103,6 @@ public class AuthActivity extends Activity {
 
     private void login() {
         Editable password = mMasterPassword.getText();
-        Log.d(TAG, "PW entered: " + password);
-        Log.d(TAG, "Correct: " + MyPreferences.getInstance(AuthActivity.this).getMasterPassword());
         if (password.toString()
                 .equals(MyPreferences.getInstance(AuthActivity.this).getMasterPassword())) {
             onSuccess();
