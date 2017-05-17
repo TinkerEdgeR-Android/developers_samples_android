@@ -101,8 +101,9 @@ public final class ClientFormData {
      * Populates a {@link Dataset.Builder} with appropriate values for each {@link AutofillId}
      * in a {@code AutofillFieldsCollection}.
      */
-    public void applyToFields(AutofillFieldsCollection autofillFieldsCollection,
+    public boolean applyToFields(AutofillFieldsCollection autofillFieldsCollection,
             Dataset.Builder datasetBuilder) {
+        boolean setValueAtLeastOnce = false;
         List<String> allHints = autofillFieldsCollection.getAllHints();
         for (int hintIndex = 0; hintIndex < allHints.size(); hintIndex++) {
             String hint = allHints.get(hintIndex);
@@ -114,22 +115,35 @@ public final class ClientFormData {
                 AutofillField autofillField = autofillFields.get(autofillFieldIndex);
                 AutofillId autofillId = autofillField.getId();
                 int autofillType = autofillField.getAutofillType();
+                SavedAutofillValue savedAutofillValue = hintMap.get(hint);
                 switch (autofillType) {
                     case View.AUTOFILL_TYPE_LIST:
-                        int listValue = autofillField.getAutofillOptionIndex(hintMap.get(hint).getTextValue());
-                        datasetBuilder.setValue(autofillId, AutofillValue.forList(listValue));
+                        int listValue = autofillField.getAutofillOptionIndex(savedAutofillValue.getTextValue());
+                        if (listValue != -1) {
+                            datasetBuilder.setValue(autofillId, AutofillValue.forList(listValue));
+                            setValueAtLeastOnce = true;
+                        }
                         break;
                     case View.AUTOFILL_TYPE_DATE:
-                        long dateValue = hintMap.get(hint).getDateValue();
-                        datasetBuilder.setValue(autofillId, AutofillValue.forDate(dateValue));
+                        long dateValue = savedAutofillValue.getDateValue();
+                        if (dateValue != -1) {
+                            datasetBuilder.setValue(autofillId, AutofillValue.forDate(dateValue));
+                            setValueAtLeastOnce = true;
+                        }
                         break;
                     case View.AUTOFILL_TYPE_TEXT:
-                        String textValue = hintMap.get(hint).getTextValue();
-                        datasetBuilder.setValue(autofillId, AutofillValue.forText(textValue));
+                        String textValue = savedAutofillValue.getTextValue();
+                        if (textValue != null) {
+                            datasetBuilder.setValue(autofillId, AutofillValue.forText(textValue));
+                            setValueAtLeastOnce = true;
+                        }
                         break;
                     case View.AUTOFILL_TYPE_TOGGLE:
-                        boolean toggleValue = hintMap.get(hint).getToggleValue();
-                        datasetBuilder.setValue(autofillId, AutofillValue.forToggle(toggleValue));
+                        if (savedAutofillValue.hasToggleValue()) {
+                            boolean toggleValue = savedAutofillValue.getToggleValue();
+                            datasetBuilder.setValue(autofillId, AutofillValue.forToggle(toggleValue));
+                            setValueAtLeastOnce = true;
+                        }
                         break;
                     case View.AUTOFILL_TYPE_NONE:
                     default:
@@ -138,6 +152,7 @@ public final class ClientFormData {
                 }
             }
         }
+        return setValueAtLeastOnce;
     }
 
     public JSONObject toJson() {

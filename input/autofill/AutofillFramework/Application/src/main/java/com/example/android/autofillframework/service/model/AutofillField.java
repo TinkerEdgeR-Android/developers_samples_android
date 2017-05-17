@@ -30,7 +30,6 @@ public class AutofillField {
     private int mSaveType = 0;
     private String[] mHints;
     private AutofillId mId;
-    private AutofillValue mValue;
     private int mAutofillType;
     private String[] mAutofillOptions;
     private boolean mFocused;
@@ -38,14 +37,9 @@ public class AutofillField {
     public AutofillField(AssistStructure.ViewNode view) {
         mId = view.getAutofillId();
         setHints(view.getAutofillHints());
-        mValue = view.getAutofillValue();
         mAutofillType = view.getAutofillType();
         mAutofillOptions = view.getAutofillOptions();
         mFocused = view.isFocused();
-    }
-
-    public AutofillValue getValue() {
-        return mValue;
     }
 
     public String[] getHints() {
@@ -71,10 +65,6 @@ public class AutofillField {
 
     public int getAutofillType() {
         return mAutofillType;
-    }
-
-    public void setAutofillType(int autofillType) {
-        this.mAutofillType = autofillType;
     }
 
     public int getAutofillOptionIndex(String value) {
