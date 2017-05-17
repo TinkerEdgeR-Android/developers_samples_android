@@ -25,10 +25,14 @@ import org.json.JSONObject;
 public class SavedAutofillValue {
     private static final String TAG = "SavedAutofillValue";
     private String textValue = null;
-    private Long dateValue = null;
-    private Boolean toggleValue = null;
+    private Long dateValue = -1L;
+    private Boolean toggleValue = false;
+    private boolean hasToggleValue = false;
 
     public static SavedAutofillValue fromJson(JSONObject jsonObject) {
+        if (jsonObject == null) {
+            return null;
+        }
         try {
             SavedAutofillValue savedAutofillValue = new SavedAutofillValue();
 
@@ -36,8 +40,8 @@ public class SavedAutofillValue {
                     !jsonObject.isNull("textValue") ? jsonObject.getString("textValue") : null;
             savedAutofillValue.dateValue =
                     !jsonObject.isNull("dateValue") ? jsonObject.getLong("dateValue") : null;
-            savedAutofillValue.toggleValue =
-                    !jsonObject.isNull("toggleValue") ? jsonObject.getBoolean("toggleValue") : null;
+            savedAutofillValue.setToggleValue
+                    (!jsonObject.isNull("toggleValue") ? jsonObject.getBoolean("toggleValue") : null);
             return savedAutofillValue;
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
@@ -92,8 +96,18 @@ public class SavedAutofillValue {
         return toggleValue;
     }
 
+    public void setToggleValue(Boolean toggleValue) {
+        this.toggleValue = toggleValue;
+        hasToggleValue = toggleValue != null;
+    }
+
+
     public boolean isNull() {
-        return textValue == null && dateValue == null && toggleValue == null;
+        return textValue == null && dateValue == -1L && !hasToggleValue;
+    }
+
+    public boolean hasToggleValue() {
+        return hasToggleValue;
     }
 
     @Override
