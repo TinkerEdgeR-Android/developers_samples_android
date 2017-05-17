@@ -15,10 +15,10 @@
  */
 package com.example.android.autofillframework.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
     private EditText mUsernameEditText;
     private EditText mPasswordEditText;
@@ -44,10 +44,10 @@ public class LoginActivity extends Activity {
 
         setContentView(R.layout.login_activity);
 
-        mLoginButton = findViewById(R.id.login);
-        mClearButton = findViewById(R.id.clear);
-        mUsernameEditText = findViewById(R.id.usernameField);
-        mPasswordEditText = findViewById(R.id.passwordField);
+        mLoginButton = (Button) findViewById(R.id.login);
+        mClearButton = (Button) findViewById(R.id.clear);
+        mUsernameEditText = (EditText) findViewById(R.id.usernameField);
+        mPasswordEditText = (EditText) findViewById(R.id.passwordField);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -113,7 +113,8 @@ public final class ClientFormData {
             for (int autofillFieldIndex = 0; autofillFieldIndex < autofillFields.size(); autofillFieldIndex++) {
                 AutofillField autofillField = autofillFields.get(autofillFieldIndex);
                 AutofillId autofillId = autofillField.getId();
-                switch (autofillField.getAutofillType()) {
+                int autofillType = autofillField.getAutofillType();
+                switch (autofillType) {
                     case View.AUTOFILL_TYPE_LIST:
                         int listValue = autofillField.getAutofillOptionIndex(hintMap.get(hint).getTextValue());
                         datasetBuilder.setValue(autofillId, AutofillValue.forList(listValue));
@@ -132,7 +133,7 @@ public final class ClientFormData {
                         break;
                     case View.AUTOFILL_TYPE_NONE:
                     default:
-                        Log.w(TAG, "Invalid autofill saveType");
+                        Log.w(TAG, "Invalid autofill type - " + autofillType);
                         break;
                 }
             }

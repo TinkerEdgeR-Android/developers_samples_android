@@ -15,58 +15,162 @@
  */
 package com.example.android.autofillframework.service.settings;
 
-import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.example.android.autofillframework.R;
+import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
 
-import java.util.Locale;
-
-public class SettingsActivity extends Activity {
-
-    private EditText mNumberDatasets;
-    private CheckBox mResponseAuth;
-    private CheckBox mDatasetAuth;
-    private Button mSave;
-    private Button mCancel;
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.settings_activity);
-        mNumberDatasets = findViewById(R.id.number_datasets);
-        mResponseAuth = findViewById(R.id.response_auth);
-        mDatasetAuth = findViewById(R.id.dataset_auth);
-        mSave = findViewById(R.id.save);
-        mCancel = findViewById(R.id.cancel);
+        final MyPreferences preferences = MyPreferences.getInstance(this);
+        setupSettingsSwitch(R.id.settings_auth_responses_container,
+                R.id.settings_auth_responses_label,
+                R.id.settings_auth_responses_switch,
+                preferences.isResponseAuth(),
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        preferences.setResponseAuth(b);
+                    }
+                });
+        setupSettingsSwitch(R.id.settings_auth_datasets_container,
+                R.id.settings_auth_datasets_label,
+                R.id.settings_auth_datasets_switch,
+                preferences.isDatasetAuth(),
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        preferences.setDatasetAuth(b);
+                    }
+                });
+        setupSettingsButton(R.id.settings_clear_data_container,
+                R.id.settings_clear_data_label,
+                R.id.settings_clear_data_icon,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        buildClearDataDialog().show();
+                    }
+                });
 
-        final MyPreferences p = MyPreferences.getInstance(this);
+        setupSettingsButton(R.id.settings_auth_credentials_container,
+                R.id.settings_auth_credentials_label,
+                R.id.settings_auth_credentials_icon,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (MyPreferences.getInstance(SettingsActivity.this).getMasterPassword() != null) {
+                            buildCurrentCredentialsDialog().show();
+                        } else {
+                            buildNewCredentialsDialog().show();
+                        }
+                    }
+                });
+    }
 
-        mNumberDatasets.setText(String.format(Locale.getDefault(), "%d", p.getNumberDatasets()));
-        mDatasetAuth.setChecked(p.isDatasetAuth());
-        mResponseAuth.setChecked(p.isResponseAuth());
+    private AlertDialog buildClearDataDialog() {
+        return new AlertDialog.Builder(SettingsActivity.this)
+                .setMessage(R.string.settings_clear_data_confirmation)
+                .setTitle(R.string.settings_clear_data_confirmation_title)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        LocalAutofillRepository.getInstance
+                                (SettingsActivity.this).clear();
+                        MyPreferences.getInstance(SettingsActivity.this)
+                                .clearCredentials();
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+    }
 
-        mSave.setOnClickListener(new View.OnClickListener() {
+    private AlertDialog.Builder prepareCredentialsDialog() {
+        return new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.settings_auth_change_credentials_title)
+                .setNegativeButton(R.string.cancel, null);
+    }
+
+    private AlertDialog buildCurrentCredentialsDialog() {
+        final EditText currentPasswordField = LayoutInflater
+                .from(SettingsActivity.this)
+                .inflate(R.layout.settings_authentication_dialog, null)
+                .findViewById(R.id.master_password_field);
+        return prepareCredentialsDialog()
+                .setMessage(R.string.settings_auth_enter_current_password)
+                .setView(currentPasswordField)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String password = currentPasswordField.getText().toString();
+                        if (MyPreferences.getInstance(SettingsActivity.this).getMasterPassword()
+                                .equals(password)) {
+                            buildNewCredentialsDialog().show();
+                            dialog.dismiss();
+                        }
+                    }
+                })
+                .create();
+    }
+
+    private AlertDialog buildNewCredentialsDialog() {
+        final EditText newPasswordField = LayoutInflater
+                .from(SettingsActivity.this)
+                .inflate(R.layout.settings_authentication_dialog, null)
+                .findViewById(R.id.master_password_field);
+        return prepareCredentialsDialog()
+                .setMessage(R.string.settings_auth_enter_new_password)
+                .setView(newPasswordField)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String password = newPasswordField.getText().toString();
+                        MyPreferences.getInstance(SettingsActivity.this).setMasterPassword(password);
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+    }
+
+    private void setupSettingsSwitch(int containerId, int labelId, int switchId, boolean checked,
+            CompoundButton.OnCheckedChangeListener checkedChangeListener) {
+        ViewGroup container = (ViewGroup) findViewById(containerId);
+        String switchLabel = ((TextView) container.findViewById(labelId)).getText().toString();
+        final Switch switchView = container.findViewById(switchId);
+        switchView.setContentDescription(switchLabel);
+        switchView.setChecked(checked);
+        container.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                MyPreferences.getInstance(SettingsActivity.this).bulkEdit(
-                        Integer.parseInt(mNumberDatasets.getText().toString()),
-                        mResponseAuth.isChecked(),
-                        mDatasetAuth.isChecked());
-                finish();
+            public void onClick(View v) {
+                switchView.performClick();
             }
         });
+        switchView.setOnCheckedChangeListener(checkedChangeListener);
+    }
 
-        mCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+    private void setupSettingsButton(int containerId, int labelId, int imageViewId,
+            final View.OnClickListener onClickListener) {
+        ViewGroup container = (ViewGroup) findViewById(containerId);
+        String buttonLabel = ((TextView) container.findViewById(labelId)).getText().toString();
+        final ImageView imageView = container.findViewById(imageViewId);
+        imageView.setContentDescription(buttonLabel);
+        container.setOnClickListener(onClickListener);
     }
 }

@@ -19,14 +19,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
 public class MyPreferences {
     private static final String TAG = "MyPreferences";
 
-    private static final String PREF_NUMBER_DATASET = "number_datasets";
-    private static final String PREF_RESPONSE_AUTH = "response_auth";
-    private static final String PREF_DATASET_AUTH = "dataset_auth";
+    private static final String RESPONSE_AUTH_KEY = "response_auth";
+    private static final String DATASET_AUTH_KEY = "dataset_auth";
+    private static final String MASTER_PASSWORD_KEY = "master_password";
+
     private static MyPreferences sInstance;
     private final SharedPreferences mPrefs;
 
@@ -43,34 +44,48 @@ public class MyPreferences {
     }
 
     /**
-     * Gets the number of {@link Dataset}s that should be added to a {@link FillResponse}.
-     */
-    public int getNumberDatasets() {
-        return mPrefs.getInt(PREF_NUMBER_DATASET, 2);
-    }
-
-    /**
      * Gets whether {@link FillResponse}s should require authentication.
      */
     public boolean isResponseAuth() {
-        return mPrefs.getBoolean(PREF_RESPONSE_AUTH, false);
+        return mPrefs.getBoolean(RESPONSE_AUTH_KEY, false);
     }
 
+    /**
+     * Enables/disables authentication for the entire autofill {@link FillResponse}.
+     */
+    public void setResponseAuth(boolean responseAuth) {
+        mPrefs.edit().putBoolean(RESPONSE_AUTH_KEY, responseAuth).apply();
+    }
 
     /**
      * Gets whether {@link Dataset}s should require authentication.
      */
     public boolean isDatasetAuth() {
-        return mPrefs.getBoolean(PREF_DATASET_AUTH, false);
+        return mPrefs.getBoolean(DATASET_AUTH_KEY, false);
     }
 
-    public void bulkEdit(int numberDatasets, boolean responseAuth, boolean datasetAuth) {
-        Log.v(TAG, "bulk edit:" + numberDatasets + ":" + responseAuth + ":" + datasetAuth);
-        mPrefs.edit()
-                .putInt(PREF_NUMBER_DATASET, numberDatasets)
-                .putBoolean(PREF_RESPONSE_AUTH, responseAuth)
-                .putBoolean(PREF_DATASET_AUTH, datasetAuth)
-                .apply();
+    /**
+     * Enables/disables authentication for individual autofill {@link Dataset}s.
+     */
+    public void setDatasetAuth(boolean datasetAuth) {
+        mPrefs.edit().putBoolean(DATASET_AUTH_KEY, datasetAuth).apply();
+    }
 
+    /**
+     * Gets autofill master username.
+     */
+    public String getMasterPassword() {
+        return mPrefs.getString(MASTER_PASSWORD_KEY, null);
+    }
+
+    /**
+     * Sets autofill master password.
+     */
+    public void setMasterPassword(@NonNull String masterPassword) {
+        mPrefs.edit().putString(MASTER_PASSWORD_KEY, masterPassword).apply();
+    }
+
+    public void clearCredentials() {
+        mPrefs.edit().remove(MASTER_PASSWORD_KEY).apply();
     }
 }
