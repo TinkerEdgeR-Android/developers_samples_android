@@ -37,7 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:text="@string/username_label" />
+            android:text="@string/username_label"
+            android:importantForAutofill="no"/>
 
         <EditText
             android:id="@+id/usernameField"
@@ -45,7 +46,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:layout_alignBaseline="@+id/usernameLabel"
-            android:layout_toEndOf="@id/usernameLabel"/>
+            android:layout_toEndOf="@id/usernameLabel"
+            android:autofillHints="username"/>
 
         <TextView
             android:id="@+id/passwordLabel"
@@ -54,7 +56,8 @@
             android:text="@string/password_label"
             android:layout_below="@+id/usernameLabel"
             android:layout_alignStart="@+id/usernameLabel"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:importantForAutofill="no"/>
 
         <EditText
             android:id="@+id/passwordField"
@@ -62,7 +65,8 @@
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:layout_alignBaseline="@+id/passwordLabel"
-            android:layout_alignStart="@+id/usernameField"/>
+            android:layout_alignStart="@+id/usernameField"
+            android:autofillHints="password"/>
     </RelativeLayout>
 
     <LinearLayout

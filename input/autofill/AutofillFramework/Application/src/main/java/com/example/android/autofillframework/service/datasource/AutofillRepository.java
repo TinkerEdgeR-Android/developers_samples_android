@@ -15,6 +15,8 @@
  */
 package com.example.android.autofillframework.service.datasource;
 
+import com.example.android.autofillframework.service.model.CreditCardInfo;
+import com.example.android.autofillframework.service.model.DatasetModel;
 import com.example.android.autofillframework.service.model.LoginCredential;
 
 import java.util.HashMap;
@@ -29,5 +31,9 @@ public interface AutofillRepository {
     /**
      * Saves LoginCredential under this datasetName.
      */
-    void saveLoginCredential(LoginCredential loginCredential);
+    void saveLoginCredential(DatasetModel loginCredential);
+
+    HashMap<String, CreditCardInfo> getCreditCardInfo();
+
+    void saveCreditCardInfo(DatasetModel creditCardInfo);
 }
