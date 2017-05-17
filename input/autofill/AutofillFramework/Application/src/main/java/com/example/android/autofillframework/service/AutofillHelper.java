@@ -26,7 +26,7 @@ import android.widget.RemoteViews;
 
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.service.model.DatasetModel;
+import com.example.android.autofillframework.service.model.ClientFormData;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -43,10 +43,10 @@ public final class AutofillHelper {
      * client View.
      */
     public static Dataset newDataset(Context context,
-            AutofillFieldsCollection autofillFields, DatasetModel datasetModel) {
+            AutofillFieldsCollection autofillFields, ClientFormData clientFormData) {
         Dataset.Builder datasetBuilder = new Dataset.Builder
-                (newRemoteViews(context.getPackageName(), datasetModel.getDatasetName()));
-        datasetModel.applyToFields(autofillFields, datasetBuilder);
+                (newRemoteViews(context.getPackageName(), clientFormData.getDatasetName()));
+        clientFormData.applyToFields(autofillFields, datasetBuilder);
         return datasetBuilder.build();
     }
 
@@ -60,24 +60,26 @@ public final class AutofillHelper {
      * Wraps autofill data in a Response object (essentially a series of Datasets) which can then
      * be sent back to the client View.
      */
-    public static <T extends DatasetModel> FillResponse newResponse(Context context,
+    public static FillResponse newResponse(Context context,
             boolean datasetAuth, AutofillFieldsCollection autofillFields, int saveType,
-            HashMap<String, T> datasetModelMap) {
+            HashMap<String, ClientFormData> clientFormDataMap) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
-        Set<String> datasetNames = datasetModelMap.keySet();
-        for (String datasetName : datasetNames) {
-            T datasetModel = datasetModelMap.get(datasetName);
-            if (datasetAuth) {
-                Dataset.Builder datasetBuilder =
-                        new Dataset.Builder(newRemoteViews
-                                (context.getPackageName(), datasetModel.getDatasetName()));
-                IntentSender sender = AuthActivity
-                        .getAuthIntentSenderForDataset(context, datasetModel.getDatasetName());
-                datasetBuilder.setAuthentication(sender);
-                responseBuilder.addDataset(datasetBuilder.build());
-            } else {
-                Dataset dataset = newDataset(context, autofillFields, datasetModel);
-                responseBuilder.addDataset(dataset);
+        if (clientFormDataMap != null) {
+            Set<String> datasetNames = clientFormDataMap.keySet();
+            for (String datasetName : datasetNames) {
+                ClientFormData clientFormData = clientFormDataMap.get(datasetName);
+                if (datasetAuth) {
+                    Dataset.Builder datasetBuilder =
+                            new Dataset.Builder(newRemoteViews
+                                    (context.getPackageName(), clientFormData.getDatasetName()));
+                    IntentSender sender = AuthActivity
+                            .getAuthIntentSenderForDataset(context, clientFormData.getDatasetName());
+                    datasetBuilder.setAuthentication(sender);
+                    responseBuilder.addDataset(datasetBuilder.build());
+                } else {
+                    Dataset dataset = newDataset(context, autofillFields, clientFormData);
+                    responseBuilder.addDataset(dataset);
+                }
             }
         }
         if (saveType != 0) {

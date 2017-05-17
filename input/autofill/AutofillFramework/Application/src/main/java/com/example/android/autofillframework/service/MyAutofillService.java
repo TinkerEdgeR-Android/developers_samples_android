@@ -32,9 +32,7 @@ import android.widget.RemoteViews;
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
 import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.service.model.CreditCardInfo;
-import com.example.android.autofillframework.service.model.DatasetModel;
-import com.example.android.autofillframework.service.model.LoginCredential;
+import com.example.android.autofillframework.service.model.ClientFormData;
 import com.example.android.autofillframework.service.settings.MyPreferences;
 
 import java.util.HashMap;
@@ -97,21 +95,11 @@ public class MyAutofillService extends AutofillService {
             callback.onSuccess(responseBuilder.build());
         } else {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
-            FillResponse response = null;
-            switch (parser.getClientPageType()) {
-                case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
-                    HashMap<String, LoginCredential> loginCredentialMap =
-                            LocalAutofillRepository.getInstance(this).getLoginCredentials();
-                    response = AutofillHelper.newResponse
-                            (this, datasetAuth, autofillFields, saveTypes, loginCredentialMap);
-                    break;
-                case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
-                    HashMap<String, CreditCardInfo> creditCardInfoMap =
-                            LocalAutofillRepository.getInstance(this).getCreditCardInfo();
-                    response = AutofillHelper.newResponse
-                            (this, datasetAuth, autofillFields, saveTypes, creditCardInfoMap);
-                    break;
-            }
+            HashMap<String, ClientFormData> clientFormDataMap =
+                    LocalAutofillRepository.getInstance(this).getClientFormData
+                            (autofillFields.getFocusedHints(), autofillFields.getAllHints());
+            FillResponse response = AutofillHelper.newResponse
+                    (this, datasetAuth, autofillFields, saveTypes, clientFormDataMap);
             callback.onSuccess(response);
         }
     }
@@ -124,15 +112,8 @@ public class MyAutofillService extends AutofillService {
         Log.d(TAG, "onSaveRequest(): data=" + bundleToString(data));
         StructureParser parser = new StructureParser(structure);
         parser.parse();
-        DatasetModel datasetModel = parser.getDatasetModel();
-        switch (parser.getClientPageType()) {
-            case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
-                LocalAutofillRepository.getInstance(this).saveLoginCredential(datasetModel);
-                break;
-            case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
-                LocalAutofillRepository.getInstance(this).saveCreditCardInfo(datasetModel);
-                break;
-        }
+        ClientFormData clientFormData = parser.getClientFormData();
+        LocalAutofillRepository.getInstance(this).saveClientFormData(clientFormData);
     }
 
     @Override

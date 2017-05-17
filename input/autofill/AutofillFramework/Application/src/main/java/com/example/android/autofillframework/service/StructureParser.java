@@ -19,62 +19,54 @@ import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.util.Log;
-import android.view.View;
 
 import com.example.android.autofillframework.service.model.AutofillField;
 import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.service.model.CreditCardInfo;
-import com.example.android.autofillframework.service.model.DatasetModel;
-import com.example.android.autofillframework.service.model.LoginCredential;
+import com.example.android.autofillframework.service.model.ClientFormData;
+import com.example.android.autofillframework.service.model.SavedAutofillValue;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 
 /**
  * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an
- * AssistStructure from the client Activity, representing its View hierarchy. In this basic
- * sample, it only parses the hierarchy looking for Username and Password fields based on their
- * resource IDs.
+ * AssistStructure from the client Activity, representing its View hierarchy. In this
+ * sample, it parses the hierarchy and records
  */
 final class StructureParser {
-
-    public static final int CLIENT_PAGE_TYPE_UNRECOGNIZED = 0;
-    public static final int CLIENT_PAGE_TYPE_LOGIN = 1;
-    public static final int CLIENT_PAGE_TYPE_CREDIT_CARD_INFO = 2;
-
     private final AutofillFieldsCollection mAutofillFields = new AutofillFieldsCollection();
-    private final AssistStructure structure;
-    private int mClientPageType = CLIENT_PAGE_TYPE_UNRECOGNIZED;
-    private DatasetModel mDatasetModel;
+    private final AssistStructure mStructure;
+    private ClientFormData mClientFormData;
 
     StructureParser(AssistStructure structure) {
-        this.structure = structure;
+        mStructure = structure;
+
     }
 
     /**
-     * Depth first search of AssistStructure in search of Views whose resource ID entry is
-     * "usernameField" or "passwordField"
+     * Traverse AssistStructure and add ViewNode metadata to a flat list.
      */
     void parse() {
-        Log.d(TAG, "Parsing structure for " + structure.getActivityComponent());
-        int nodes = structure.getWindowNodeCount();
+        Log.d(TAG, "Parsing structure for " + mStructure.getActivityComponent());
+        int nodes = mStructure.getWindowNodeCount();
+        mClientFormData = new ClientFormData();
         for (int i = 0; i < nodes; i++) {
-            WindowNode node = structure.getWindowNodeAt(i);
+            WindowNode node = mStructure.getWindowNodeAt(i);
             ViewNode view = node.getRootViewNode();
             parseLocked(view);
         }
-        updateClientPageType();
     }
 
-    private void parseLocked(ViewNode view) {
-        if (view.getAutofillType() != View.AUTOFILL_TYPE_NONE) {
-            AutofillField field = new AutofillField();
-            field.setFrom(view);
-            mAutofillFields.add(field);
+    private void parseLocked(ViewNode viewNode) {
+        if (viewNode.getAutofillHints() != null && viewNode.getAutofillHints().length > 0) {
+            //TODO check to make sure hints are supported by service.
+            mAutofillFields.add(new AutofillField(viewNode));
+            mClientFormData
+                    .set(viewNode.getAutofillHints(), SavedAutofillValue.fromViewNode(viewNode));
         }
-        int childrenSize = view.getChildCount();
+        int childrenSize = viewNode.getChildCount();
         if (childrenSize > 0) {
             for (int i = 0; i < childrenSize; i++) {
-                parseLocked(view.getChildAt(i));
+                parseLocked(viewNode.getChildAt(i));
             }
         }
     }
@@ -87,30 +79,7 @@ final class StructureParser {
         return mAutofillFields.getSaveType();
     }
 
-    private void updateClientPageType() {
-        if (mAutofillFields.containsHint(View.AUTOFILL_HINT_USERNAME) &&
-                mAutofillFields.containsHint(View.AUTOFILL_HINT_PASSWORD)) {
-            mClientPageType = CLIENT_PAGE_TYPE_LOGIN;
-            // This only takes the value from one view with USERNAME hint.
-            // In a real service we would save all of the username values.
-            String username = mAutofillFields.getFieldsForHint
-                    (View.AUTOFILL_HINT_USERNAME).get(0).getValue();
-            String password = mAutofillFields.getFieldsForHint
-                    (View.AUTOFILL_HINT_PASSWORD).get(0).getValue();
-            mDatasetModel = new LoginCredential(username, password);
-        } else if (mAutofillFields.containsHint(View.AUTOFILL_HINT_CREDIT_CARD_NUMBER)) {
-            mClientPageType = CLIENT_PAGE_TYPE_CREDIT_CARD_INFO;
-            String creditCardNumber = mAutofillFields.getFieldsForHint
-                    (View.AUTOFILL_HINT_CREDIT_CARD_NUMBER).get(0).getValue();
-            mDatasetModel = new CreditCardInfo(creditCardNumber);
-        }
-    }
-
-    public int getClientPageType() {
-        return mClientPageType;
-    }
-
-    public DatasetModel getDatasetModel() {
-        return mDatasetModel;
+    public ClientFormData getClientFormData() {
+        return mClientFormData;
     }
 }

@@ -15,25 +15,22 @@
  */
 package com.example.android.autofillframework.service.datasource;
 
-import com.example.android.autofillframework.service.model.CreditCardInfo;
-import com.example.android.autofillframework.service.model.DatasetModel;
-import com.example.android.autofillframework.service.model.LoginCredential;
+import com.example.android.autofillframework.service.model.ClientFormData;
 
 import java.util.HashMap;
+import java.util.List;
 
 public interface AutofillRepository {
 
     /**
-     * Gets LoginCredential that was originally saved with this {@code datasetName}.
+     * Gets saved ClientFormData that contains some objects that can autofill fields with these
+     * {@code autofillHints}.
      */
-    HashMap<String, LoginCredential> getLoginCredentials();
+    HashMap<String, ClientFormData> getClientFormData(List<String> focusedAutofillHints,
+            List<String> allAutofillHints);
 
     /**
      * Saves LoginCredential under this datasetName.
      */
-    void saveLoginCredential(DatasetModel loginCredential);
-
-    HashMap<String, CreditCardInfo> getCreditCardInfo();
-
-    void saveCreditCardInfo(DatasetModel creditCardInfo);
+    void saveClientFormData(ClientFormData clientFormData);
 }
