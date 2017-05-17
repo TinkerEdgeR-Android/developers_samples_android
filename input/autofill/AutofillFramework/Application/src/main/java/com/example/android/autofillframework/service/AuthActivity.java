@@ -37,6 +37,7 @@ import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
 import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
 import com.example.android.autofillframework.service.model.ClientFormData;
+import com.example.android.autofillframework.service.settings.MyPreferences;
 
 import java.util.HashMap;
 
@@ -63,8 +64,7 @@ public class AuthActivity extends Activity {
 
     static IntentSender getAuthIntentSenderForResponse(Context context) {
         final Intent intent = new Intent(context, AuthActivity.class);
-        return PendingIntent.getActivity(context, 0, intent,
-                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT)
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
                 .getIntentSender();
     }
 
@@ -73,8 +73,7 @@ public class AuthActivity extends Activity {
         intent.putExtra(EXTRA_DATASET_NAME, datasetName);
         intent.putExtra(EXTRA_FOR_RESPONSE, false);
         return PendingIntent.getActivity(context, ++sDatasetPendingIntentId, intent,
-                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT)
-                .getIntentSender();
+                PendingIntent.FLAG_CANCEL_CURRENT).getIntentSender();
     }
 
     @Override
@@ -103,10 +102,11 @@ public class AuthActivity extends Activity {
     }
 
     private void login() {
-        // TODO set master username/password in Settings.
         Editable password = mMasterPassword.getText();
-        Log.d(TAG, "login: " + password);
-        if (password.length() == 0) {
+        Log.d(TAG, "PW entered: " + password);
+        Log.d(TAG, "Correct: " + MyPreferences.getInstance(AuthActivity.this).getMasterPassword());
+        if (password.toString()
+                .equals(MyPreferences.getInstance(AuthActivity.this).getMasterPassword())) {
             onSuccess();
         } else {
             Toast.makeText(this, "Password incorrect", Toast.LENGTH_SHORT).show();

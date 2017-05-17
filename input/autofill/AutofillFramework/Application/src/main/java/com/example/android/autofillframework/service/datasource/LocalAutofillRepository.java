@@ -44,7 +44,8 @@ public class LocalAutofillRepository implements AutofillRepository {
 
     // TODO prepend with autofill data set in Settings.
     private LocalAutofillRepository(Context context) {
-        mPrefs = context.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        mPrefs = context.getApplicationContext()
+                .getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static LocalAutofillRepository getInstance(Context context) {
@@ -93,6 +94,11 @@ public class LocalAutofillRepository implements AutofillRepository {
         allAutofillData.add(clientFormData.toJson().toString());
         saveAllAutofillDataStringSet(allAutofillData);
         incrementDatasetNumber();
+    }
+
+    @Override
+    public void clear() {
+        mPrefs.edit().remove(CLIENT_FORM_DATA_KEY).apply();
     }
 
     private Set<String> getAllAutofillDataStringSet() {

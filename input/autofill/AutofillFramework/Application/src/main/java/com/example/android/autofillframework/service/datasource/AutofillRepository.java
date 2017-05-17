@@ -33,4 +33,9 @@ public interface AutofillRepository {
      * Saves LoginCredential under this datasetName.
      */
     void saveClientFormData(ClientFormData clientFormData);
+
+    /**
+     * Clear all data.
+     */
+    void clear();
 }
