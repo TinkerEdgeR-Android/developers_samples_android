@@ -30,7 +30,6 @@ public class AutofillField {
     private String[] hints;
     private AutofillId id;
 
-    // For simplicity, we will only support text values.
     // TODO support multiple value types.
     private String value;
 
@@ -39,6 +38,8 @@ public class AutofillField {
 
     public void setFrom(AssistStructure.ViewNode view) {
         id = view.getAutofillId();
+        // TODO support multiple value types.
+        value = view.getText().toString();
         setHints(view.getAutofillHints());
     }
 
@@ -78,7 +79,7 @@ public class AutofillField {
 
     private void updateSaveTypeFromHints() {
         saveType = 0;
-        if(hints == null) {
+        if (hints == null) {
             return;
         }
         for (String hint : hints) {

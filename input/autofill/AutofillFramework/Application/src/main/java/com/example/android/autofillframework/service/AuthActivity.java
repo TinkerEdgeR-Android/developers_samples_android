@@ -35,11 +35,11 @@ import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
-import com.example.android.autofillframework.service.model.AutofillField;
+import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
+import com.example.android.autofillframework.service.model.CreditCardInfo;
 import com.example.android.autofillframework.service.model.LoginCredential;
 
 import java.util.HashMap;
-import java.util.List;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
@@ -83,9 +83,9 @@ public class AuthActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.auth_activity);
-        mCancel = (Button) findViewById(R.id.cancel);
-        mLogin = (Button) findViewById(R.id.login);
-        mMasterPassword = (EditText) findViewById(R.id.master_password);
+        mCancel = findViewById(R.id.cancel);
+        mLogin = findViewById(R.id.login);
+        mMasterPassword = findViewById(R.id.master_password);
         mLogin.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,6 +104,7 @@ public class AuthActivity extends Activity {
     }
 
     private void login() {
+        // TODO set master username/password to Settings.
         Editable password = mMasterPassword.getText();
         Log.d(TAG, "login: " + password);
         if (password.length() == 0) {
@@ -136,32 +137,50 @@ public class AuthActivity extends Activity {
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         StructureParser parser = new StructureParser(structure);
         parser.parse();
-        List<AutofillField> autofillFields = parser.getAutofillFields();
-        HashMap<String, LoginCredential> loginCredentialMap =
-                LocalAutofillRepository.getInstance(this).getLoginCredentials();
-        int saveType = parser.getSaveTypes();
-        if (loginCredentialMap == null || loginCredentialMap.isEmpty()) {
-            Log.d(TAG, "No Autofill data found for this Activity.");
-            return;
-        }
+        AutofillFieldsCollection autofillFields = parser.getAutofillFields();
+        int saveTypes = parser.getSaveTypes();
         mReplyIntent = new Intent();
-        if (forResponse) {
-            // The response protected by auth, so we can send the entire response since we
-            // passed auth.
-            FillResponse response = AutofillHelper
-                    .newCredentialResponse(this, false, autofillFields, saveType, loginCredentialMap);
-            if (response != null) {
-                mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, response);
-            }
-        } else {
-            // The dataset selected by the user was protected by auth, so we can send that dataset.
-            String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
-            if (loginCredentialMap.containsKey(datasetName)) {
-                LoginCredential credential = loginCredentialMap.get(datasetName);
-                Dataset dataset = AutofillHelper
-                        .newCredentialDataset(this, autofillFields, credential);
-                mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, dataset);
-            }
+        switch (parser.getClientPageType()) {
+            case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
+                HashMap<String, LoginCredential> loginCredentialMap =
+                        LocalAutofillRepository.getInstance(this).getLoginCredentials();
+                if (loginCredentialMap == null || loginCredentialMap.isEmpty()) {
+                    Log.d(TAG, "No Autofill data found for this Activity.");
+                    return;
+                }
+                if (forResponse) {
+                    setResponseIntent(AutofillHelper.newResponse
+                            (this, false, autofillFields, saveTypes, loginCredentialMap));
+                } else {
+                    String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
+                    setDatasetIntent(AutofillHelper.newDataset
+                            (this, autofillFields, loginCredentialMap.get(datasetName)));
+                }
+                break;
+            case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
+                HashMap<String, CreditCardInfo> creditCardInfoMap =
+                        LocalAutofillRepository.getInstance(this).getCreditCardInfo();
+                if (creditCardInfoMap == null || creditCardInfoMap.isEmpty()) {
+                    Log.d(TAG, "No Autofill data found for this Activity.");
+                    return;
+                }
+                if (forResponse) {
+                    setResponseIntent(AutofillHelper.newResponse
+                            (this, false, autofillFields, saveTypes, creditCardInfoMap));
+                } else {
+                    String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
+                    setDatasetIntent(AutofillHelper.newDataset
+                            (this, autofillFields, creditCardInfoMap.get(datasetName)));
+                }
+                break;
         }
+    }
+
+    private void setResponseIntent(FillResponse fillResponse) {
+        mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, fillResponse);
+    }
+
+    private void setDatasetIntent(Dataset dataset) {
+        mReplyIntent.putExtra(EXTRA_AUTHENTICATION_RESULT, dataset);
     }
 }

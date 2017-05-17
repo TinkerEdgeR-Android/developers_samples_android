@@ -16,49 +16,71 @@
 package com.example.android.autofillframework.service.model;
 
 
+import android.service.autofill.Dataset;
+import android.view.View;
+import android.view.autofill.AutofillValue;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
+/**
+ * Predefined model of data on an autofillable login page.
+ */
 public class LoginCredential implements DatasetModel {
     private final String username;
     private final String password;
     private String datasetName;
 
-    LoginCredential(String username, String password) {
+    public LoginCredential(String username, String password) {
         this(username, password, null);
     }
 
-    LoginCredential(String username, String password, String datasetName) {
+    public LoginCredential(String username, String password, String datasetName) {
         this.username = username;
         this.password = password;
+        this.datasetName = datasetName;
     }
 
     public static LoginCredential fromJson(JSONObject jsonObject) {
-        LoginCredential loginCredential = null;
         try {
-            loginCredential = new LoginCredential(jsonObject.getString("username"),
-                    jsonObject.getString("password"));
+            return new LoginCredential(jsonObject.getString("username"),
+                    jsonObject.getString("password"),
+                    jsonObject.getString("datasetName"));
         } catch (JSONException e) {
             return null;
         }
-        return loginCredential;
     }
 
     @Override
     public String getDatasetName() {
-        return username;
+        return datasetName;
     }
 
     public void setDatasetName(String datasetName) {
         this.datasetName = datasetName;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    @Override
+    public void applyToFields(AutofillFieldsCollection autofillFieldsCollection,
+            Dataset.Builder datasetBuilder) {
+        List<AutofillField> usernameFields =
+                autofillFieldsCollection.getFieldsForHint(View.AUTOFILL_HINT_USERNAME);
+        List<AutofillField> passwordFields =
+                autofillFieldsCollection.getFieldsForHint(View.AUTOFILL_HINT_PASSWORD);
 
-    public String getPassword() {
-        return password;
+        for (int i = 0; i < usernameFields.size(); i++) {
+            AutofillField field = usernameFields.get(i);
+            datasetBuilder.setValue(field.getId(),
+                    AutofillValue.forText(username));
+        }
+
+        for (int i = 0; i < passwordFields.size(); i++) {
+            AutofillField field = passwordFields.get(i);
+            datasetBuilder.setValue(field.getId(),
+                    AutofillValue.forText(password));
+        }
     }
 
     public JSONObject toJson() {
@@ -66,6 +88,7 @@ public class LoginCredential implements DatasetModel {
         try {
             jsonObject.put("username", username);
             jsonObject.put("password", password);
+            jsonObject.put("datasetName", datasetName);
         } catch (JSONException e) {
             return null;
         }
@@ -81,7 +104,8 @@ public class LoginCredential implements DatasetModel {
 
         if (!username.equals(that.username)) return false;
         if (!password.equals(that.password)) return false;
-        return datasetName != null ? datasetName.equals(that.datasetName) : that.datasetName == null;
+        return datasetName != null ?
+                datasetName.equals(that.datasetName) : that.datasetName == null;
 
     }
 

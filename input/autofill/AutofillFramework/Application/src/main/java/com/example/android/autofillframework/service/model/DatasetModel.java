@@ -15,11 +15,33 @@
  */
 package com.example.android.autofillframework.service.model;
 
+import android.service.autofill.Dataset;
+import android.view.autofill.AutofillId;
+
+import org.json.JSONObject;
+
 /**
- * Blueprint for Objects that are the underlying data model for Autofill Datasets. In this basic
- * sample, they are only required to have a Dataset name that displays in the list of Autofill
- * suggestions that the user picks from.
+ * Blueprint for Objects that are the underlying data model for Autofill Datasets.
+ * Implementations should contain values that are meant to populate autofillable fields.
  */
 public interface DatasetModel {
+
+    /**
+     * Returns the name of the {@link Dataset}.
+     */
     String getDatasetName();
+
+    /**
+     * Sets the {@link Dataset} name.
+     */
+    void setDatasetName(String datasetName);
+
+    /**
+     * Populates a {@link Dataset.Builder} with appropriate values for each {@link AutofillId}
+     * in a {@code AutofillFieldsCollection}.
+     */
+    void applyToFields(AutofillFieldsCollection autofillFieldsCollection,
+            Dataset.Builder datasetBuilder);
+
+    JSONObject toJson();
 }
