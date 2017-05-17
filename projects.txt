@@ -128,3 +128,4 @@ media/PictureInPicture
 input/autofill/AutofillFramework
 views/EmojiCompat
 ui/fonts/DownloadableFonts
+wearable/wear/WearComplicationProvidersTestSuite
