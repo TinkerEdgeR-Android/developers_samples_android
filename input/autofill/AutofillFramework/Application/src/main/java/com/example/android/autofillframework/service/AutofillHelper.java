@@ -46,8 +46,12 @@ public final class AutofillHelper {
             AutofillFieldsCollection autofillFields, ClientFormData clientFormData) {
         Dataset.Builder datasetBuilder = new Dataset.Builder
                 (newRemoteViews(context.getPackageName(), clientFormData.getDatasetName()));
-        clientFormData.applyToFields(autofillFields, datasetBuilder);
-        return datasetBuilder.build();
+        boolean setValueAtLeastOnce = clientFormData.applyToFields(autofillFields, datasetBuilder);
+        if (setValueAtLeastOnce) {
+            return datasetBuilder.build();
+        } else {
+            return null;
+        }
     }
 
     public static RemoteViews newRemoteViews(String packageName, String remoteViewsText) {
@@ -78,7 +82,9 @@ public final class AutofillHelper {
                     responseBuilder.addDataset(datasetBuilder.build());
                 } else {
                     Dataset dataset = newDataset(context, autofillFields, clientFormData);
-                    responseBuilder.addDataset(dataset);
+                    if (dataset != null) {
+                        responseBuilder.addDataset(dataset);
+                    }
                 }
             }
         }
