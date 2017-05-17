@@ -43,7 +43,6 @@ import static com.example.android.autofillframework.CommonUtil.bundleToString;
 /**
  * Custom View with virtual child views for Username/Password text fields.
  */
-
 public class CustomVirtualView extends View {
 
     private static final String TAG = "CustomView";

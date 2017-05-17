@@ -27,18 +27,18 @@ import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
 import android.util.Log;
-import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.service.datasource.LocalAutofillRepository;
-import com.example.android.autofillframework.service.model.AutofillField;
+import com.example.android.autofillframework.service.model.AutofillFieldsCollection;
+import com.example.android.autofillframework.service.model.CreditCardInfo;
+import com.example.android.autofillframework.service.model.DatasetModel;
 import com.example.android.autofillframework.service.model.LoginCredential;
 import com.example.android.autofillframework.service.settings.MyPreferences;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 import static com.example.android.autofillframework.CommonUtil.bundleToString;
@@ -80,32 +80,38 @@ public class MyAutofillService extends AutofillService {
         // Parse AutoFill data in Activity
         StructureParser parser = new StructureParser(structure);
         parser.parse();
-        List<AutofillField> autofillFields = parser.getAutofillFields();
-        HashMap<String, LoginCredential> loginCredentialMap =
-                LocalAutofillRepository.getInstance(this).getLoginCredentials();
-        AutofillId[] autofillIds = AutofillHelper.getAutofillIds(autofillFields);
+        AutofillFieldsCollection autofillFields = parser.getAutofillFields();
         int saveTypes = parser.getSaveTypes();
 
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
-        // Check user's settings for authenticating Responses and Datasets
+        // Check user's settings for authenticating Responses and Datasets.
         boolean responseAuth = MyPreferences.getInstance(this).isResponseAuth();
         if (responseAuth) {
             // If the entire Autofill Response is authenticated, AuthActivity is used
-            // to generate Response
+            // to generate Response.
             IntentSender sender = AuthActivity.getAuthIntentSenderForResponse(this);
             RemoteViews presentation = AutofillHelper
                     .newRemoteViews(getPackageName(), getString(R.string.autofill_sign_in_prompt));
-            responseBuilder.setAuthentication
-                    (autofillIds, sender, presentation);
+            responseBuilder
+                    .setAuthentication(autofillFields.getAutofillIds(), sender, presentation);
             callback.onSuccess(responseBuilder.build());
         } else {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
             FillResponse response = null;
-            if (parser.isLoginPage()) {
-                response = AutofillHelper.newCredentialResponse(
-                        this, datasetAuth, autofillFields, saveTypes, loginCredentialMap);
+            switch (parser.getClientPageType()) {
+                case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
+                    HashMap<String, LoginCredential> loginCredentialMap =
+                            LocalAutofillRepository.getInstance(this).getLoginCredentials();
+                    response = AutofillHelper.newResponse
+                            (this, datasetAuth, autofillFields, saveTypes, loginCredentialMap);
+                    break;
+                case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
+                    HashMap<String, CreditCardInfo> creditCardInfoMap =
+                            LocalAutofillRepository.getInstance(this).getCreditCardInfo();
+                    response = AutofillHelper.newResponse
+                            (this, datasetAuth, autofillFields, saveTypes, creditCardInfoMap);
+                    break;
             }
-
             callback.onSuccess(response);
         }
     }
@@ -118,7 +124,15 @@ public class MyAutofillService extends AutofillService {
         Log.d(TAG, "onSaveRequest(): data=" + bundleToString(data));
         StructureParser parser = new StructureParser(structure);
         parser.parse();
-        List<AutofillField> autofillFields = parser.getAutofillFields();
+        DatasetModel datasetModel = parser.getDatasetModel();
+        switch (parser.getClientPageType()) {
+            case StructureParser.CLIENT_PAGE_TYPE_LOGIN:
+                LocalAutofillRepository.getInstance(this).saveLoginCredential(datasetModel);
+                break;
+            case StructureParser.CLIENT_PAGE_TYPE_CREDIT_CARD_INFO:
+                LocalAutofillRepository.getInstance(this).saveCreditCardInfo(datasetModel);
+                break;
+        }
     }
 
     @Override
