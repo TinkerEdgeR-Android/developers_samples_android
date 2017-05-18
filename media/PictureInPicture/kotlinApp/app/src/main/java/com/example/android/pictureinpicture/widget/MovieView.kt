@@ -309,6 +309,7 @@ class MovieView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     fun pause() {
         if (mMediaPlayer == null) {
+            adjustToggleState()
             return
         }
         mMediaPlayer!!.pause()
@@ -381,7 +382,7 @@ class MovieView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     internal fun adjustToggleState() {
-        if (mMediaPlayer == null || mMediaPlayer!!.isPlaying) {
+        if (mMediaPlayer != null && mMediaPlayer!!.isPlaying) {
             mToggle.contentDescription = resources.getString(R.string.pause)
             mToggle.setImageResource(R.drawable.ic_pause_64dp)
         } else {

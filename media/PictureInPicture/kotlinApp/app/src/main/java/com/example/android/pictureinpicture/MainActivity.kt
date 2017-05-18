@@ -151,7 +151,9 @@ class MainActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         // Show the video controls so the video can be easily resumed.
-        mMovieView?.showControls()
+        if (!isInPictureInPictureMode()) {
+            mMovieView?.showControls()
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
