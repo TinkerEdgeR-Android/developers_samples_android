@@ -27,7 +27,7 @@ class CreditCardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContentView(R.layout.credit_card_activity)
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         val dayAdapter = ArrayAdapter.createFromResource(this, R.array.day_array, android.R.layout.simple_spinner_item)
@@ -57,13 +57,12 @@ class CreditCardActivity : AppCompatActivity() {
      * any new data.
      */
     private fun submit() {
-        val intent = WelcomeActivity.getStartActivityIntent(this@CreditCardActivity)
+        val intent = WelcomeActivity.getStartActivityIntent(this)
         startActivity(intent)
         finish()
     }
 
     companion object {
-
         fun getStartActivityIntent(context: Context): Intent {
             val intent = Intent(context, CreditCardActivity::class.java)
             return intent
