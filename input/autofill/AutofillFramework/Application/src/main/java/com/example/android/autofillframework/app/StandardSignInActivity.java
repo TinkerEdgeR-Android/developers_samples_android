@@ -25,13 +25,13 @@ import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 
-public class LoginActivity extends AppCompatActivity {
+public class StandardSignInActivity extends AppCompatActivity {
 
     private EditText mUsernameEditText;
     private EditText mPasswordEditText;
 
     public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, LoginActivity.class);
+        Intent intent = new Intent(context, StandardSignInActivity.class);
         return intent;
     }
 
@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = mPasswordEditText.getText().toString();
         boolean valid = isValidCredentials(username, password);
         if (valid) {
-            Intent intent = WelcomeActivity.getStartActivityIntent(LoginActivity.this);
+            Intent intent = WelcomeActivity.getStartActivityIntent(StandardSignInActivity.this);
             startActivity(intent);
             finish();
         } else {
