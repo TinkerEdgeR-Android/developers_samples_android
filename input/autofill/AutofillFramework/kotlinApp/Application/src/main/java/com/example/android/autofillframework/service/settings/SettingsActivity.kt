@@ -28,6 +28,18 @@ import android.widget.Switch
 import android.widget.TextView
 import com.example.android.autofillframework.R
 import com.example.android.autofillframework.service.datasource.SharedPrefsAutofillRepository
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_credentials_container
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_credentials_icon
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_credentials_label
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_datasets_container
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_datasets_label
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_datasets_switch
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_responses_container
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_responses_label
+import kotlinx.android.synthetic.main.settings_activity.settings_auth_responses_switch
+import kotlinx.android.synthetic.main.settings_activity.settings_clear_data_container
+import kotlinx.android.synthetic.main.settings_activity.settings_clear_data_icon
+import kotlinx.android.synthetic.main.settings_activity.settings_clear_data_label
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -35,28 +47,28 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.settings_activity)
-        setupSettingsSwitch(R.id.settings_auth_responses_container,
-                R.id.settings_auth_responses_label,
-                R.id.settings_auth_responses_switch,
+        setupSettingsSwitch(settings_auth_responses_container,
+                settings_auth_responses_label,
+                settings_auth_responses_switch,
                 MyPreferences.isResponseAuth(this),
                 CompoundButton.OnCheckedChangeListener { compoundButton, b ->
                     MyPreferences.setResponseAuth(this@SettingsActivity, b)
                 })
-        setupSettingsSwitch(R.id.settings_auth_datasets_container,
-                R.id.settings_auth_datasets_label,
-                R.id.settings_auth_datasets_switch,
+        setupSettingsSwitch(settings_auth_datasets_container,
+                settings_auth_datasets_label,
+                settings_auth_datasets_switch,
                 MyPreferences.isDatasetAuth(this),
                 CompoundButton.OnCheckedChangeListener { compoundButton, b ->
                     MyPreferences.setDatasetAuth(this@SettingsActivity, b)
                 })
-        setupSettingsButton(R.id.settings_clear_data_container,
-                R.id.settings_clear_data_label,
-                R.id.settings_clear_data_icon,
+        setupSettingsButton(settings_clear_data_container,
+                settings_clear_data_label,
+                settings_clear_data_icon,
                 View.OnClickListener { buildClearDataDialog().show() })
 
-        setupSettingsButton(R.id.settings_auth_credentials_container,
-                R.id.settings_auth_credentials_label,
-                R.id.settings_auth_credentials_icon,
+        setupSettingsButton(settings_auth_credentials_container,
+                settings_auth_credentials_label,
+                settings_auth_credentials_icon,
                 View.OnClickListener {
                     MyPreferences.getMasterPassword(this@SettingsActivity)?.let {
                         buildCurrentCredentialsDialog().show()
@@ -117,22 +129,18 @@ class SettingsActivity : AppCompatActivity() {
                 .create()
     }
 
-    private fun setupSettingsSwitch(containerId: Int, labelId: Int, switchId: Int, checked: Boolean,
+    private fun setupSettingsSwitch(container: ViewGroup, switchLabelView: TextView, switchView: Switch, checked: Boolean,
             checkedChangeListener: CompoundButton.OnCheckedChangeListener) {
-        val container = findViewById(containerId) as ViewGroup
-        val switchLabel = (container.findViewById<View>(labelId) as TextView).text.toString()
-        val switchView = container.findViewById<Switch>(switchId)
+        val switchLabel = switchLabelView.text.toString()
         switchView.contentDescription = switchLabel
         switchView.isChecked = checked
         container.setOnClickListener { switchView.performClick() }
         switchView.setOnCheckedChangeListener(checkedChangeListener)
     }
 
-    private fun setupSettingsButton(containerId: Int, labelId: Int, imageViewId: Int,
+    private fun setupSettingsButton(container: ViewGroup, buttonLabelView: TextView, imageView: ImageView,
             onClickListener: View.OnClickListener) {
-        val container = findViewById(containerId) as ViewGroup
-        val buttonLabel = (container.findViewById<View>(labelId) as TextView).text.toString()
-        val imageView = container.findViewById<ImageView>(imageViewId)
+        val buttonLabel = buttonLabelView.text.toString()
         imageView.contentDescription = buttonLabel
         container.setOnClickListener(onClickListener)
     }
