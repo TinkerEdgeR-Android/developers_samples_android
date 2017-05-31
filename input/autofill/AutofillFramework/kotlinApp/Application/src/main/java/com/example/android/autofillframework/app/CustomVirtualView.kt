@@ -33,7 +33,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.android.autofillframework.CommonUtil.bundleToString
 import com.example.android.autofillframework.R
-import java.util.*
+import java.util.Arrays
 
 
 /**
