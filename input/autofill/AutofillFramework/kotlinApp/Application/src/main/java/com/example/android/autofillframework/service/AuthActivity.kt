@@ -50,14 +50,14 @@ class AuthActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.auth_activity)
-        login.setOnClickListener { login() }
+        login.setOnClickListener { submitLogin() }
         cancel.setOnClickListener {
             onFailure()
             this@AuthActivity.finish()
         }
     }
 
-    private fun login() {
+    private fun submitLogin() {
         val password = master_password.text
         if (password.toString() == MyPreferences.getMasterPassword(this@AuthActivity)) {
             onSuccess()

@@ -21,7 +21,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import com.example.android.autofillframework.R
-import kotlinx.android.synthetic.main.credit_card_activity.*
+import kotlinx.android.synthetic.main.credit_card_activity.clear
+import kotlinx.android.synthetic.main.credit_card_activity.expirationDay
+import kotlinx.android.synthetic.main.credit_card_activity.expirationMonth
+import kotlinx.android.synthetic.main.credit_card_activity.expirationYear
+import kotlinx.android.synthetic.main.credit_card_activity.submit
+
 
 class CreditCardActivity : AppCompatActivity() {
 
@@ -44,7 +49,7 @@ class CreditCardActivity : AppCompatActivity() {
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         expirationYear.adapter = yearAdapter
 
-        submit.setOnClickListener { submit() }
+        submit.setOnClickListener { submitCcInfo() }
         clear.setOnClickListener { resetFields() }
     }
 
@@ -56,7 +61,7 @@ class CreditCardActivity : AppCompatActivity() {
      * Launches new Activity and finishes, triggering an autofill save request if the user entered
      * any new data.
      */
-    private fun submit() {
+    private fun submitCcInfo() {
         val intent = WelcomeActivity.getStartActivityIntent(this)
         startActivity(intent)
         finish()

@@ -22,7 +22,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.example.android.autofillframework.R
-import kotlinx.android.synthetic.main.login_activity.*
+import kotlinx.android.synthetic.main.login_activity.clear
+import kotlinx.android.synthetic.main.login_activity.login
+import kotlinx.android.synthetic.main.login_activity.passwordField
+import kotlinx.android.synthetic.main.login_activity.usernameField
 
 
 class LoginActivity : AppCompatActivity() {
