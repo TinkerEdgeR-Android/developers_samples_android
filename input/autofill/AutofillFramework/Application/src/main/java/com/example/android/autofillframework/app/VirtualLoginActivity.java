@@ -15,7 +15,6 @@
  */
 package com.example.android.autofillframework.app;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -70,6 +69,7 @@ public class VirtualLoginActivity extends AppCompatActivity {
         if (valid) {
             Intent intent = WelcomeActivity.getStartActivityIntent(VirtualLoginActivity.this);
             startActivity(intent);
+            finish();
         } else {
             Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show();
         }
