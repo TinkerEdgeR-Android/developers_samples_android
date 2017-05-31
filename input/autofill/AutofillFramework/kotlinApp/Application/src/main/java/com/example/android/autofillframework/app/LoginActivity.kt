@@ -24,8 +24,8 @@ import android.widget.Toast
 import com.example.android.autofillframework.R
 import kotlinx.android.synthetic.main.login_activity.*
 
+
 class LoginActivity : AppCompatActivity() {
-    val TAG = "LoginActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
