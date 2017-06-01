@@ -20,17 +20,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.autofill.AutofillManager;
 import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 
 
-public class VirtualLoginActivity extends AppCompatActivity {
+public class VirtualSignInActivity extends AppCompatActivity {
 
     private CustomVirtualView mCustomVirtualView;
+    private AutofillManager mAutofillManager;
 
     public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, VirtualLoginActivity.class);
+        Intent intent = new Intent(context, VirtualSignInActivity.class);
         return intent;
     }
 
@@ -53,6 +55,17 @@ public class VirtualLoginActivity extends AppCompatActivity {
                 resetFields();
             }
         });
+        mAutofillManager = getSystemService(AutofillManager.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private void resetFields() {
@@ -67,7 +80,7 @@ public class VirtualLoginActivity extends AppCompatActivity {
         String password = mCustomVirtualView.getPasswordText().toString();
         boolean valid = isValidCredentials(username, password);
         if (valid) {
-            Intent intent = WelcomeActivity.getStartActivityIntent(VirtualLoginActivity.this);
+            Intent intent = WelcomeActivity.getStartActivityIntent(VirtualSignInActivity.this);
             startActivity(intent);
             finish();
         } else {
