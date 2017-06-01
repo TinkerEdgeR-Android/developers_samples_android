@@ -20,7 +20,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -30,8 +29,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mUsernameEditText;
     private EditText mPasswordEditText;
-    private Button mLoginButton;
-    private Button mClearButton;
 
     public static Intent getStartActivityIntent(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
@@ -43,18 +40,15 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.login_activity);
-
-        mLoginButton = (Button) findViewById(R.id.login);
-        mClearButton = (Button) findViewById(R.id.clear);
-        mUsernameEditText = (EditText) findViewById(R.id.usernameField);
-        mPasswordEditText = (EditText) findViewById(R.id.passwordField);
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
+        mUsernameEditText = findViewById(R.id.usernameField);
+        mPasswordEditText = findViewById(R.id.passwordField);
+        findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
             }
         });
-        mClearButton.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 resetFields();
