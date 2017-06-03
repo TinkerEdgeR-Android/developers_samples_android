@@ -31,7 +31,7 @@ class AutofillField(view: ViewNode) {
     val autofillHints: Array<String> = view.autofillHints
     val autofillId: AutofillId = view.autofillId
     val autofillType: Int = view.autofillType
-    val autofillOptions: Array<String>? = view.autofillOptions
+    val autofillOptions: Array<CharSequence>? = view.autofillOptions
     val isFocused: Boolean = view.isFocused
 
     init {
@@ -42,7 +42,7 @@ class AutofillField(view: ViewNode) {
      * When the [ViewNode] is a list that the user needs to choose a string from (i.e. a spinner),
      * this is called to return the index of a specific item in the list.
      */
-    fun getAutofillOptionIndex(value: String): Int? {
+    fun getAutofillOptionIndex(value: CharSequence): Int? {
         return autofillOptions?.indexOf(value)
     }
 
