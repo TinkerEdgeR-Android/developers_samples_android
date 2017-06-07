@@ -23,8 +23,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import com.example.android.autofillframework.CommonUtil.TAG
 import com.example.android.autofillframework.R
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection
 import java.util.HashMap
 
 /**
@@ -36,11 +35,11 @@ object AutofillHelper {
      * Wraps autofill data in a [Dataset] object which can then be sent back to the
      * client View.
      */
-    fun newDataset(context: Context, autofillFields: AutofillFieldsCollection,
-            clientFormData: ClientFormData, datasetAuth: Boolean): Dataset? {
-        clientFormData.datasetName?.let { datasetName ->
+    fun newDataset(context: Context, autofillFieldMetadata: AutofillFieldMetadataCollection,
+            filledAutofillFieldCollection: FilledAutofillFieldCollection, datasetAuth: Boolean): Dataset? {
+        filledAutofillFieldCollection.datasetName?.let { datasetName ->
             val datasetBuilder = Dataset.Builder(newRemoteViews(context.packageName, datasetName))
-            val setValueAtLeastOnce = clientFormData.applyToFields(autofillFields, datasetBuilder)
+            val setValueAtLeastOnce = filledAutofillFieldCollection.applyToFields(autofillFieldMetadata, datasetBuilder)
             if (datasetAuth) {
                 val sender = AuthActivity.getAuthIntentSenderForDataset(context, datasetName)
                 datasetBuilder.setAuthentication(sender)
@@ -63,20 +62,20 @@ object AutofillHelper {
      * then be sent back to the client View.
      */
     fun newResponse(context: Context,
-            datasetAuth: Boolean, autofillFields: AutofillFieldsCollection,
-            clientFormDataMap: HashMap<String, ClientFormData>?): FillResponse? {
+            datasetAuth: Boolean, autofillFieldMetadata: AutofillFieldMetadataCollection,
+            filledAutofillFieldCollectionMap: HashMap<String, FilledAutofillFieldCollection>?): FillResponse? {
         val responseBuilder = FillResponse.Builder()
-        clientFormDataMap?.keys?.let { datasetNames ->
+        filledAutofillFieldCollectionMap?.keys?.let { datasetNames ->
             for (datasetName in datasetNames) {
-                clientFormDataMap[datasetName]?.let { clientFormData ->
-                    val dataset = newDataset(context, autofillFields, clientFormData, datasetAuth)
+                filledAutofillFieldCollectionMap[datasetName]?.let { clientFormData ->
+                    val dataset = newDataset(context, autofillFieldMetadata, clientFormData, datasetAuth)
                     dataset?.let(responseBuilder::addDataset)
                 }
             }
         }
-        if (autofillFields.saveType != 0) {
-            val autofillIds = autofillFields.autofillIds
-            responseBuilder.setSaveInfo(SaveInfo.Builder(autofillFields.saveType,
+        if (autofillFieldMetadata.saveType != 0) {
+            val autofillIds = autofillFieldMetadata.autofillIds
+            responseBuilder.setSaveInfo(SaveInfo.Builder(autofillFieldMetadata.saveType,
                     autofillIds.toTypedArray()).build())
             return responseBuilder.build()
         } else {

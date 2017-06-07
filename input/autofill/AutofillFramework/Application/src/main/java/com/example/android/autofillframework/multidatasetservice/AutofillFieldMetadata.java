@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.multidatasetservice.model;
+package com.example.android.autofillframework.multidatasetservice;
 
 import android.app.assist.AssistStructure.ViewNode;
 import android.service.autofill.SaveInfo;
@@ -25,7 +25,7 @@ import android.view.autofill.AutofillId;
  * also contains a {@code mSaveType} flag that is calculated based on the {@link ViewNode}]'s
  * autofill hints.
  */
-public class AutofillField {
+public class AutofillFieldMetadata {
     private int mSaveType = 0;
     private String[] mAutofillHints;
     private AutofillId mAutofillId;
@@ -33,7 +33,7 @@ public class AutofillField {
     private CharSequence[] mAutofillOptions;
     private boolean mFocused;
 
-    public AutofillField(ViewNode view) {
+    public AutofillFieldMetadata(ViewNode view) {
         mAutofillId = view.getAutofillId();
         mAutofillType = view.getAutofillType();
         mAutofillOptions = view.getAutofillOptions();
