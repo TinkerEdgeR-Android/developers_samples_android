@@ -20,11 +20,27 @@ import android.service.autofill.Dataset
 import android.service.autofill.FillResponse
 import android.service.autofill.SaveInfo
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import com.example.android.autofillframework.CommonUtil.TAG
 import com.example.android.autofillframework.R
 import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection
 import java.util.HashMap
+import android.view.View.AUTOFILL_HINT_USERNAME
+import android.view.View.AUTOFILL_HINT_POSTAL_CODE
+import android.view.View.AUTOFILL_HINT_POSTAL_ADDRESS
+import android.view.View.AUTOFILL_HINT_PASSWORD
+import android.view.View.AUTOFILL_HINT_NAME
+import android.view.View.AUTOFILL_HINT_PHONE
+import android.view.View.AUTOFILL_HINT_EMAIL_ADDRESS
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_NUMBER
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY
+import android.view.View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE
+
+
 
 /**
  * This is a class containing helper methods for building Autofill Datasets and Responses.
@@ -81,6 +97,27 @@ object AutofillHelper {
         } else {
             Log.d(TAG, "These fields are not meant to be saved by autofill.")
             return null
+        }
+    }
+
+    fun isValidHint(hint: String): Boolean {
+        when (hint) {
+            View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE,
+            View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY,
+            View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH,
+            View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR,
+            View.AUTOFILL_HINT_CREDIT_CARD_NUMBER,
+            View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE,
+            View.AUTOFILL_HINT_EMAIL_ADDRESS,
+            View.AUTOFILL_HINT_PHONE,
+            View.AUTOFILL_HINT_NAME,
+            View.AUTOFILL_HINT_PASSWORD,
+            View.AUTOFILL_HINT_POSTAL_ADDRESS,
+            View.AUTOFILL_HINT_POSTAL_CODE,
+            View.AUTOFILL_HINT_USERNAME ->
+                return true
+            else ->
+                return false
         }
     }
 }
