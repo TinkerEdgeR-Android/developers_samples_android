@@ -22,24 +22,27 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillValue;
 
+import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadata;
+import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadataCollection;
+
 import java.util.HashMap;
 import java.util.List;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 
 /**
- * ClientFormData is the model that holds all of the data on a client app's page, plus the dataset
- * name associated with it.
+ * FilledAutofillFieldCollection is the model that holds all of the data on a client app's page,
+ * plus the dataset name associated with it.
  */
-public final class ClientFormData {
-    private final HashMap<String, SavableAutofillData> mHintMap;
+public final class FilledAutofillFieldCollection {
+    private final HashMap<String, FilledAutofillField> mHintMap;
     private String mDatasetName;
 
-    public ClientFormData() {
-        this(null, new HashMap<String, SavableAutofillData>());
+    public FilledAutofillFieldCollection() {
+        this(null, new HashMap<String, FilledAutofillField>());
     }
 
-    public ClientFormData(String datasetName, HashMap<String, SavableAutofillData> hintMap) {
+    public FilledAutofillFieldCollection(String datasetName, HashMap<String, FilledAutofillField> hintMap) {
         mHintMap = hintMap;
         mDatasetName = datasetName;
     }
@@ -61,7 +64,7 @@ public final class ClientFormData {
     /**
      * Sets values for a list of hints.
      */
-    public void setAutofillValuesForHints(@NonNull String[] autofillHints, @NonNull SavableAutofillData autofillValue) {
+    public void setAutofillValuesForHints(@NonNull String[] autofillHints, @NonNull FilledAutofillField autofillValue) {
         for (int i = 0; i < autofillHints.length; i++) {
             mHintMap.put(autofillHints[i], autofillValue);
         }
@@ -69,50 +72,50 @@ public final class ClientFormData {
 
     /**
      * Populates a {@link Dataset.Builder} with appropriate values for each {@link AutofillId}
-     * in a {@code AutofillFieldsCollection}.
+     * in a {@code AutofillFieldMetadataCollection}.
      */
-    public boolean applyToFields(AutofillFieldsCollection autofillFieldsCollection,
+    public boolean applyToFields(AutofillFieldMetadataCollection autofillFieldMetadataCollection,
             Dataset.Builder datasetBuilder) {
         boolean setValueAtLeastOnce = false;
-        List<String> allHints = autofillFieldsCollection.getAllHints();
+        List<String> allHints = autofillFieldMetadataCollection.getAllHints();
         for (int hintIndex = 0; hintIndex < allHints.size(); hintIndex++) {
             String hint = allHints.get(hintIndex);
-            List<AutofillField> autofillFields = autofillFieldsCollection.getFieldsForHint(hint);
-            if (autofillFields == null) {
+            List<AutofillFieldMetadata> fillableAutofillFields = autofillFieldMetadataCollection.getFieldsForHint(hint);
+            if (fillableAutofillFields == null) {
                 continue;
             }
-            for (int autofillFieldIndex = 0; autofillFieldIndex < autofillFields.size(); autofillFieldIndex++) {
-                SavableAutofillData savableAutofillData = mHintMap.get(hint);
-                if (savableAutofillData == null) {
+            for (int autofillFieldIndex = 0; autofillFieldIndex < fillableAutofillFields.size(); autofillFieldIndex++) {
+                FilledAutofillField filledAutofillField = mHintMap.get(hint);
+                if (filledAutofillField == null) {
                     continue;
                 }
-                AutofillField autofillField = autofillFields.get(autofillFieldIndex);
-                AutofillId autofillId = autofillField.getId();
-                int autofillType = autofillField.getAutofillType();
+                AutofillFieldMetadata autofillFieldMetadata = fillableAutofillFields.get(autofillFieldIndex);
+                AutofillId autofillId = autofillFieldMetadata.getId();
+                int autofillType = autofillFieldMetadata.getAutofillType();
                 switch (autofillType) {
                     case View.AUTOFILL_TYPE_LIST:
-                        int listValue = autofillField.getAutofillOptionIndex(savableAutofillData.getTextValue());
+                        int listValue = autofillFieldMetadata.getAutofillOptionIndex(filledAutofillField.getTextValue());
                         if (listValue != -1) {
                             datasetBuilder.setValue(autofillId, AutofillValue.forList(listValue));
                             setValueAtLeastOnce = true;
                         }
                         break;
                     case View.AUTOFILL_TYPE_DATE:
-                        Long dateValue = savableAutofillData.getDateValue();
+                        Long dateValue = filledAutofillField.getDateValue();
                         if (dateValue != null) {
                             datasetBuilder.setValue(autofillId, AutofillValue.forDate(dateValue));
                             setValueAtLeastOnce = true;
                         }
                         break;
                     case View.AUTOFILL_TYPE_TEXT:
-                        String textValue = savableAutofillData.getTextValue();
+                        String textValue = filledAutofillField.getTextValue();
                         if (textValue != null) {
                             datasetBuilder.setValue(autofillId, AutofillValue.forText(textValue));
                             setValueAtLeastOnce = true;
                         }
                         break;
                     case View.AUTOFILL_TYPE_TOGGLE:
-                        Boolean toggleValue = savableAutofillData.getToggleValue();
+                        Boolean toggleValue = filledAutofillField.getToggleValue();
                         if (toggleValue != null) {
                             datasetBuilder.setValue(autofillId, AutofillValue.forToggle(toggleValue));
                             setValueAtLeastOnce = true;

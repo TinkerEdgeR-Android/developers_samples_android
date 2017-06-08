@@ -25,8 +25,7 @@ import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofillframework.R;
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -43,8 +42,8 @@ public final class AutofillHelper {
      * client View.
      */
     public static Dataset newDataset(Context context,
-            AutofillFieldsCollection autofillFields, ClientFormData clientFormData, boolean datasetAuth) {
-        String datasetName = clientFormData.getDatasetName();
+            AutofillFieldMetadataCollection autofillFields, FilledAutofillFieldCollection filledAutofillFieldCollection, boolean datasetAuth) {
+        String datasetName = filledAutofillFieldCollection.getDatasetName();
         if (datasetName != null) {
             Dataset.Builder datasetBuilder = new Dataset.Builder
                     (newRemoteViews(context.getPackageName(), datasetName));
@@ -52,7 +51,7 @@ public final class AutofillHelper {
                 IntentSender sender = AuthActivity.getAuthIntentSenderForDataset(context, datasetName);
                 datasetBuilder.setAuthentication(sender);
             }
-            boolean setValueAtLeastOnce = clientFormData.applyToFields(autofillFields, datasetBuilder);
+            boolean setValueAtLeastOnce = filledAutofillFieldCollection.applyToFields(autofillFields, datasetBuilder);
             if (setValueAtLeastOnce) {
                 return datasetBuilder.build();
             }
@@ -71,15 +70,15 @@ public final class AutofillHelper {
      * be sent back to the client View.
      */
     public static FillResponse newResponse(Context context,
-            boolean datasetAuth, AutofillFieldsCollection autofillFields,
-            HashMap<String, ClientFormData> clientFormDataMap) {
+            boolean datasetAuth, AutofillFieldMetadataCollection autofillFields,
+            HashMap<String, FilledAutofillFieldCollection> clientFormDataMap) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
         if (clientFormDataMap != null) {
             Set<String> datasetNames = clientFormDataMap.keySet();
             for (String datasetName : datasetNames) {
-                ClientFormData clientFormData = clientFormDataMap.get(datasetName);
-                if (clientFormData != null) {
-                    Dataset dataset = newDataset(context, autofillFields, clientFormData, datasetAuth);
+                FilledAutofillFieldCollection filledAutofillFieldCollection = clientFormDataMap.get(datasetName);
+                if (filledAutofillFieldCollection != null) {
+                    Dataset dataset = newDataset(context, autofillFields, filledAutofillFieldCollection, datasetAuth);
                     if (dataset != null) {
                         responseBuilder.addDataset(dataset);
                     }

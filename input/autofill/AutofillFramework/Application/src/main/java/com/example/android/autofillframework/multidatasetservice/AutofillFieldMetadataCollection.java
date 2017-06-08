@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.multidatasetservice.model;
+package com.example.android.autofillframework.multidatasetservice;
 
 import android.view.autofill.AutofillId;
 
@@ -23,32 +23,32 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Data structure that stores a collection of {@code AutofillField}s. Contains all of the client's
- * {@code View} hierarchy autofill-relevant metadata.
+ * Data structure that stores a collection of {@code AutofillFieldMetadata}s. Contains all of the
+ * client's {@code View} hierarchy autofill-relevant metadata.
  */
-public final class AutofillFieldsCollection {
+public final class AutofillFieldMetadataCollection {
 
     private final List<AutofillId> mAutofillIds = new ArrayList<>();
-    private final HashMap<String, List<AutofillField>> mAutofillHintsToFieldsMap = new HashMap<>();
+    private final HashMap<String, List<AutofillFieldMetadata>> mAutofillHintsToFieldsMap = new HashMap<>();
     private final List<String> mAllAutofillHints = new ArrayList<>();
     private final List<String> mFocusedAutofillHints = new ArrayList<>();
     private int mSize = 0;
     private int mSaveType = 0;
 
-    public void add(AutofillField autofillField) {
-        mSaveType |= autofillField.getSaveType();
+    public void add(AutofillFieldMetadata autofillFieldMetadata) {
+        mSaveType |= autofillFieldMetadata.getSaveType();
         mSize++;
-        mAutofillIds.add(autofillField.getId());
-        List<String> hintsList = Arrays.asList(autofillField.getHints());
+        mAutofillIds.add(autofillFieldMetadata.getId());
+        List<String> hintsList = Arrays.asList(autofillFieldMetadata.getHints());
         mAllAutofillHints.addAll(hintsList);
-        if (autofillField.isFocused()) {
+        if (autofillFieldMetadata.isFocused()) {
             mFocusedAutofillHints.addAll(hintsList);
         }
-        for (String hint : autofillField.getHints()) {
+        for (String hint : autofillFieldMetadata.getHints()) {
             if (mAutofillHintsToFieldsMap.get(hint) == null) {
-                mAutofillHintsToFieldsMap.put(hint, new ArrayList<AutofillField>());
+                mAutofillHintsToFieldsMap.put(hint, new ArrayList<AutofillFieldMetadata>());
             }
-            mAutofillHintsToFieldsMap.get(hint).add(autofillField);
+            mAutofillHintsToFieldsMap.get(hint).add(autofillFieldMetadata);
         }
     }
 
@@ -60,7 +60,7 @@ public final class AutofillFieldsCollection {
         return mAutofillIds.toArray(new AutofillId[mSize]);
     }
 
-    public List<AutofillField> getFieldsForHint(String hint) {
+    public List<AutofillFieldMetadata> getFieldsForHint(String hint) {
         return mAutofillHintsToFieldsMap.get(hint);
     }
 
