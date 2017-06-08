@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofillframework.multidatasetservice.model
+package com.example.android.autofillframework.multidatasetservice
 
 import android.app.assist.AssistStructure.ViewNode;
 import android.service.autofill.SaveInfo
@@ -24,7 +24,7 @@ import android.view.autofill.AutofillId
  * A stripped down version of a [ViewNode] that contains only autofill-relevant metadata. It also
  * contains a `saveType` flag that is calculated based on the [ViewNode]'s autofill hints.
  */
-class AutofillField(view: ViewNode) {
+class AutofillFieldMetadata(view: ViewNode) {
     var saveType = 0
         private set
 

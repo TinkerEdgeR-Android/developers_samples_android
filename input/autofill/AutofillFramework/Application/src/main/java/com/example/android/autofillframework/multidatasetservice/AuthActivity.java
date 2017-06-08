@@ -34,8 +34,7 @@ import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.multidatasetservice.datasource.SharedPrefsAutofillRepository;
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 import com.example.android.autofillframework.multidatasetservice.settings.MyPreferences;
 
 import java.util.HashMap;
@@ -127,10 +126,10 @@ public class AuthActivity extends Activity {
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         StructureParser parser = new StructureParser(structure);
         parser.parseForFill();
-        AutofillFieldsCollection autofillFields = parser.getAutofillFields();
+        AutofillFieldMetadataCollection autofillFields = parser.getAutofillFields();
         int saveTypes = autofillFields.getSaveType();
         mReplyIntent = new Intent();
-        HashMap<String, ClientFormData> clientFormDataMap =
+        HashMap<String, FilledAutofillFieldCollection> clientFormDataMap =
                 SharedPrefsAutofillRepository.getInstance(this).getClientFormData
                         (autofillFields.getFocusedHints(), autofillFields.getAllHints());
         if (forResponse) {

@@ -21,12 +21,12 @@ import android.view.autofill.AutofillValue;
 /**
  * JSON serializable data class containing the same data as an {@link AutofillValue}.
  */
-public class SavableAutofillData {
+public class FilledAutofillField {
     private String mTextValue = null;
     private Long mDateValue = null;
     private Boolean mToggleValue = null;
 
-    public SavableAutofillData(AssistStructure.ViewNode viewNode) {
+    public FilledAutofillField(AssistStructure.ViewNode viewNode) {
         AutofillValue autofillValue = viewNode.getAutofillValue();
         if (autofillValue != null) {
             if (autofillValue.isList()) {
@@ -66,7 +66,7 @@ public class SavableAutofillData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SavableAutofillData that = (SavableAutofillData) o;
+        FilledAutofillField that = (FilledAutofillField) o;
 
         if (mTextValue != null ? !mTextValue.equals(that.mTextValue) : that.mTextValue != null)
             return false;
