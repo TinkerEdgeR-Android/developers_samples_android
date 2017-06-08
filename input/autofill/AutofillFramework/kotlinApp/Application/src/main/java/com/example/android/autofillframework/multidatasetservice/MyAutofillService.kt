@@ -78,7 +78,7 @@ class MyAutofillService : AutofillService() {
         Log.d(TAG, "onSaveRequest(): data=" + bundleToString(data))
         val parser = StructureParser(structure)
         parser.parseForSave()
-        SharedPrefsAutofillRepository.saveClientFormData(this, parser.clientFormData)
+        SharedPrefsAutofillRepository.saveClientFormData(this, parser.filledAutofillFieldCollection)
     }
 
     override fun onConnected() {
