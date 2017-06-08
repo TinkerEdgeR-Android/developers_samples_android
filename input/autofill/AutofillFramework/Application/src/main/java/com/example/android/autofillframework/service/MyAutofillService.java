@@ -44,21 +44,10 @@ import static com.example.android.autofillframework.CommonUtil.bundleToString;
 public class MyAutofillService extends AutofillService {
 
     @Override
-    public void onFillRequest(AssistStructure assistStructure, Bundle bundle, int i,
-            CancellationSignal cancellationSignal, FillCallback fillCallback) {
-        /* Deprecated, ignore */
-    }
-
-    @Override
-    public void onSaveRequest(AssistStructure assistStructure, Bundle bundle,
-            SaveCallback saveCallback) {
-        /* Deprecated, ignore */
-    }
-
-    @Override
     public void onFillRequest(FillRequest request, CancellationSignal cancellationSignal,
             FillCallback callback) {
-        AssistStructure structure = request.getStructure();
+        AssistStructure structure = request.getFillContexts()
+                .get(request.getFillContexts().size() - 1).getStructure();
         final Bundle data = request.getClientState();
         Log.d(TAG, "onFillRequest(): data=" + bundleToString(data));
 
