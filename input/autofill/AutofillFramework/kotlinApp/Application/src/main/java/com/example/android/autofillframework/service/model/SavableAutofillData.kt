@@ -22,7 +22,7 @@ import android.view.autofill.AutofillValue
  * JSON serializable data class containing the same data as an [AutofillValue].
  */
 class SavableAutofillData(viewNode: AssistStructure.ViewNode) {
-    var textValue: String? = null
+    var textValue: CharSequence? = null
     var dateValue: Long? = null
     var toggleValue: Boolean? = null
 

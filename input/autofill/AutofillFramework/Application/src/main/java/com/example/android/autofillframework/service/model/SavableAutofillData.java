@@ -30,10 +30,10 @@ public class SavableAutofillData {
         AutofillValue autofillValue = viewNode.getAutofillValue();
         if (autofillValue != null) {
             if (autofillValue.isList()) {
-                String[] autofillOptions = viewNode.getAutofillOptions();
+                CharSequence[] autofillOptions = viewNode.getAutofillOptions();
                 int index = autofillValue.getListValue();
                 if (autofillOptions != null && autofillOptions.length > 0) {
-                    mTextValue = autofillOptions[index];
+                    mTextValue = autofillOptions[index].toString();
                 }
             } else if (autofillValue.isDate()) {
                 mDateValue = autofillValue.getDateValue();
