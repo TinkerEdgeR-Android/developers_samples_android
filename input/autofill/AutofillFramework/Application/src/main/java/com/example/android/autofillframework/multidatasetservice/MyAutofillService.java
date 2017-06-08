@@ -31,8 +31,7 @@ import android.widget.RemoteViews;
 
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.multidatasetservice.datasource.SharedPrefsAutofillRepository;
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 import com.example.android.autofillframework.multidatasetservice.settings.MyPreferences;
 
 import java.util.HashMap;
@@ -67,7 +66,7 @@ public class MyAutofillService extends AutofillService {
         // Parse AutoFill data in Activity
         StructureParser parser = new StructureParser(structure);
         parser.parseForFill();
-        AutofillFieldsCollection autofillFields = parser.getAutofillFields();
+        AutofillFieldMetadataCollection autofillFields = parser.getAutofillFields();
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
         // Check user's settings for authenticating Responses and Datasets.
         boolean responseAuth = MyPreferences.getInstance(this).isResponseAuth();
@@ -82,7 +81,7 @@ public class MyAutofillService extends AutofillService {
             callback.onSuccess(responseBuilder.build());
         } else {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
-            HashMap<String, ClientFormData> clientFormDataMap =
+            HashMap<String, FilledAutofillFieldCollection> clientFormDataMap =
                     SharedPrefsAutofillRepository.getInstance(this).getClientFormData
                             (autofillFields.getFocusedHints(), autofillFields.getAllHints());
             FillResponse response = AutofillHelper.newResponse
@@ -99,8 +98,8 @@ public class MyAutofillService extends AutofillService {
         Log.d(TAG, "onSaveRequest(): data=" + bundleToString(data));
         StructureParser parser = new StructureParser(structure);
         parser.parseForSave();
-        ClientFormData clientFormData = parser.getClientFormData();
-        SharedPrefsAutofillRepository.getInstance(this).saveClientFormData(clientFormData);
+        FilledAutofillFieldCollection filledAutofillFieldCollection = parser.getClientFormData();
+        SharedPrefsAutofillRepository.getInstance(this).saveClientFormData(filledAutofillFieldCollection);
     }
 
     @Override

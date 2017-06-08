@@ -16,22 +16,22 @@
 package com.example.android.autofillframework.multidatasetservice.datasource
 
 import android.content.Context
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection
 import java.util.HashMap
 
 interface AutofillRepository {
 
     /**
-     * Gets saved ClientFormData that contains some objects that can autofill fields with these
+     * Gets saved FilledAutofillFieldCollection that contains some objects that can autofill fields with these
      * `autofillHints`.
      */
     fun getClientFormData(context: Context, focusedAutofillHints: List<String>,
-            allAutofillHints: List<String>): HashMap<String, ClientFormData>?
+            allAutofillHints: List<String>): HashMap<String, FilledAutofillFieldCollection>?
 
     /**
      * Saves LoginCredential under this datasetName.
      */
-    fun saveClientFormData(context: Context, clientFormData: ClientFormData)
+    fun saveClientFormData(context: Context, filledAutofillFieldCollection: FilledAutofillFieldCollection)
 
     /**
      * Clears all data.
