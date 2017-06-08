@@ -30,7 +30,7 @@ public class AutofillField {
     private String[] mAutofillHints;
     private AutofillId mAutofillId;
     private int mAutofillType;
-    private String[] mAutofillOptions;
+    private CharSequence[] mAutofillOptions;
     private boolean mFocused;
 
     public AutofillField(ViewNode view) {
@@ -68,7 +68,7 @@ public class AutofillField {
      */
     public int getAutofillOptionIndex(String value) {
         for (int i = 0; i < mAutofillOptions.length; i++) {
-            if (mAutofillOptions[i].equals(value)) {
+            if (mAutofillOptions[i].toString().equals(value)) {
                 return i;
             }
         }

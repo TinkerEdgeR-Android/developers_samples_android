@@ -33,19 +33,9 @@ import com.example.android.autofillframework.service.settings.MyPreferences
 
 class MyAutofillService : AutofillService() {
 
-    override fun onFillRequest(assistStructure: AssistStructure, bundle: Bundle, i: Int,
-            cancellationSignal: CancellationSignal, fillCallback: FillCallback) {
-        /* Deprecated, ignore */
-    }
-
-    override fun onSaveRequest(assistStructure: AssistStructure, bundle: Bundle,
-            saveCallback: SaveCallback) {
-        /* Deprecated, ignore */
-    }
-
     override fun onFillRequest(request: FillRequest, cancellationSignal: CancellationSignal,
             callback: FillCallback) {
-        val structure = request.structure
+        val structure = request.fillContexts[request.fillContexts.size - 1].structure
         val data = request.clientState
         Log.d(TAG, "onFillRequest(): data=" + bundleToString(data))
 
