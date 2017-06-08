@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.ArraySet;
 
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -53,23 +53,23 @@ public class SharedPrefsAutofillRepository implements AutofillRepository {
     }
 
     @Override
-    public HashMap<String, ClientFormData> getClientFormData(List<String> focusedAutofillHints,
+    public HashMap<String, FilledAutofillFieldCollection> getClientFormData(List<String> focusedAutofillHints,
             List<String> allAutofillHints) {
         boolean hasDataForFocusedAutofillHints = false;
-        HashMap<String, ClientFormData> clientFormDataMap = new HashMap<>();
+        HashMap<String, FilledAutofillFieldCollection> clientFormDataMap = new HashMap<>();
         Set<String> clientFormDataStringSet = getAllAutofillDataStringSet();
         for (String clientFormDataString : clientFormDataStringSet) {
-            ClientFormData clientFormData = new Gson().fromJson(clientFormDataString, ClientFormData.class);
-            if (clientFormData != null) {
-                if (clientFormData.helpsWithHints(focusedAutofillHints)) {
+            FilledAutofillFieldCollection filledAutofillFieldCollection = new Gson().fromJson(clientFormDataString, FilledAutofillFieldCollection.class);
+            if (filledAutofillFieldCollection != null) {
+                if (filledAutofillFieldCollection.helpsWithHints(focusedAutofillHints)) {
                     // Saved data has data relevant to at least 1 of the hints associated with the
                     // View in focus.
                     hasDataForFocusedAutofillHints = true;
                 }
-                if (clientFormData.helpsWithHints(allAutofillHints)) {
+                if (filledAutofillFieldCollection.helpsWithHints(allAutofillHints)) {
                     // Saved data has data relevant to at least 1 of these hints associated with any
                     // of the Views in the hierarchy.
-                    clientFormDataMap.put(clientFormData.getDatasetName(), clientFormData);
+                    clientFormDataMap.put(filledAutofillFieldCollection.getDatasetName(), filledAutofillFieldCollection);
                 }
             }
         }
@@ -81,11 +81,11 @@ public class SharedPrefsAutofillRepository implements AutofillRepository {
     }
 
     @Override
-    public void saveClientFormData(ClientFormData clientFormData) {
+    public void saveClientFormData(FilledAutofillFieldCollection filledAutofillFieldCollection) {
         String datasetName = "dataset-" + getDatasetNumber();
-        clientFormData.setDatasetName(datasetName);
+        filledAutofillFieldCollection.setDatasetName(datasetName);
         Set<String> allAutofillData = getAllAutofillDataStringSet();
-        allAutofillData.add(new Gson().toJson(clientFormData));
+        allAutofillData.add(new Gson().toJson(filledAutofillFieldCollection));
         saveAllAutofillDataStringSet(allAutofillData);
         incrementDatasetNumber();
     }

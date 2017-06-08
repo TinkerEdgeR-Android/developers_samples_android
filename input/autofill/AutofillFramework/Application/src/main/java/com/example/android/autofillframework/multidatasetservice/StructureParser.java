@@ -20,10 +20,8 @@ import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.util.Log;
 
-import com.example.android.autofillframework.multidatasetservice.model.AutofillField;
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection;
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData;
-import com.example.android.autofillframework.multidatasetservice.model.SavableAutofillData;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillField;
 
 import static com.example.android.autofillframework.CommonUtil.TAG;
 
@@ -33,9 +31,9 @@ import static com.example.android.autofillframework.CommonUtil.TAG;
  * parses the hierarchy and collects autofill metadata from {@link ViewNode}s along the way.
  */
 final class StructureParser {
-    private final AutofillFieldsCollection mAutofillFields = new AutofillFieldsCollection();
+    private final AutofillFieldMetadataCollection mAutofillFields = new AutofillFieldMetadataCollection();
     private final AssistStructure mStructure;
-    private ClientFormData mClientFormData;
+    private FilledAutofillFieldCollection mFilledAutofillFieldCollection;
 
     StructureParser(AssistStructure structure) {
         mStructure = structure;
@@ -56,7 +54,7 @@ final class StructureParser {
     private void parse(boolean forFill) {
         Log.d(TAG, "Parsing structure for " + mStructure.getActivityComponent());
         int nodes = mStructure.getWindowNodeCount();
-        mClientFormData = new ClientFormData();
+        mFilledAutofillFieldCollection = new FilledAutofillFieldCollection();
         for (int i = 0; i < nodes; i++) {
             WindowNode node = mStructure.getWindowNodeAt(i);
             ViewNode view = node.getRootViewNode();
@@ -68,10 +66,10 @@ final class StructureParser {
         if (viewNode.getAutofillHints() != null && viewNode.getAutofillHints().length > 0) {
             //TODO check to make sure hints are supported by service.
             if (forFill) {
-                mAutofillFields.add(new AutofillField(viewNode));
+                mAutofillFields.add(new AutofillFieldMetadata(viewNode));
             } else {
-                mClientFormData.setAutofillValuesForHints
-                        (viewNode.getAutofillHints(), new SavableAutofillData(viewNode));
+                mFilledAutofillFieldCollection.setAutofillValuesForHints
+                        (viewNode.getAutofillHints(), new FilledAutofillField(viewNode));
             }
         }
         int childrenSize = viewNode.getChildCount();
@@ -82,11 +80,11 @@ final class StructureParser {
         }
     }
 
-    public AutofillFieldsCollection getAutofillFields() {
+    public AutofillFieldMetadataCollection getAutofillFields() {
         return mAutofillFields;
     }
 
-    public ClientFormData getClientFormData() {
-        return mClientFormData;
+    public FilledAutofillFieldCollection getClientFormData() {
+        return mFilledAutofillFieldCollection;
     }
 }

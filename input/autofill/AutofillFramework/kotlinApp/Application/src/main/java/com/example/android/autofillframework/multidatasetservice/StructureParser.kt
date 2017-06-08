@@ -19,10 +19,8 @@ import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.util.Log
 import com.example.android.autofillframework.CommonUtil.TAG
-import com.example.android.autofillframework.multidatasetservice.model.AutofillField
-import com.example.android.autofillframework.multidatasetservice.model.AutofillFieldsCollection
-import com.example.android.autofillframework.multidatasetservice.model.ClientFormData
-import com.example.android.autofillframework.multidatasetservice.model.SavableAutofillData
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection
+import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillField
 
 /**
  * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an
@@ -30,8 +28,8 @@ import com.example.android.autofillframework.multidatasetservice.model.SavableAu
  * parses the hierarchy and collects autofill metadata from {@link ViewNode}s along the way.
  */
 internal class StructureParser(private val mStructure: AssistStructure) {
-    val autofillFields = AutofillFieldsCollection()
-    var clientFormData: ClientFormData = ClientFormData()
+    val autofillFields = AutofillFieldMetadataCollection()
+    var filledAutofillFieldCollection: FilledAutofillFieldCollection = FilledAutofillFieldCollection()
         private set
 
 
@@ -49,7 +47,7 @@ internal class StructureParser(private val mStructure: AssistStructure) {
     private fun parse(forFill: Boolean) {
         Log.d(TAG, "Parsing structure for " + mStructure.activityComponent)
         val nodes = mStructure.windowNodeCount
-        clientFormData = ClientFormData()
+        filledAutofillFieldCollection = FilledAutofillFieldCollection()
         for (i in 0..nodes - 1) {
             val node = mStructure.getWindowNodeAt(i)
             val view = node.rootViewNode
@@ -61,10 +59,10 @@ internal class StructureParser(private val mStructure: AssistStructure) {
         viewNode.autofillHints?.let { autofillHints ->
             if (autofillHints.isNotEmpty()) {
                 if (forFill) {
-                    autofillFields.add(AutofillField(viewNode))
+                    autofillFields.add(AutofillFieldMetadata(viewNode))
                 } else {
-                    clientFormData.setAutofillValuesForHints(viewNode.autofillHints,
-                            SavableAutofillData(viewNode))
+                    filledAutofillFieldCollection.setAutofillValuesForHints(viewNode.autofillHints,
+                            FilledAutofillField(viewNode))
                 }
             }
         }

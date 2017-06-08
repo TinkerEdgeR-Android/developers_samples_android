@@ -20,36 +20,37 @@ import android.util.Log
 import android.view.View
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
+import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadataCollection
 import java.util.HashMap
 
 
 /**
- * ClientFormData is the model that represents all of the form data on a client app's page, plus the
+ * FilledAutofillFieldCollection is the model that represents all of the form data on a client app's page, plus the
  * dataset name associated with it.
  */
-class ClientFormData constructor(var datasetName: String? = null,
-        private val hintMap: HashMap<String, SavableAutofillData> = HashMap<String, SavableAutofillData>()) {
+class FilledAutofillFieldCollection constructor(var datasetName: String? = null,
+        private val hintMap: HashMap<String, FilledAutofillField> = HashMap<String, FilledAutofillField>()) {
 
-    private val TAG = "ClientFormData"
+    private val TAG = "FilledAutofillFieldCollection"
 
     /**
      * Sets values for a list of autofillHints.
      */
-    fun setAutofillValuesForHints(autofillHints: Array<String>, autofillData: SavableAutofillData) {
+    fun setAutofillValuesForHints(autofillHints: Array<String>, autofillField: FilledAutofillField) {
         autofillHints.forEach { hint ->
-            hintMap[hint] = autofillData
+            hintMap[hint] = autofillField
         }
     }
 
     /**
      * Populates a [Dataset.Builder] with appropriate values for each [AutofillId]
-     * in a `AutofillFieldsCollection`.
+     * in a `AutofillFieldMetadataCollection`.
      */
-    fun applyToFields(autofillFieldsCollection: AutofillFieldsCollection,
+    fun applyToFields(autofillFieldMetadataCollection: AutofillFieldMetadataCollection,
             datasetBuilder: Dataset.Builder): Boolean {
         var setValueAtLeastOnce = false
-        for (hint in autofillFieldsCollection.allAutofillHints) {
-            val autofillFields = autofillFieldsCollection.getFieldsForHint(hint) ?: continue
+        for (hint in autofillFieldMetadataCollection.allAutofillHints) {
+            val autofillFields = autofillFieldMetadataCollection.getFieldsForHint(hint) ?: continue
             for (autofillField in autofillFields) {
                 val autofillId = autofillField.autofillId
                 val autofillType = autofillField.autofillType
