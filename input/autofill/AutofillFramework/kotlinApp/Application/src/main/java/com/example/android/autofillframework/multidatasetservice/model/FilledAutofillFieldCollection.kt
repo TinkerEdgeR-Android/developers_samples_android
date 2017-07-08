@@ -20,7 +20,9 @@ import android.util.Log
 import android.view.View
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
+import com.example.android.autofillframework.CommonUtil.TAG
 import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadataCollection
+import com.example.android.autofillframework.multidatasetservice.AutofillHelper
 import java.util.HashMap
 
 
@@ -31,14 +33,12 @@ import java.util.HashMap
 class FilledAutofillFieldCollection constructor(var datasetName: String? = null,
         private val hintMap: HashMap<String, FilledAutofillField> = HashMap<String, FilledAutofillField>()) {
 
-    private val TAG = "FilledAutofillFieldCollection"
-
     /**
      * Sets values for a list of autofillHints.
      */
     fun setAutofillValuesForHints(autofillHints: Array<String>, autofillField: FilledAutofillField) {
-        autofillHints.forEach { hint ->
-            hintMap[hint] = autofillField
+        autofillHints.filter(AutofillHelper::isValidHint).forEach { autofillHint ->
+            hintMap[autofillHint] = autofillField
         }
     }
 
