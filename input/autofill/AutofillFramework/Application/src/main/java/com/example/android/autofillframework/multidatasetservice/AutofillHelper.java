@@ -21,6 +21,7 @@ import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
 import android.util.Log;
+import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
@@ -93,6 +94,27 @@ public final class AutofillHelper {
         } else {
             Log.d(TAG, "These fields are not meant to be saved by autofill.");
             return null;
+        }
+    }
+
+    public static boolean isValidHint(String hint) {
+        switch (hint) {
+            case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE:
+            case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY:
+            case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH:
+            case View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR:
+            case View.AUTOFILL_HINT_CREDIT_CARD_NUMBER:
+            case View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE:
+            case View.AUTOFILL_HINT_EMAIL_ADDRESS:
+            case View.AUTOFILL_HINT_PHONE:
+            case View.AUTOFILL_HINT_NAME:
+            case View.AUTOFILL_HINT_PASSWORD:
+            case View.AUTOFILL_HINT_POSTAL_ADDRESS:
+            case View.AUTOFILL_HINT_POSTAL_CODE:
+            case View.AUTOFILL_HINT_USERNAME:
+                return true;
+            default:
+                return false;
         }
     }
 }
