@@ -20,6 +20,7 @@ import android.content.IntentSender;
 import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
+import android.support.annotation.DrawableRes;
 import android.util.Log;
 import android.view.View;
 import android.view.autofill.AutofillId;
@@ -28,6 +29,7 @@ import android.widget.RemoteViews;
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -46,11 +48,17 @@ public final class AutofillHelper {
             AutofillFieldMetadataCollection autofillFields, FilledAutofillFieldCollection filledAutofillFieldCollection, boolean datasetAuth) {
         String datasetName = filledAutofillFieldCollection.getDatasetName();
         if (datasetName != null) {
-            Dataset.Builder datasetBuilder = new Dataset.Builder
-                    (newRemoteViews(context.getPackageName(), datasetName));
+            Dataset.Builder datasetBuilder;
             if (datasetAuth) {
+                datasetBuilder = new Dataset.Builder
+                        (newRemoteViews(context.getPackageName(), datasetName,
+                                R.drawable.ic_lock_black_24dp));
                 IntentSender sender = AuthActivity.getAuthIntentSenderForDataset(context, datasetName);
                 datasetBuilder.setAuthentication(sender);
+            } else {
+                datasetBuilder = new Dataset.Builder
+                        (newRemoteViews(context.getPackageName(), datasetName,
+                                R.drawable.ic_person_black_24dp));
             }
             boolean setValueAtLeastOnce = filledAutofillFieldCollection.applyToFields(autofillFields, datasetBuilder);
             if (setValueAtLeastOnce) {
@@ -60,9 +68,11 @@ public final class AutofillHelper {
         return null;
     }
 
-    public static RemoteViews newRemoteViews(String packageName, String remoteViewsText) {
+    public static RemoteViews newRemoteViews(String packageName, String remoteViewsText,
+            @DrawableRes int drawableId) {
         RemoteViews presentation = new RemoteViews(packageName, R.layout.multidataset_service_list_item);
-        presentation.setTextViewText(R.id.text1, remoteViewsText);
+        presentation.setTextViewText(R.id.text, remoteViewsText);
+        presentation.setImageViewResource(R.id.icon, drawableId);
         return presentation;
     }
 
@@ -95,6 +105,16 @@ public final class AutofillHelper {
             Log.d(TAG, "These fields are not meant to be saved by autofill.");
             return null;
         }
+    }
+
+    public static String[] filterForSupportedHints(String[] hints) {
+        ArrayList<String> supportedHints = new ArrayList<>(hints.length);
+        for (int i = 0; i < hints.length; i++) {
+            if (AutofillHelper.isValidHint(hints[i])) {
+                supportedHints.add(hints[i]);
+            }
+        }
+        return supportedHints.toArray(new String[supportedHints.size()]);
     }
 
     public static boolean isValidHint(String hint) {
