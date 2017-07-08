@@ -92,7 +92,7 @@ class AuthActivity : AppCompatActivity() {
         val autofillFields = parser.autofillFields
         mReplyIntent = Intent()
         val clientFormDataMap = SharedPrefsAutofillRepository
-                .getClientFormData(this, autofillFields.focusedAutofillHints, autofillFields.allAutofillHints)
+                .getFilledAutofillFieldCollection(this, autofillFields.focusedAutofillHints, autofillFields.allAutofillHints)
         if (forResponse) {
             AutofillHelper.newResponse(this, false, autofillFields, clientFormDataMap)?.let(this::setResponseIntent)
         } else {
