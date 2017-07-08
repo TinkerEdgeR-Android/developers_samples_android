@@ -19,6 +19,7 @@ import android.content.Context
 import android.service.autofill.Dataset
 import android.service.autofill.FillResponse
 import android.service.autofill.SaveInfo
+import android.support.annotation.DrawableRes
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -52,14 +53,21 @@ object AutofillHelper {
      * client View.
      */
     fun newDataset(context: Context, autofillFieldMetadata: AutofillFieldMetadataCollection,
-            filledAutofillFieldCollection: FilledAutofillFieldCollection, datasetAuth: Boolean): Dataset? {
+            filledAutofillFieldCollection: FilledAutofillFieldCollection,
+            datasetAuth: Boolean): Dataset? {
         filledAutofillFieldCollection.datasetName?.let { datasetName ->
-            val datasetBuilder = Dataset.Builder(newRemoteViews(context.packageName, datasetName))
-            val setValueAtLeastOnce = filledAutofillFieldCollection.applyToFields(autofillFieldMetadata, datasetBuilder)
+            val datasetBuilder: Dataset.Builder
             if (datasetAuth) {
+                datasetBuilder = Dataset.Builder(newRemoteViews(context.packageName, datasetName,
+                        R.drawable.ic_lock_black_24dp))
                 val sender = AuthActivity.getAuthIntentSenderForDataset(context, datasetName)
                 datasetBuilder.setAuthentication(sender)
+            } else {
+                datasetBuilder = Dataset.Builder(newRemoteViews(context.packageName, datasetName,
+                        R.drawable.ic_person_black_24dp))
             }
+            val setValueAtLeastOnce = filledAutofillFieldCollection
+                    .applyToFields(autofillFieldMetadata, datasetBuilder)
             if (setValueAtLeastOnce) {
                 return datasetBuilder.build()
             }
@@ -67,9 +75,11 @@ object AutofillHelper {
         return null
     }
 
-    fun newRemoteViews(packageName: String, remoteViewsText: String): RemoteViews {
+    fun newRemoteViews(packageName: String, remoteViewsText: String,
+            @DrawableRes drawableId: Int): RemoteViews {
         val presentation = RemoteViews(packageName, R.layout.multidataset_service_list_item)
-        presentation.setTextViewText(R.id.text1, remoteViewsText)
+        presentation.setTextViewText(R.id.text, remoteViewsText)
+        presentation.setImageViewResource(R.id.icon, drawableId)
         return presentation
     }
 
