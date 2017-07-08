@@ -24,6 +24,7 @@ import android.view.autofill.AutofillValue;
 
 import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadata;
 import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadataCollection;
+import com.example.android.autofillframework.multidatasetservice.AutofillHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +67,11 @@ public final class FilledAutofillFieldCollection {
      */
     public void setAutofillValuesForHints(@NonNull String[] autofillHints, @NonNull FilledAutofillField autofillValue) {
         for (int i = 0; i < autofillHints.length; i++) {
-            mHintMap.put(autofillHints[i], autofillValue);
+            if (AutofillHelper.isValidHint(autofillHints[i])) {
+                mHintMap.put(autofillHints[i], autofillValue);
+            } else {
+                Log.e(TAG, "Invalid hint: " + autofillHints[i]);
+            }
         }
     }
 
