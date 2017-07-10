@@ -24,6 +24,7 @@ import android.view.autofill.AutofillValue;
 
 import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadata;
 import com.example.android.autofillframework.multidatasetservice.AutofillFieldMetadataCollection;
+import com.google.gson.annotations.Expose;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,9 @@ import static com.example.android.autofillframework.CommonUtil.TAG;
  * plus the dataset name associated with it.
  */
 public final class FilledAutofillFieldCollection {
+    @Expose
     private final HashMap<String, FilledAutofillField> mHintMap;
+    @Expose
     private String mDatasetName;
 
     public FilledAutofillFieldCollection() {
