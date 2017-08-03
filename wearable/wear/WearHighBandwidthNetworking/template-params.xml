@@ -25,10 +25,16 @@
     <minSdk>24</minSdk>
     <minSdkVersionWear>24</minSdkVersionWear>
     <targetSdkVersion>25</targetSdkVersion>
-    <targetSdkVersionWear>25</targetSdkVersionWear>
+
+    <minSdkVersionWear>23</minSdkVersionWear>
+    <compileSdkVersionWear>26</compileSdkVersionWear>
+    <targetSdkVersionWear>26</targetSdkVersionWear>
+    <multiDexEnabled>true</multiDexEnabled>
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
+    <dependency_wearable>com.android.support:wear:26.0.0</dependency_wearable>
+
 
     <strings>
         <intro>
