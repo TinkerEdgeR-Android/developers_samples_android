@@ -29,7 +29,6 @@ import android.widget.RemoteViews;
 import com.example.android.autofillframework.R;
 import com.example.android.autofillframework.multidatasetservice.model.FilledAutofillFieldCollection;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
