@@ -21,6 +21,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Style
 import android.graphics.Rect
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
 import android.util.SparseArray
@@ -105,8 +106,9 @@ class CustomVirtualView(context: Context, attrs: AttributeSet) : View(context, a
             child.setAutofillHints(item.hints)
             child.setAutofillType(item.type)
             child.setDataIsSensitive(!item.sanitized)
-            child.text = item.text
-            child.setAutofillValue(AutofillValue.forText(item.text))
+            if (TextUtils.getTrimmedLength(item.text) > 0) {
+                child.setAutofillValue(AutofillValue.forText(item.text))
+            }
             child.setFocused(item.focused)
             child.setId(item.id, context.packageName, null, item.line.idEntry)
             child.setClassName(item.className)
