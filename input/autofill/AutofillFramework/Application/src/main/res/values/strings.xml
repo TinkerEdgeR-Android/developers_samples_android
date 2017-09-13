@@ -34,6 +34,7 @@
     <string name="autofill_sign_in_prompt">Tap to sign in.</string>
     <string name="credit_card_number_label">CC Number</string>
     <string name="credit_card_expiration_label">CC Exp</string>
+    <string name="credit_card_expiration_date_label">CC Exp Date</string>
     <string name="credit_card_expiration_day_label">CC Exp Day</string>
     <string name="credit_card_expiration_month_label">CC Exp Month</string>
     <string name="credit_card_expiration_year_label">CC Exp Year</string>
