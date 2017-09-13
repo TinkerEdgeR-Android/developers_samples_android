@@ -73,6 +73,15 @@
             app:itemLogo="@drawable/ic_view_module_black_24dp" />
 
         <com.example.android.autofillframework.app.NavigationItem
+            android:id="@+id/creditCardDatePickerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:infoText="@string/date_picker_credit_card_info"
+            app:labelText="@string/navigation_button_date_picker_credit_card_label"
+            app:imageColor="@android:color/holo_blue_light"
+            app:itemLogo="@drawable/ic_view_module_black_24dp" />
+
+        <com.example.android.autofillframework.app.NavigationItem
             android:id="@+id/emailComposeButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
