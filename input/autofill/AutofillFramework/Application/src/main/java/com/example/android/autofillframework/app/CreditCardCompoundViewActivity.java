@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 
 import com.example.android.autofillframework.R;
@@ -29,6 +30,8 @@ public class CreditCardCompoundViewActivity extends AppCompatActivity {
 
     private CreditCardExpirationDateView mCcExpDateView;
     private EditText mCcExpNumber;
+    private EditText mCcSecurityCode;
+
     public static Intent getStartActivityIntent(Context context) {
         Intent intent = new Intent(context, CreditCardCompoundViewActivity.class);
         return intent;
@@ -40,6 +43,7 @@ public class CreditCardCompoundViewActivity extends AppCompatActivity {
         setContentView(R.layout.credit_card_compound_view_activity);
         mCcExpDateView = findViewById(R.id.creditCardExpirationView);
         mCcExpNumber = findViewById(R.id.creditCardNumberField);
+        mCcSecurityCode = findViewById(R.id.creditCardSecurityCode);
         findViewById(R.id.submitButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,6 +53,7 @@ public class CreditCardCompoundViewActivity extends AppCompatActivity {
         findViewById(R.id.clearButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getSystemService(AutofillManager.class).cancel();
                 resetFields();
             }
         });
@@ -57,6 +62,7 @@ public class CreditCardCompoundViewActivity extends AppCompatActivity {
     private void resetFields() {
         mCcExpDateView.reset();
         mCcExpNumber.setText("");
+        mCcSecurityCode.setText("");
     }
 
     /**

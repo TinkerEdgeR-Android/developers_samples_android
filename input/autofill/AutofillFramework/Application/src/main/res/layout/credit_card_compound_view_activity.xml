@@ -104,6 +104,32 @@
         app:layout_constraintTop_toTopOf="@+id/creditCardExpirationLabel" />
 
     <TextView
+        android:id="@+id/creditCardSecurityCodeLabel"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:importantForAutofill="no"
+        android:text="@string/credit_card_security_code_label"
+        app:layout_constraintEnd_toStartOf="@+id/expirationDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/creditCardExpirationView" />
+
+    <!--  TODO: it's overlapping with @+id/creditCardExpirationView -->
+    <EditText
+        android:id="@+id/creditCardSecurityCode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/creditCardSecurityCodeLabel"
+        android:layout_marginEnd="8dp"
+        android:inputType="number"
+        android:autofillHints="creditCardSecurityCode"
+        app:layout_constraintBottom_toBottomOf="@+id/creditCardSecurityCodeLabel"
+        app:layout_constraintEnd_toEndOf="@+id/creditCardExpirationView"
+        app:layout_constraintStart_toStartOf="@+id/creditCardExpirationView"
+        app:layout_constraintTop_toTopOf="@+id/creditCardSecurityCodeLabel" />
+
+    <TextView
         android:id="@+id/clearButton"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
@@ -116,7 +142,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/creditCardExpirationView" />
+        app:layout_constraintTop_toBottomOf="@+id/creditCardSecurityCodeLabel" />
 
     <TextView
         android:id="@+id/submitButton"
