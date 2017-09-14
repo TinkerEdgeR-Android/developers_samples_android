@@ -170,6 +170,9 @@ public class CustomVirtualView extends View {
             child.setFocused(item.focused);
             child.setId(item.id, getContext().getPackageName(), null, item.line.mIdEntry);
             child.setClassName(item.getClassName());
+            child.setVisibility(item.line.mVisible ? View.VISIBLE : View.INVISIBLE);
+            child.setDimens(item.line.mBounds.left, item.line.mBounds.top, 0, 0,
+                    item.line.mBounds.width(), item.line.mBounds.height());
             index++;
         }
     }
