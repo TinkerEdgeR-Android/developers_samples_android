@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationItem creditCardCompoundView = findViewById(R.id.creditCardCompoundViewButton);
         NavigationItem creditCardDatePicker = findViewById(R.id.creditCardDatePickerButton);
         NavigationItem mulitplePartitions = findViewById(R.id.multiplePartitionsButton);
+        NavigationItem loginWebView = findViewById(R.id.webviewSignInButton);
         loginEditTexts.setNavigationButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(MultiplePartitionsActivity.getStartActivityIntent(MainActivity.this));
+            }
+        });
+        loginWebView.setNavigationButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(WebViewSignInActivity.getStartActivityIntent(MainActivity.this));
             }
         });
     }
