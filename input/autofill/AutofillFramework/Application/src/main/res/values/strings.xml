@@ -24,6 +24,7 @@
     <string name="navigation_button_autocomplete_login_label">Sample Login Using AutoCompleteTextViews</string>
     <string name="navigation_button_email_compose_label">Sample Email Compose Using EditTexts</string>
     <string name="navigation_button_compound_view_credit_card_label">Sample Credit Card Check Out Using Compound Views</string>
+    <string name="navigation_button_date_picker_credit_card_label">Sample Credit Card Check Out Using Date Picker</string>
     <string name="navigation_button_multiple_partitions_label">Sample Page with Multiple Data Partitions</string>
     <string name="username_label">Username</string>
     <string name="password_label">Password</string>
@@ -98,6 +99,12 @@
         card\'s expiration date and an EditText to input the credit card number. While the EditText is
         optimized out of the box for autofill, this example shows how to implement certain Autofill-
         specific methods and XML properties for the custom compound view.
+    </string>
+    <string name="date_picker_credit_card_info">
+        This is a sample credit card checkout page that uses a custom EditText and a DatePicker
+        to input the credit card\'s expiration date and an EditText to input the credit card number.
+        While the EditText is optimized out of the box for autofill, this example shows how to
+        use it to autofill a date field.
     </string>
     <string name="multiple_partitions">
         This is a sample page that contains multiple partitions (login credentials, address,

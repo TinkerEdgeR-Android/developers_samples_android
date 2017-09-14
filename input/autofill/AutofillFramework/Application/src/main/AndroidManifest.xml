@@ -53,6 +53,9 @@
             android:name=".app.CreditCardCompoundViewActivity"
             android:taskAffinity=".CreditCardCompoundViewActivity" />
         <activity
+            android:name=".app.CreditCardDatePickerActivity"
+            android:taskAffinity=".CreditCardDatePickerActivity" />
+        <activity
             android:name=".app.MultiplePartitionsActivity"
             android:taskAffinity=".MultiplePartitionsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
