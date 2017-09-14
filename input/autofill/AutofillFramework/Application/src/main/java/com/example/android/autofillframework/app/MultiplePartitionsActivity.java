@@ -45,7 +45,7 @@ import com.example.android.autofillframework.R;
  */
 public class MultiplePartitionsActivity extends AppCompatActivity {
 
-    private CustomVirtualView mCustomVirtualView;
+    private ScrollableCustomVirtualView mCustomVirtualView;
     private AutofillManager mAutofillManager;
 
     private CustomVirtualView.Partition mCredentialsPartition;
@@ -62,7 +62,7 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
 
         setContentView(R.layout.multiple_partitions_activity);
 
-        mCustomVirtualView = (CustomVirtualView) findViewById(R.id.custom_view);
+        mCustomVirtualView = findViewById(R.id.custom_view);
 
         mCredentialsPartition =
                 mCustomVirtualView.addPartition(getString(R.string.partition_credentials));
@@ -81,10 +81,14 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
         mCcPartition.addLine("ccYear", getString(R.string.credit_card_expiration_year_label),
                 "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR);
 
+        // TODO: add ComboBox that changes visibility of partitions
+        // mCcPartition.setVisibility(false);
+
         findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 resetFields();
+                mCustomVirtualView.resetPositions();
                 mAutofillManager.cancel();
             }
         });
