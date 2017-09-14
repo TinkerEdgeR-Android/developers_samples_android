@@ -15,9 +15,12 @@
  */
 package com.example.android.autofillframework.app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.example.android.autofillframework.R;
@@ -27,9 +30,16 @@ import com.example.android.autofillframework.R;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (launchTrampolineActivity()) {
+            return;
+        }
+
         setContentView(R.layout.activity_main);
         NavigationItem loginEditTexts = findViewById(R.id.standardViewSignInButton);
         NavigationItem loginCustomVirtual = findViewById(R.id.virtualViewSignInButton);
@@ -80,5 +90,25 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(MultiplePartitionsActivity.getStartActivityIntent(MainActivity.this));
             }
         });
+    }
+
+    private boolean launchTrampolineActivity() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            String target = intent.getStringExtra("target");
+            if (target != null) {
+                Log.i(TAG, "trampolining into " + target + " instead");
+                try {
+                    Intent newIntent = new Intent(this,
+                            Class.forName("com.example.android.autofillframework." + target));
+                    getApplicationContext().startActivity(newIntent);
+                    finish();
+                    return true;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error launching " + target, e);
+                }
+            }
+        }
+        return false;
     }
 }
