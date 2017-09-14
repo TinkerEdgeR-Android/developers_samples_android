@@ -80,6 +80,11 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
                 "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH);
         mCcPartition.addLine("ccYear", getString(R.string.credit_card_expiration_year_label),
                 "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR);
+        // TODO: figure out why expiration date is not being autofilled
+        mCcPartition.addLine("ccDate", getString(R.string.credit_card_expiration_date_label),
+                "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE);
+        mCcPartition.addLine("ccSecurityCode", getString(R.string.credit_card_security_code_label),
+                "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE);
 
         // TODO: add ComboBox that changes visibility of partitions
         // mCcPartition.setVisibility(false);
