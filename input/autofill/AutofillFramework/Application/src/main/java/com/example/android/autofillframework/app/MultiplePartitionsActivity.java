@@ -21,13 +21,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.autofill.AutofillManager;
-import android.widget.Toast;
 
 import com.example.android.autofillframework.R;
 
 /**
  * Activity used to demonstrated safe partitioning of data.
- *
+ * <p>
  * <p>It has multiple partitions, but only accepts autofill on each partition at time.
  */
 /*
