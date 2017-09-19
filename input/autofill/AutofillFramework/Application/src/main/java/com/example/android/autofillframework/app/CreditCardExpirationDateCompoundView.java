@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.autofill.AutofillManager;
@@ -31,6 +32,8 @@ import android.widget.Spinner;
 import com.example.android.autofillframework.R;
 
 import java.util.Calendar;
+
+import static com.example.android.autofillframework.CommonUtil.TAG;
 
 /**
  * A custom view that represents a {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE} using
@@ -109,6 +112,7 @@ public class CreditCardExpirationDateCompoundView extends FrameLayout {
     @Override
     public void autofill(AutofillValue value) {
         if (!value.isDate()) {
+            Log.w(TAG, "Ignoring autofill() because service sent a non-date value:" + value);
             return;
         }
         Calendar calendar = Calendar.getInstance();
