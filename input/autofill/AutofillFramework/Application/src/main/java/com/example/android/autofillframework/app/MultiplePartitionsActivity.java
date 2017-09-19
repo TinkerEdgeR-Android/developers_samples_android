@@ -32,7 +32,6 @@ import com.example.android.autofillframework.R;
 /*
  * TODO list
  *
- * - Fix top margin.
  * - Use a combo box to select which partition is visible (will require changes on CustomView to
  *   hide a partition).
  * - Use a dedicated TextView (instead of Toast) for error messages.
