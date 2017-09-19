@@ -15,8 +15,6 @@
  */
 package com.example.android.autofillframework.app;
 
-import static com.example.android.autofillframework.CommonUtil.TAG;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +26,8 @@ import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 
 import com.example.android.autofillframework.R;
+
+import static com.example.android.autofillframework.CommonUtil.TAG;
 
 public class CreditCardDatePickerActivity extends AppCompatActivity {
 
