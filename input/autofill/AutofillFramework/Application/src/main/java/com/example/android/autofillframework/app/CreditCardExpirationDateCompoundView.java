@@ -78,16 +78,16 @@ public class CreditCardExpirationDateCompoundView extends FrameLayout {
                 android.R.layout.simple_spinner_item, mYears));
         AdapterView.OnItemSelectedListener onItemSelectedListener =
                 new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                context.getSystemService(AutofillManager.class)
-                        .notifyValueChanged(CreditCardExpirationDateCompoundView.this);
-            }
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        context.getSystemService(AutofillManager.class)
+                                .notifyValueChanged(CreditCardExpirationDateCompoundView.this);
+                    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        };
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                };
         mCcExpMonthSpinner.setOnItemSelectedListener(onItemSelectedListener);
         mCcExpYearSpinner.setOnItemSelectedListener(onItemSelectedListener);
     }
