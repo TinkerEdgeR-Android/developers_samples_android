@@ -48,10 +48,9 @@ import static com.example.android.autofillframework.CommonUtil.bundleToString;
  */
 public class CustomVirtualView extends View {
 
-    private static final String TAG = "CustomView";
     protected static final boolean DEBUG = true;
     protected static final boolean VERBOSE = false;
-
+    private static final String TAG = "CustomView";
     private static final int TOP_MARGIN = 100;
     private static final int LEFT_MARGIN = 100;
     private static final int TEXT_HEIGHT = 90;
@@ -60,23 +59,18 @@ public class CustomVirtualView extends View {
     private static final int UNFOCUSED_COLOR = Color.BLACK;
     private static final int FOCUSED_COLOR = Color.RED;
     private static int sNextId;
-
+    protected final AutofillManager mAutofillManager;
     private final ArrayList<Line> mVirtualViewGroups = new ArrayList<>();
     private final SparseArray<Item> mVirtualViews = new SparseArray<>();
-
     private final SparseArray<Partition> mPartitionsByAutofillId = new SparseArray<>();
     private final ArrayMap<String, Partition> mPartitionsByName = new ArrayMap<>();
-
-    protected final AutofillManager mAutofillManager;
-
     protected Line mFocusedLine;
+    protected int mTopMargin;
+    protected int mLeftMargin;
     private Paint mTextPaint;
-
     private int mTextHeight;
     private int mVerticalGap;
     private int mLineLength;
-    protected int mTopMargin;
-    protected int mLeftMargin;
 
     public CustomVirtualView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -288,8 +282,8 @@ public class CustomVirtualView extends View {
 
 
     protected static final class Item {
-        private final Line line;
         protected final int id;
+        private final Line line;
         private final boolean editable;
         private final boolean sanitized;
         private final String[] hints;
@@ -333,12 +327,11 @@ public class CustomVirtualView extends View {
         /**
          * Adds a new line (containining a label and an input field) to the view.
          *
-         * @param idEntry id used to identify the line.
-         * @param label text used in the label.
-         * @param text initial text used in the input field.
+         * @param idEntry   id used to identify the line.
+         * @param label     text used in the label.
+         * @param text      initial text used in the input field.
          * @param sensitive whether the input is considered sensitive.
-         * @param hints list of autofill hints.
-         *
+         * @param hints     list of autofill hints.
          * @return the new line.
          */
         public Line addLine(String idEntry, String label, String text, boolean sensitive,
@@ -384,10 +377,10 @@ public class CustomVirtualView extends View {
      */
     public final class Line {
 
+        protected final Item mFieldTextItem;
         // Boundaries of the text field, relative to the CustomView
         private final Rect mBounds = new Rect();
         private final Item mLabelItem;
-        protected final Item mFieldTextItem;
         private final String mIdEntry;
         private boolean mVisible = true;
 
