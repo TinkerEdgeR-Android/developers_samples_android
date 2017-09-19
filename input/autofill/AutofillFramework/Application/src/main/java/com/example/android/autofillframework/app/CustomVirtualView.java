@@ -53,7 +53,7 @@ public class CustomVirtualView extends View {
     private static final String TAG = "CustomView";
     private static final int TOP_MARGIN = 100;
     private static final int LEFT_MARGIN = 100;
-    private static final int TEXT_HEIGHT = 90;
+    private static final int TEXT_HEIGHT = 70;
     private static final int VERTICAL_GAP = 10;
     private static final int LINE_HEIGHT = TEXT_HEIGHT + VERTICAL_GAP;
     private static final int UNFOCUSED_COLOR = Color.BLACK;
