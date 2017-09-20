@@ -185,13 +185,13 @@ public class CustomVirtualView extends View {
             child.setAutofillId(structure.getAutofillId(), item.id);
             child.setAutofillHints(item.hints);
             child.setAutofillType(item.type);
-            child.setDataIsSensitive(!item.sanitized);
             child.setAutofillValue(item.getAutofillValue());
+            child.setDataIsSensitive(!item.sanitized);
             child.setFocused(item.focused);
             child.setVisibility(View.VISIBLE);
             child.setDimens(item.line.mBounds.left, item.line.mBounds.top, 0, 0,
                     item.line.mBounds.width(), item.line.mBounds.height());
-            child.setId(item.id, getContext().getPackageName(), null, item.line.mIdEntry);
+            child.setId(item.id, getContext().getPackageName(), null, item.idEntry);
             child.setClassName(item.getClassName());
             child.setDimens(item.line.mBounds.left, item.line.mBounds.top, 0, 0,
                     item.line.mBounds.width(), item.line.mBounds.height());
@@ -303,6 +303,7 @@ public class CustomVirtualView extends View {
 
     protected static final class Item {
         protected final int id;
+        private final String idEntry;
         private final Line line;
         private final boolean editable;
         private final boolean sanitized;
@@ -312,10 +313,11 @@ public class CustomVirtualView extends View {
         private boolean focused = false;
         private long date;
 
-        Item(Line line, int id, String[] hints, int type, CharSequence text, boolean editable,
-                boolean sanitized) {
+        Item(Line line, int id, String idEntry, String[] hints, int type, CharSequence text,
+                boolean editable,boolean sanitized) {
             this.line = line;
             this.id = id;
+            this.idEntry = idEntry;
             this.text = text;
             this.editable = editable;
             this.sanitized = sanitized;
@@ -325,7 +327,7 @@ public class CustomVirtualView extends View {
 
         @Override
         public String toString() {
-            return id + ": "
+            return id + "/" + idEntry + ": "
                     + (type == AUTOFILL_TYPE_DATE ? date : text) // TODO: use DateFormater for date
                     + " (" + CommonUtil.getTypeAsString(type) + ")"
                     + (editable ? " (editable)" : " (read-only)"
@@ -340,9 +342,9 @@ public class CustomVirtualView extends View {
         public AutofillValue getAutofillValue() {
             switch (type) {
                 case AUTOFILL_TYPE_TEXT:
-                    if (TextUtils.getTrimmedLength(text) > 0) {
-                        return AutofillValue.forText(text);
-                    }
+                    return (TextUtils.getTrimmedLength(text) > 0)
+                            ? AutofillValue.forText(text)
+                            : null;
                 case AUTOFILL_TYPE_DATE:
                     return AutofillValue.forDate(date);
                 default:
@@ -365,7 +367,8 @@ public class CustomVirtualView extends View {
         /**
          * Adds a new line (containining a label and an input field) to the view.
          *
-         * @param idEntry       id used to identify the line.
+         * @param idEntryPrefix id prefix used to identify the line - label node will be suffixed
+         * with {@code Label} and editable node with {@code Field}.
          * @param autofillType  {@link View#getAutofillType() autofill type} of the field.
          * @param label         text used in the label.
          * @param text          initial text used in the input field.
@@ -373,14 +376,15 @@ public class CustomVirtualView extends View {
          * @param autofillHints list of autofill hints.
          * @return the new line.
          */
-        public Line addLine(String idEntry, int autofillType, String label, String text,
+        public Line addLine(String idEntryPrefix, int autofillType, String label, String text,
                 boolean sensitive, String... autofillHints) {
             // TODO: use PreConditions
             if (autofillType != AUTOFILL_TYPE_TEXT && autofillType != AUTOFILL_TYPE_DATE) {
                 throw new IllegalArgumentException("unsupported type: " + autofillType);
             }
 
-            Line line = new Line(idEntry, autofillType, label, autofillHints, text, !sensitive);
+            Line line = new Line(idEntryPrefix, autofillType, label, autofillHints, text,
+                    !sensitive);
             mVirtualViewGroups.add(line);
             int id = line.mFieldTextItem.id;
             mLines.put(id, line);
@@ -415,17 +419,15 @@ public class CustomVirtualView extends View {
         // Boundaries of the text field, relative to the CustomView
         private final Rect mBounds = new Rect();
         private final Item mLabelItem;
-        private final String mIdEntry;
         private final int mAutofillType;
 
-        private Line(String idEntry, int autofillType, String label, String[] hints, String text,
-                boolean sanitized) {
-            this.mIdEntry = idEntry;
+        private Line(String idEntryPrefix, int autofillType, String label, String[] hints,
+                String text, boolean sanitized) {
             this.mAutofillType = autofillType;
-            this.mLabelItem = new Item(this, ++sNextId, null, AUTOFILL_TYPE_NONE, label,
-                    false, true);
-            this.mFieldTextItem = new Item(this, ++sNextId, hints, autofillType, text,
-                    true, sanitized);
+            this.mLabelItem = new Item(this, ++sNextId, idEntryPrefix + "Label", null,
+                    AUTOFILL_TYPE_NONE, label, false, true);
+            this.mFieldTextItem = new Item(this, ++sNextId, idEntryPrefix + "Field", hints,
+                    autofillType, text, true, sanitized);
         }
 
         private void changeFocus(boolean focused) {
