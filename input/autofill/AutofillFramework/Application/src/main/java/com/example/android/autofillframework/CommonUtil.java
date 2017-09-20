@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStructure.HtmlInfo;
+import android.view.autofill.AutofillValue;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -74,6 +75,22 @@ public final class CommonUtil {
         return "UNKNOWN_TYPE";
     }
 
+    private static String getAutofillValueAndTypeAsString(AutofillValue value) {
+        if (value == null) return "null";
+
+        StringBuilder builder = new StringBuilder(value.toString()).append( '(');
+        if (value.isText()) {
+            builder.append("isText");
+        } else if (value.isDate()) {
+            builder.append("isDate");
+        } else if (value.isToggle()) {
+            builder.append("isToggle");
+        } else if (value.isList()) {
+            builder.append("isList");
+        }
+        return builder.append(')').toString();
+    }
+
     public static void dumpStructure(AssistStructure structure) {
         int nodeCount = structure.getWindowNodeCount();
         Log.v(TAG, "dumpStructure(): component=" + structure.getActivityComponent()
@@ -114,7 +131,8 @@ public final class CommonUtil {
 
         CharSequence[] options = node.getAutofillOptions();
         builder.append(prefix).append("afType: ").append(getTypeAsString(node.getAutofillType()))
-                .append("\tafValue:").append(node.getAutofillValue())
+                .append("\tafValue:")
+                .append(getAutofillValueAndTypeAsString(node.getAutofillValue()))
                 .append("\tafOptions:").append(options == null ? "N/A" : Arrays.toString(options))
                 .append("\tinputType:").append(node.getInputType())
                 .append('\n');
