@@ -50,10 +50,10 @@ public class VirtualSignInActivity extends AppCompatActivity {
 
         CustomVirtualView.Partition credentialsPartition =
                 mCustomVirtualView.addPartition(getString(R.string.partition_credentials));
-        mUsernameLine = credentialsPartition.addLine("usernameField", View.AUTOFILL_TYPE_TEXT,
+        mUsernameLine = credentialsPartition.addLine("username", View.AUTOFILL_TYPE_TEXT,
                 getString(R.string.username_label),
                 "         ", false, View.AUTOFILL_HINT_USERNAME);
-        mPasswordLine = credentialsPartition.addLine("passwordField", View.AUTOFILL_TYPE_TEXT,
+        mPasswordLine = credentialsPartition.addLine("password", View.AUTOFILL_TYPE_TEXT,
                 getString(R.string.password_label),
                 "         ", true, View.AUTOFILL_HINT_PASSWORD);
 
