@@ -229,12 +229,13 @@ public class MainActivity extends Activity implements Handler.Callback {
         Notification[] notifications = buildNotifications();
 
         // Post new notifications
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
         for (int i = 0; i < notifications.length; i++) {
-            NotificationManagerCompat.from(this).notify(i, notifications[i]);
+            notificationManagerCompat.notify(i, notifications[i]);
         }
         // Cancel any that are beyond the current count.
         for (int i = notifications.length; i < mPostedNotificationCount; i++) {
-            NotificationManagerCompat.from(this).cancel(i);
+            notificationManagerCompat.cancel(i);
         }
         mPostedNotificationCount = notifications.length;
     }
