@@ -40,8 +40,10 @@ public class AutofillFieldMetadata {
         mAutofillOptions = view.getAutofillOptions();
         mFocused = view.isFocused();
         String[] hints = filterForSupportedHints(view.getAutofillHints());
-        convertToStoredHintNames(hints);
-        setHints(hints);
+        if (hints != null) {
+            convertToStoredHintNames(hints);
+            setHints(hints);
+        }
     }
 
     public String[] getHints() {
