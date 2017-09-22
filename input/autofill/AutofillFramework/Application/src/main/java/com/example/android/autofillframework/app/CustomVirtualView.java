@@ -287,7 +287,7 @@ public class CustomVirtualView extends View {
      */
     public Partition addPartition(String name) {
         Preconditions.checkNotNull(name, "Name cannot be null.");
-        Preconditions.checkArgument(mPartitionsByName.containsKey(name),
+        Preconditions.checkArgument(!mPartitionsByName.containsKey(name),
                 "Partition with such name already exists.");
         Partition partition = new Partition(name);
         mPartitionsByName.put(name, partition);
