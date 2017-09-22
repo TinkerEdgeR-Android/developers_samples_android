@@ -136,14 +136,19 @@ public final class AutofillHints {
                                     View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH,
                                     SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD, PARTITION_CREDIT_CARD,
                                     (seed) -> {
+                                        CharSequence[] months = monthRange();
+                                        int month = seed % months.length;
+                                        Calendar calendar = Calendar.getInstance();
+                                        calendar.set(Calendar.MONTH, month);
                                         FilledAutofillField filledAutofillField =
                                                 new FilledAutofillField(
                                                         View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH);
-                                        CharSequence[] months = monthRange();
-                                        filledAutofillField.setListValue(months,
-                                                seed % months.length);
+                                        filledAutofillField.setListValue(months, month);
+                                        filledAutofillField.setTextValue(Integer.toString(month));
+                                        filledAutofillField.setDateValue(calendar.getTimeInMillis());
                                         return filledAutofillField;
-                                    }, View.AUTOFILL_TYPE_TEXT, View.AUTOFILL_TYPE_LIST))
+                                    }, View.AUTOFILL_TYPE_TEXT, View.AUTOFILL_TYPE_LIST,
+                                    View.AUTOFILL_TYPE_DATE))
                     .put(View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR, new AutofillHintProperties(
                             View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR,
                             SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD, PARTITION_CREDIT_CARD,
@@ -154,7 +159,7 @@ public final class AutofillHints {
                                 int expYear = calendar.get(Calendar.YEAR) + seed;
                                 calendar.set(Calendar.YEAR, expYear);
                                 filledAutofillField.setDateValue(calendar.getTimeInMillis());
-                                filledAutofillField.setTextValue("" + expYear);
+                                filledAutofillField.setTextValue(Integer.toString(expYear));
                                 return filledAutofillField;
                             }, View.AUTOFILL_TYPE_TEXT, View.AUTOFILL_TYPE_LIST,
                             View.AUTOFILL_TYPE_DATE))
@@ -162,12 +167,18 @@ public final class AutofillHints {
                             View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY,
                             SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD, PARTITION_CREDIT_CARD,
                             (seed) -> {
+                                CharSequence[] days = dayRange();
+                                int day = seed % days.length;
                                 FilledAutofillField filledAutofillField = new FilledAutofillField(
                                         View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY);
-                                CharSequence[] days = dayRange();
-                                filledAutofillField.setListValue(days, seed % days.length);
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(Calendar.DATE, day);
+                                filledAutofillField.setListValue(days, day);
+                                filledAutofillField.setTextValue(Integer.toString(day));
+                                filledAutofillField.setDateValue(calendar.getTimeInMillis());
                                 return filledAutofillField;
-                            }, View.AUTOFILL_TYPE_TEXT, View.AUTOFILL_TYPE_LIST))
+                            }, View.AUTOFILL_TYPE_TEXT, View.AUTOFILL_TYPE_LIST,
+                            View.AUTOFILL_TYPE_DATE))
                     .put(W3cHints.HONORIFIC_PREFIX, new AutofillHintProperties(
                             W3cHints.HONORIFIC_PREFIX, SaveInfo.SAVE_DATA_TYPE_GENERIC,
                             PARTITION_OTHER,
