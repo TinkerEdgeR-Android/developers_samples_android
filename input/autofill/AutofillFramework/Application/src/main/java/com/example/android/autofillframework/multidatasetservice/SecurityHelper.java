@@ -22,6 +22,8 @@ import android.content.pm.Signature;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.common.net.InternetDomainName;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -115,17 +117,25 @@ public final class SecurityHelper {
         return isValid;
     }
 
+    public static String getCanonicalDomain(String domain) {
+        InternetDomainName idn = InternetDomainName.from(domain);
+        while (idn != null && !idn.isTopPrivateDomain()) {
+            idn = idn.parent();
+        }
+        return idn == null ? null : idn.toString();
+    }
 
     public static boolean isValid(String webDomain, String packageName, String fingerprint) {
-        if (DEBUG) Log.d(TAG, "validating domain " + webDomain + " for pkg " + packageName
-                + " and fingerprint " + fingerprint );
+        String canonicalDomain = getCanonicalDomain(webDomain);
+        if (DEBUG) Log.d(TAG, "validating domain " + canonicalDomain + " (" + webDomain
+                + ") for pkg " + packageName + " and fingerprint " + fingerprint );
         final String fullDomain;
         if (!webDomain.startsWith("http:") && !webDomain.startsWith("https:") ) {
             // Unfortunately AssistStructure.ViewNode does not tell what the domain is, so let's
             // assume it's https
-            fullDomain = "https://" + webDomain;
+            fullDomain = "https://" + canonicalDomain;
         } else {
-            fullDomain = webDomain;
+            fullDomain = canonicalDomain;
         }
 
         // TODO: use the DAL Java API or a better REST alternative like Volley
