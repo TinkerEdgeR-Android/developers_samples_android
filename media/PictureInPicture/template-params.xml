@@ -19,7 +19,6 @@
     <group>Media</group>
     <package>com.example.android.pictureinpicture</package>
     <minSdk>26</minSdk>
-    <buildToolsVersion>26</buildToolsVersion>
 
     <strings>
         <intro>
