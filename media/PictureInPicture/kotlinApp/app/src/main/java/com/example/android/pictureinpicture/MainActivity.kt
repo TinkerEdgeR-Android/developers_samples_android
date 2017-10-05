@@ -17,7 +17,7 @@
 package com.example.android.pictureinpicture
 
 import android.app.PendingIntent
-import android.app.PictureInPictureArgs
+import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -29,6 +29,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.v7.app.AppCompatActivity
+import android.util.Rational
 import android.view.View
 import android.widget.ScrollView
 import com.example.android.pictureinpicture.widget.MovieView
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** The arguments to be used for Picture-in-Picture mode.  */
-    private val mPictureInPictureArgs = PictureInPictureArgs()
+    private val mPictureInPictureParamsBuilder = PictureInPictureParams.Builder()
 
     /** This shows the video.  */
     private lateinit var mMovieView: MovieView
@@ -154,12 +155,12 @@ class MainActivity : AppCompatActivity() {
                         Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.info_uri))),
                         0)))
 
-        mPictureInPictureArgs.setActions(actions)
+        mPictureInPictureParamsBuilder.setActions(actions)
 
         // This is how you can update action items (or aspect ratio) for Picture-in-Picture mode.
         // Note this call can happen even when the app is not in PiP mode. In that case, the
         // arguments will be used for at the next call of #enterPictureInPictureMode.
-        setPictureInPictureArgs(mPictureInPictureArgs)
+        setPictureInPictureParams(mPictureInPictureParamsBuilder.build())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -225,8 +226,8 @@ class MainActivity : AppCompatActivity() {
         // Hide the controls in picture-in-picture mode.
         mMovieView.hideControls()
         // Calculate the aspect ratio of the PiP screen.
-        mPictureInPictureArgs.setAspectRatio(mMovieView.width.toFloat() / mMovieView.height)
-        enterPictureInPictureMode(mPictureInPictureArgs)
+        mPictureInPictureParamsBuilder.setAspectRatio(Rational(mMovieView.width, mMovieView.height))
+        enterPictureInPictureMode(mPictureInPictureParamsBuilder.build())
     }
 
     /**
