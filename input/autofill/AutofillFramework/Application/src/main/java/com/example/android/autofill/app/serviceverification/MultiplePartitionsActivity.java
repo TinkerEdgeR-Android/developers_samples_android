@@ -83,7 +83,7 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
             if (newType != -1) {
                 ccExpirationType = newType;
                 String typeMessage = getString(R.string.message_credit_card_expiration_type,
-                        Util.getTypeAsString(ccExpirationType));
+                        Util.getAutofillTypeAsString(ccExpirationType));
                 // TODO: display type in a header or proper status widget
                 Toast.makeText(getApplicationContext(), typeMessage, Toast.LENGTH_LONG).show();
             }

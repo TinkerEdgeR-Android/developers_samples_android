@@ -19,12 +19,19 @@ import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.os.Bundle;
+import android.service.autofill.FillContext;
+import android.service.autofill.SaveInfo;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStructure.HtmlInfo;
 import android.view.autofill.AutofillValue;
 
+import com.google.common.base.Joiner;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public final class Util {
@@ -150,5 +157,94 @@ public final class Util {
             Log.v(TAG, prefix + "child #" + i);
             dumpNode(prefix2, node.getChildAt(i));
         }
+    }
+
+    public static String getSaveTypeAsString(int type) {
+        List<String> types = new ArrayList<>();
+        if ((type & SaveInfo.SAVE_DATA_TYPE_ADDRESS) != 0) {
+            types.add("ADDRESS");
+        }
+        if ((type & SaveInfo.SAVE_DATA_TYPE_CREDIT_CARD) != 0) {
+            types.add("CREDIT_CARD");
+        }
+        if ((type & SaveInfo.SAVE_DATA_TYPE_EMAIL_ADDRESS) != 0) {
+            types.add("EMAIL_ADDRESS");
+        }
+        if ((type & SaveInfo.SAVE_DATA_TYPE_USERNAME) != 0) {
+            types.add("USERNAME");
+        }
+        if ((type & SaveInfo.SAVE_DATA_TYPE_PASSWORD) != 0) {
+            types.add("PASSWORD");
+        }
+        if (types.isEmpty()) {
+            return "UNKNOWN(" + type + ")";
+        }
+        return Joiner.on('|').join(types);
+    }
+
+    /**
+     * Gets a node if it matches the filter criteria for the given id.
+     */
+    public static ViewNode findNodeByFilter(@NonNull List<FillContext> contexts, @NonNull Object id,
+            @NonNull NodeFilter filter) {
+        for (FillContext context : contexts) {
+            ViewNode node = findNodeByFilter(context.getStructure(), id, filter);
+            if (node != null) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets a node if it matches the filter criteria for the given id.
+     */
+    public static ViewNode findNodeByFilter(@NonNull AssistStructure structure, @NonNull Object id,
+            @NonNull NodeFilter filter) {
+        Log.v(TAG, "Parsing request for activity " + structure.getActivityComponent());
+        final int nodes = structure.getWindowNodeCount();
+        for (int i = 0; i < nodes; i++) {
+            final WindowNode windowNode = structure.getWindowNodeAt(i);
+            final ViewNode rootNode = windowNode.getRootViewNode();
+            final ViewNode node = findNodeByFilter(rootNode, id, filter);
+            if (node != null) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets a node if it matches the filter criteria for the given id.
+     */
+    public static ViewNode findNodeByFilter(@NonNull ViewNode node, @NonNull Object id,
+            @NonNull NodeFilter filter) {
+        if (filter.matches(node, id)) {
+            return node;
+        }
+        final int childrenSize = node.getChildCount();
+        if (childrenSize > 0) {
+            for (int i = 0; i < childrenSize; i++) {
+                final ViewNode found = findNodeByFilter(node.getChildAt(i), id, filter);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) -> {
+        return id.equals(node.getAutofillId());
+    };
+
+    /**
+     * Helper interface used to filter Assist nodes.
+     */
+    public interface NodeFilter {
+        /**
+         * Returns whether the node passes the filter for such given id.
+         */
+        boolean matches(ViewNode node, Object id);
     }
 }

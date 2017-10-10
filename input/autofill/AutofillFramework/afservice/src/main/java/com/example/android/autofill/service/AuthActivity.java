@@ -29,6 +29,7 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -122,6 +123,7 @@ public class AuthActivity extends AppCompatActivity {
     private void onSuccess() {
         Intent intent = getIntent();
         boolean forResponse = intent.getBooleanExtra(EXTRA_FOR_RESPONSE, true);
+        Bundle clientState = intent.getBundleExtra(AutofillManager.EXTRA_CLIENT_STATE);
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         StructureParser parser = new StructureParser(getApplicationContext(), structure);
         parser.parseForFill();
@@ -133,7 +135,7 @@ public class AuthActivity extends AppCompatActivity {
                         (this, autofillFields.getFocusedHints(), autofillFields.getAllHints());
         if (forResponse) {
             setResponseIntent(AutofillHelper.newResponse
-                    (this, false, autofillFields, clientFormDataMap));
+                    (this, clientState, false, autofillFields, clientFormDataMap));
         } else {
             String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
             setDatasetIntent(AutofillHelper.newDataset

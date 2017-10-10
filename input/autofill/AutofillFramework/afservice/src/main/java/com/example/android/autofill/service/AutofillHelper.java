@@ -17,25 +17,35 @@ package com.example.android.autofill.service;
 
 import android.content.Context;
 import android.content.IntentSender;
+import android.os.Bundle;
 import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
 import android.support.annotation.DrawableRes;
 import android.util.Log;
+import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.DEBUG;
+import static com.example.android.autofill.service.Util.bundleToString;
+import static com.example.android.autofill.service.Util.getSaveTypeAsString;
 
 /**
  * This is a class containing helper methods for building Autofill Datasets and Responses.
  */
 public final class AutofillHelper {
+
+    // TODO: move to settings activity and document it
+    private static final boolean SUPPORT_MULTIPLE_STEPS = true;
 
     private AutofillHelper() {
         throw new UnsupportedOperationException("provide static methods only");
@@ -85,7 +95,7 @@ public final class AutofillHelper {
      * Wraps autofill data in a Response object (essentially a series of Datasets) which can then
      * be sent back to the client View.
      */
-    public static FillResponse newResponse(Context context,
+    public static FillResponse newResponse(Context context, Bundle previousClientState,
             boolean datasetAuth, AutofillFieldMetadataCollection autofillFields,
             HashMap<String, FilledAutofillFieldCollection> clientFormDataMap) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
@@ -103,14 +113,91 @@ public final class AutofillHelper {
                 }
             }
         }
-        if (autofillFields.getSaveType() != 0) {
-            AutofillId[] autofillIds = autofillFields.getAutofillIds();
-            responseBuilder.setSaveInfo
-                    (new SaveInfo.Builder(autofillFields.getSaveType(), autofillIds).build());
+        int saveType = autofillFields.getSaveType();
+        if (saveType != 0) {
+            if (SUPPORT_MULTIPLE_STEPS) {
+                setPartialSaveInfo(responseBuilder, saveType, autofillFields, previousClientState);
+            } else {
+                setFullSaveInfo(responseBuilder, saveType, autofillFields);
+            }
             return responseBuilder.build();
         } else {
             Log.d(TAG, "These fields are not meant to be saved by autofill.");
             return null;
         }
+    }
+
+    private static void setFullSaveInfo(FillResponse.Builder responseBuilder, int saveType,
+                                        AutofillFieldMetadataCollection autofillFields) {
+        AutofillId[] autofillIds = autofillFields.getAutofillIds();
+        responseBuilder.setSaveInfo(new SaveInfo.Builder(saveType, autofillIds).build());
+    }
+
+    static final String CLIENT_STATE_PARTIAL_ID_TEMPLATE = "partial-%s";
+
+    private static void setPartialSaveInfo(FillResponse.Builder responseBuilder, int saveType,
+                                           AutofillFieldMetadataCollection autofillFields,
+                                           Bundle previousClientState) {
+        AutofillId[] autofillIds = autofillFields.getAutofillIds();
+        List<String> allHints = autofillFields.getAllHints();
+        if (DEBUG) {
+            Log.d(TAG, "setPartialSaveInfo() for type " + getSaveTypeAsString(saveType)
+                    + ": allHints=" + allHints + ", ids=" + Arrays.toString(autofillIds)
+                    + ", clientState=" + bundleToString(previousClientState));
+        }
+
+        // TODO: this should be more generic, but for now it's hardcode to support just activities
+        // that have an username and a password in separate steps (like MultipleStepsSigninActivity)
+        if ((saveType != SaveInfo.SAVE_DATA_TYPE_USERNAME
+                && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
+                || autofillIds.length != 1 || allHints.size() != 1) {
+            if (DEBUG) Log.d(TAG, "Unsupported activity for partial info; returning full");
+            setFullSaveInfo(responseBuilder,saveType, autofillFields);
+            return;
+        }
+
+        int previousSaveType;
+        String previousHint;
+        if (saveType == SaveInfo.SAVE_DATA_TYPE_PASSWORD) {
+            previousHint = View.AUTOFILL_HINT_USERNAME;
+            previousSaveType = SaveInfo.SAVE_DATA_TYPE_USERNAME;
+        } else {
+            previousHint = View.AUTOFILL_HINT_PASSWORD;
+            previousSaveType = SaveInfo.SAVE_DATA_TYPE_PASSWORD;
+        }
+        String previousKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, previousHint);
+
+        AutofillId previousValue = previousClientState == null
+                ? null
+                : previousClientState.getParcelable(previousKey);
+        if (DEBUG) Log.d(TAG, "previous: " + previousKey + "=" + previousValue);
+
+        Bundle newClientState = new Bundle();
+        String key = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, allHints.get(0));
+        AutofillId value = autofillIds[0];
+        if (DEBUG) Log.d(TAG, "New client state: " + key + "=" + value);
+        newClientState.putParcelable(key, value);
+
+        if (previousValue != null) {
+            AutofillId[] newIds = new AutofillId[] {previousValue, value};
+            int newSaveType = saveType | previousSaveType;
+            if (DEBUG) {
+                Log.d(TAG, "new values: type=" + getSaveTypeAsString(newSaveType)
+                        + ", ids=" + Arrays.toString(newIds));
+            }
+            newClientState.putAll(previousClientState);
+            responseBuilder.setSaveInfo
+                    (new SaveInfo.Builder(newSaveType, newIds)
+                            .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE)
+                            .build())
+                    .setClientState(newClientState);
+
+            return;
+        }
+
+        responseBuilder.setClientState(newClientState);
+
+        // TODO: on MR1, creates a new SaveType without required ids
+        setFullSaveInfo(responseBuilder, saveType, autofillFields);
     }
 }

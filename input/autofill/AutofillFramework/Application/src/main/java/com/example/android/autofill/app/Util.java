@@ -19,12 +19,19 @@ import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.os.Bundle;
+import android.service.autofill.FillContext;
+import android.service.autofill.SaveInfo;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStructure.HtmlInfo;
 import android.view.autofill.AutofillValue;
 
+import com.google.common.base.Joiner;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public final class Util {
@@ -60,7 +67,7 @@ public final class Util {
         return builder.toString();
     }
 
-    public static String getTypeAsString(int type) {
+    public static String getAutofillTypeAsString(int type) {
         switch (type) {
             case View.AUTOFILL_TYPE_TEXT:
                 return "TYPE_TEXT";
@@ -131,7 +138,7 @@ public final class Util {
 
         String[] afHints = node.getAutofillHints();
         CharSequence[] options = node.getAutofillOptions();
-        builder.append(prefix).append("afType: ").append(getTypeAsString(node.getAutofillType()))
+        builder.append(prefix).append("afType: ").append(getAutofillTypeAsString(node.getAutofillType()))
                 .append("\tafValue:")
                 .append(getAutofillValueAndTypeAsString(node.getAutofillValue()))
                 .append("\tafOptions:").append(options == null ? "N/A" : Arrays.toString(options))

@@ -169,7 +169,7 @@ public class CustomVirtualView extends View {
             // Check if the type was properly set by the autofill service
             if (DEBUG) {
                 Log.d(TAG, "Validating " + i
-                        + ": expectedType=" + Util.getTypeAsString(item.type)
+                        + ": expectedType=" + Util.getAutofillTypeAsString(item.type)
                         + "(" + item.type + "), value=" + value);
             }
             boolean valid = false;
@@ -354,7 +354,7 @@ public class CustomVirtualView extends View {
         public String toString() {
             return id + "/" + idEntry + ": "
                     + (type == AUTOFILL_TYPE_DATE ? date : text) // TODO: use DateFormat for date
-                    + " (" + Util.getTypeAsString(type) + ")"
+                    + " (" + Util.getAutofillTypeAsString(type) + ")"
                     + (editable ? " (editable)" : " (read-only)"
                     + (sanitized ? " (sanitized)" : " (sensitive"))
                     + (hints == null ? " (no hints)" : " ( " + Arrays.toString(hints) + ")");

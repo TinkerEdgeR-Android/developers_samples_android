@@ -27,6 +27,7 @@ import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
 import android.util.Log;
+import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
@@ -39,10 +40,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.example.android.autofill.service.AutofillHelper.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
+import static com.example.android.autofill.service.Util.AUTOFILL_ID_FILTER;
+import static com.example.android.autofill.service.Util.DEBUG;
 import static com.example.android.autofill.service.Util.TAG;
 import static com.example.android.autofill.service.Util.VERBOSE;
 import static com.example.android.autofill.service.Util.bundleToString;
 import static com.example.android.autofill.service.Util.dumpStructure;
+import static com.example.android.autofill.service.Util.findNodeByFilter;
 
 public class MyAutofillService extends AutofillService {
 
@@ -58,9 +63,9 @@ public class MyAutofillService extends AutofillService {
                     getApplicationContext().getString(R.string.invalid_package_signature));
             return;
         }
-        final Bundle data = request.getClientState();
+        final Bundle clientState = request.getClientState();
         if (VERBOSE) {
-            Log.v(TAG, "onFillRequest(): data=" + bundleToString(data));
+            Log.v(TAG, "onFillRequest(): clientState=" + bundleToString(clientState));
             dumpStructure(structure);
         }
 
@@ -103,27 +108,66 @@ public class MyAutofillService extends AutofillService {
                     SharedPrefsAutofillRepository.getInstance().getFilledAutofillFieldCollection(
                             this, autofillFields.getFocusedHints(), autofillFields.getAllHints());
             FillResponse response = AutofillHelper.newResponse
-                    (this, datasetAuth, autofillFields, clientFormDataMap);
+                    (this, clientState, datasetAuth, autofillFields, clientFormDataMap);
             callback.onSuccess(response);
         }
     }
 
     @Override
     public void onSaveRequest(SaveRequest request, SaveCallback callback) {
-        List<FillContext> context = request.getFillContexts();
-        final AssistStructure structure = context.get(context.size() - 1).getStructure();
+        List<FillContext> fillContexts = request.getFillContexts();
+        int size = fillContexts.size();
+        AssistStructure structure = fillContexts.get(size - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
         if (!SharedPrefsPackageVerificationRepository.getInstance()
                 .putPackageSignatures(getApplicationContext(), packageName)) {
-            callback.onFailure(
-                    getApplicationContext().getString(R.string.invalid_package_signature));
+            callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
             return;
         }
-        final Bundle data = request.getClientState();
+        final Bundle clientState = request.getClientState();
         if (VERBOSE) {
-            Log.v(TAG, "onSaveRequest(): data=" + bundleToString(data));
+            Log.v(TAG, "onSaveRequest(): clientState=" + bundleToString(clientState));
             dumpStructure(structure);
         }
+
+        // TODO: hardcode check for partial username
+        if (clientState != null) {
+            String usernameKey =
+                    String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_USERNAME);
+            AutofillId usernameId = clientState.getParcelable(usernameKey);
+            if (DEBUG) Log.d(TAG, "client state for " + usernameKey + ": " + usernameId);
+            if (usernameId != null) {
+                String passwordKey =
+                        String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_PASSWORD);
+                AutofillId passwordId = clientState.getParcelable(passwordKey);
+
+                if (DEBUG) {
+                    Log.d(TAG, "Scanning " + size + " contexts for username id "
+                            + usernameId + " and password id " + passwordId);
+                }
+                AssistStructure.ViewNode usernameNode =
+                        findNodeByFilter(fillContexts, usernameId, AUTOFILL_ID_FILTER);
+                AssistStructure.ViewNode passwordNode =
+                        findNodeByFilter(fillContexts, passwordId, AUTOFILL_ID_FILTER);
+                String username = null, password = null;
+                if (usernameNode != null) {
+                    username = usernameNode.getAutofillValue().getTextValue().toString();
+                }
+                if (passwordNode != null) {
+                    password = passwordNode.getAutofillValue().getTextValue().toString();
+                }
+
+                if (username != null && password != null) {
+                    if (DEBUG) Log.d(TAG, "user: " + username + " pass: " + password);
+                    // TODO: save it
+                    callback.onFailure("TODO: save " + username + "/" + password);
+                    return;
+                } else {
+                    Log.w(TAG, " missing user (" + username + ") or pass (" + password + ")");
+                }
+            }
+        }
+
         StructureParser parser = new StructureParser(getApplicationContext(), structure);
         parser.parseForSave();
         FilledAutofillFieldCollection filledAutofillFieldCollection = parser.getClientFormData();
