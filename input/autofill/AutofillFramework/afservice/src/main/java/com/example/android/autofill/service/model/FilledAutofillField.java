@@ -17,7 +17,6 @@ package com.example.android.autofill.service.model;
 
 import android.util.Log;
 import android.view.View;
-import android.view.autofill.AutofillValue;
 
 import com.example.android.autofill.service.AutofillHints;
 import com.google.common.base.Preconditions;
