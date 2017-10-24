@@ -32,15 +32,15 @@
         <has_handheld_app>true</has_handheld_app>
     </wearable>
 
-    <dependency>com.android.support:appcompat-v7:26.0.0</dependency>
-    <dependency>com.android.support:cardview-v7:26.0.0</dependency>
-    <dependency>com.android.support:design:26.0.0</dependency>
+    <dependency>com.android.support:appcompat-v7:27.0.0</dependency>
+    <dependency>com.android.support:cardview-v7:27.0.0</dependency>
+    <dependency>com.android.support:design:27.0.0</dependency>
 
-    <dependency_shared>com.android.support:support-v4:26.0.0</dependency_shared>
+    <dependency_shared>com.android.support:support-v4:27.0.0</dependency_shared>
 
-    <dependency_wearable>com.android.support:appcompat-v7:26.0.0</dependency_wearable>
-    <dependency_wearable>com.android.support:wear:26.0.0</dependency_wearable>
-    <dependency_wearable>com.android.support:design:26.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:appcompat-v7:27.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:wear:27.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:design:27.0.0</dependency_wearable>
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
