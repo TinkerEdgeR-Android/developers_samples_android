@@ -24,6 +24,14 @@ dependencies {
 
     compile 'com.android.support:wear:27.0.0'
 
+
+    compile 'com.google.android.gms:play-services-wearable:11.4.2'
+    compile 'com.android.support:support-v13:27.0.0'
+
+    provided 'com.google.android.wearable:wearable:2.1.0'
+
+    compile 'com.google.android.support:wearable:2.1.0'
+
 }
 
 // The sample build uses multiple directories to
