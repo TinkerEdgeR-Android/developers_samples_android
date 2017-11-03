@@ -18,6 +18,7 @@ package com.example.android.autofill.app;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -116,8 +117,7 @@ public class StandardAutoCompleteSignInActivity extends AppCompatActivity {
 
     private class MyAutofillCallback extends AutofillManager.AutofillCallback {
         @Override
-        public void onAutofillEvent(View view, int event) {
-            super.onAutofillEvent(view, event);
+        public void onAutofillEvent(@NonNull View view, int event) {
             if (view instanceof AutoCompleteTextView) {
                 switch (event) {
                     case AutofillManager.AutofillCallback.EVENT_INPUT_UNAVAILABLE:
