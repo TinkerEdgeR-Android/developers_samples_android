@@ -54,6 +54,16 @@ public class CustomVirtualView extends View {
 
     protected static final boolean DEBUG = true;
     protected static final boolean VERBOSE = false;
+
+    /**
+     * When set, it notifies AutofillManager of focus change as the view scrolls, so the
+     * autofill UI is continually drawn.
+     *
+     * <p>This is janky and incompatible with the way the autofill UI works on native views, but
+     * it's a cool experiment!
+     */
+    private static final boolean DRAW_AUTOFILL_UI_AFTER_SCROLL = false;
+
     private static final String TAG = "CustomView";
     private static final int DEFAULT_TEXT_HEIGHT_DP = 34;
     private static final int VERTICAL_GAP = 10;
@@ -238,6 +248,10 @@ public class CustomVirtualView extends View {
             if (VERBOSE) Log.v(TAG, "setBounds(" + x + ", " + y + "): " + line.mBounds);
             canvas.drawText(writeText, x, y, mTextPaint);
             y += mLineLength;
+
+            if (DRAW_AUTOFILL_UI_AFTER_SCROLL) {
+                line.notifyFocusChanged();
+            }
         }
     }
 
@@ -438,7 +452,11 @@ public class CustomVirtualView extends View {
 
         private void changeFocus(boolean focused) {
             mFieldTextItem.focused = focused;
-            if (focused) {
+            notifyFocusChanged();
+        }
+
+        void notifyFocusChanged() {
+            if (mFieldTextItem.focused) {
                 Rect absBounds = getAbsCoordinates();
                 if (DEBUG) {
                     Log.d(TAG, "focus gained on " + mFieldTextItem.id + "; absBounds=" + absBounds);
