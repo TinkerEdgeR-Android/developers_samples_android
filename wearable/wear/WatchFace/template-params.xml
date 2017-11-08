@@ -26,8 +26,8 @@
     <targetSdkVersion>25</targetSdkVersion>
 
     <minSdkVersionWear>24</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
-    <targetSdkVersionWear>26</targetSdkVersionWear>
+    <compileSdkVersionWear>27</compileSdkVersionWear>
+    <targetSdkVersionWear>27</targetSdkVersionWear>
 
     <dependency>com.google.android.support:wearable:2.0.3</dependency>
     <dependency_wearable>com.android.support:palette-v7:26.0.0</dependency_wearable>
