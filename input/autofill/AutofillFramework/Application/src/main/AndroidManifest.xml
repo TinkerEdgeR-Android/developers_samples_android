@@ -70,6 +70,29 @@
         <activity
             android:name="com.example.android.autofill.app.WebViewSignInActivity"
             android:taskAffinity=".WebViewSignInActivity" />
+
+        <activity
+            android:name=".MultipleStepsSignInActivity"
+            android:taskAffinity=".MultipleStepsSignInActivity">
+            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MultipleStepsCreditCardActivity"
+            android:taskAffinity=".MultipleStepsCreditCardActivity">
+            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

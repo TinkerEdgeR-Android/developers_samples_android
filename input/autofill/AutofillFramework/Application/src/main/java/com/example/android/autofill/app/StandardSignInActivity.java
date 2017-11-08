@@ -80,6 +80,6 @@ public class StandardSignInActivity extends AppCompatActivity {
      * authenticate users.
      */
     public boolean isValidCredentials(String username, String password) {
-        return username != null && password != null && username.equals(password);
+        return username != null && password != null && username.equalsIgnoreCase(password);
     }
 }

@@ -127,6 +127,14 @@
     <string name="message_autofill_invalid">INVALID</string>
     <string name="message_credit_card_expiration_type">Representing expiration dates as %1$s</string>
 
+    <string name="message_finished">Finished</string>
+    <string name="message_showing_step">Showing step %1$d</string>
+    <string name="message_step_description">%1$s: %2$s</string>
+
+    <string name="previous_label">Prev</string>
+    <string name="next_label">Next</string>
+    <string name="finish_label">Finish</string>
+
     <plurals name="welcome_page_countdown">
         <item quantity="one">Automatically return to main page in %d second.</item>
         <item quantity="other">Automatically return to main page in %d seconds.</item>
