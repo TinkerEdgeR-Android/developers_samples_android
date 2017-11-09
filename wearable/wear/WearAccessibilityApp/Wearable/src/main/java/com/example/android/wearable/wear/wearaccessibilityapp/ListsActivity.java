@@ -55,12 +55,14 @@ public class ListsActivity extends WearableActivity {
 
         // Goes to a new screen when you click on one of the list items.
         // Dependent upon position of click.
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mItems.get(position - listView.getHeaderViewsCount())
-                        .launchActivity(getApplicationContext());
-            }
-        });
+        listView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        mItems.get(position - listView.getHeaderViewsCount())
+                                .launchActivity(getApplicationContext());
+                    }
+                });
     }
 }

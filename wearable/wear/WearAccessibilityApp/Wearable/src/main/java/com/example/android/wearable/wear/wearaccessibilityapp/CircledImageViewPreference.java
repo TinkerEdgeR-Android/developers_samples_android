@@ -83,18 +83,19 @@ public class CircledImageViewPreference extends Preference {
         mCircledImageText.setText(R.string.loading);
         mCircledImage.setImageResource(R.drawable.stop);
         mCircledImage.setCircleBorderColor(mColorAccent);
-        mCountDownTimer = new CountDownTimer(10000, 10) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                float timeElapsed = (10000.0f - millisUntilFinished) / 10000.0f;
-                mCircledImage.setProgress(timeElapsed);
-            }
+        mCountDownTimer =
+                new CountDownTimer(10000, 10) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        float timeElapsed = (10000.0f - millisUntilFinished) / 10000.0f;
+                        mCircledImage.setProgress(timeElapsed);
+                    }
 
-            @Override
-            public void onFinish() {
-                setStartCircledImageView();
-            }
-        }.start();
+                    @Override
+                    public void onFinish() {
+                        setStartCircledImageView();
+                    }
+                }.start();
     }
 
     public void cancelCountDownTimer() {

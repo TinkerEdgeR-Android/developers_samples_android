@@ -28,7 +28,7 @@ public class ZoomImageActivity extends WearableActivity {
         setContentView(R.layout.activity_zoom_image);
 
         // Check if integer was actually given.
-        if(!(getIntent().hasExtra(getString(R.string.intent_extra_image)))) {
+        if (!(getIntent().hasExtra(getString(R.string.intent_extra_image)))) {
             throw new NotFoundException("Expecting extras");
         }
 
