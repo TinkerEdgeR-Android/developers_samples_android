@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SampleAppTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <!-- Used for border of radio buttons and checkboxes -->
+        <item name="android:textColorSecondary">@color/icon_color</item>
+        <!-- Used for icon's background color -->
+        <item name="android:colorPrimaryDark">@color/icon_color</item>
+        <!-- Used for action drawer's background color -->
+        <item name="android:colorBackgroundFloating">@color/icon_color</item>
+        <!-- Used for dialog's deny buttons -->
+        <item name="android:colorButtonNormal">@color/dialog_icon</item>
+        <!-- Used for switch widget's background color -->
+        <item name="android:colorPrimary">@color/semitransparent_grey</item>
+    </style>
+    <style name="OpenOnPhoneAnimationTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorBackground">@color/black</item>
+    </style>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="?android:dialogPreferredPadding"
+    android:paddingBottom="?android:dialogPreferredPadding"
+    tools:context="com.example.android.wearable.wear.wearaccessibilityapp.OpenOnPhoneAnimationActivity">
+    <ImageView
+        android:id="@+id/open_on_phone_animation_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="tap"
+        android:foregroundTint="@color/white"
+        android:src="@drawable/open_on_phone_animation"
+        android:tint="@color/white"/>
+    <TextView
+        android:id="@+id/description_dialogs_phone_animation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/open_on_phone_animation_image"
+        android:paddingTop="?android:dialogPreferredPadding"
+        android:gravity="center"
+        android:text="@string/continue_on_phone"
+        android:textAppearance="@style/android:TextAppearance.Material.Caption"/>
+</RelativeLayout>

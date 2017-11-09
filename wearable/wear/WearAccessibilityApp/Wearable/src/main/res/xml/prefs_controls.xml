@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/controls">
+    <SwitchPreference
+        android:key="pref_switch"
+        android:title="@string/switch_name"/>
+    <CheckBoxPreference
+        android:key="pref_checkbox"
+        android:title="@string/checkbox"/>
+    <Preference
+        android:key="pref_radio_button_list"
+        android:title="@string/radio_button_list"
+        android:icon="@drawable/arrow_circle">
+        <intent
+            android:targetPackage="com.example.android.wearable.wear.wearaccessibilityapp"
+            android:targetClass="com.example.android.wearable.wear.wearaccessibilityapp.RadioListActivity"/>
+    </Preference>
+</PreferenceScreen>
