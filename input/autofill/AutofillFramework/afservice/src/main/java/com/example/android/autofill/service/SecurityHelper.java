@@ -36,9 +36,9 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import static com.example.android.autofill.service.CommonUtil.DEBUG;
-import static com.example.android.autofill.service.CommonUtil.TAG;
-import static com.example.android.autofill.service.CommonUtil.VERBOSE;
+import static com.example.android.autofill.service.Util.DEBUG;
+import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.VERBOSE;
 
 /**
  * Helper class for security checks.

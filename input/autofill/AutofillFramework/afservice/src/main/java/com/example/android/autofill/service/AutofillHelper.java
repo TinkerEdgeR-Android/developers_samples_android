@@ -30,7 +30,7 @@ import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 import java.util.HashMap;
 import java.util.Set;
 
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * This is a class containing helper methods for building Autofill Datasets and Responses.

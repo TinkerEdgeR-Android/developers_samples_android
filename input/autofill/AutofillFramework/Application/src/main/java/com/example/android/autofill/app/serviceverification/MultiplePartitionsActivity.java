@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.serviceverification;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.autofill.AutofillManager;
 import android.widget.Toast;
+
+import com.example.android.autofill.app.Util;
+import com.example.android.autofill.app.view.autofillable.CustomVirtualView;
+import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.view.autofillable.ScrollableCustomVirtualView;
 
 /**
  * Activity used to demonstrated safe partitioning of data.
@@ -78,7 +83,7 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
             if (newType != -1) {
                 ccExpirationType = newType;
                 String typeMessage = getString(R.string.message_credit_card_expiration_type,
-                        CommonUtil.getTypeAsString(ccExpirationType));
+                        Util.getTypeAsString(ccExpirationType));
                 // TODO: display type in a header or proper status widget
                 Toast.makeText(getApplicationContext(), typeMessage, Toast.LENGTH_LONG).show();
             }

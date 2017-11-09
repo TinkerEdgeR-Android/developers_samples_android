@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+
+package com.example.android.autofill.app.commonexamples;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import com.example.android.autofill.app.view.autofillable.CreditCardExpirationDateCompoundView;
+import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.WelcomeActivity;
 
-public class CreditCardDatePickerActivity extends AppCompatActivity {
+public class CreditCardCompoundViewActivity extends AppCompatActivity {
 
-    private CreditCardExpirationDatePickerView mCcExpDateView;
+    private CreditCardExpirationDateCompoundView mCcExpDateView;
     private EditText mCcExpNumber;
     private EditText mCcSecurityCode;
 
     public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, CreditCardDatePickerActivity.class);
+        Intent intent = new Intent(context, CreditCardCompoundViewActivity.class);
         return intent;
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.credit_card_date_picker_activity);
+        setContentView(R.layout.credit_card_compound_view_activity);
         mCcExpDateView = findViewById(R.id.creditCardExpirationView);
         mCcExpNumber = findViewById(R.id.creditCardNumberField);
         mCcSecurityCode = findViewById(R.id.creditCardSecurityCode);
@@ -58,8 +60,6 @@ public class CreditCardDatePickerActivity extends AppCompatActivity {
                 resetFields();
             }
         });
-
-        mCcExpDateView.reset();
     }
 
     private void resetFields() {
@@ -67,15 +67,6 @@ public class CreditCardDatePickerActivity extends AppCompatActivity {
         mCcExpNumber.setText("");
         mCcSecurityCode.setText("");
     }
-
-    public void showDatePickerDialog(View v) {
-        if (v != mCcExpDateView) {
-            Log.w(TAG, "showDatePickerDialog() called on invalid view: " + v);
-            return;
-        }
-        mCcExpDateView.showDatePickerDialog(getSupportFragmentManager());
-    }
-
 
     /**
      * Launches new Activity and finishes, triggering an autofill save request if the user entered

@@ -13,28 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.commonexamples;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.autofill.AutofillManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
-/**
- * Activity that uses a virtual views for Username/Password text fields.
- */
-public class VirtualSignInActivity extends AppCompatActivity {
+import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.WelcomeActivity;
 
-    private CustomVirtualView mCustomVirtualView;
-    private AutofillManager mAutofillManager;
-    private CustomVirtualView.Line mUsernameLine;
-    private CustomVirtualView.Line mPasswordLine;
+public class StandardSignInActivity extends AppCompatActivity {
+
+    private EditText mUsernameEditText;
+    private EditText mPasswordEditText;
 
     public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, VirtualSignInActivity.class);
+        Intent intent = new Intent(context, StandardSignInActivity.class);
         return intent;
     }
 
@@ -42,50 +40,37 @@ public class VirtualSignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.virtual_login_activity);
-
-        mCustomVirtualView = (CustomVirtualView) findViewById(R.id.custom_view);
-
-        CustomVirtualView.Partition credentialsPartition =
-                mCustomVirtualView.addPartition(getString(R.string.partition_credentials));
-        mUsernameLine = credentialsPartition.addLine("username", View.AUTOFILL_TYPE_TEXT,
-                getString(R.string.username_label),
-                "         ", false, View.AUTOFILL_HINT_USERNAME);
-        mPasswordLine = credentialsPartition.addLine("password", View.AUTOFILL_TYPE_TEXT,
-                getString(R.string.password_label),
-                "         ", true, View.AUTOFILL_HINT_PASSWORD);
-
+        setContentView(R.layout.login_activity);
+        mUsernameEditText = findViewById(R.id.usernameField);
+        mPasswordEditText = findViewById(R.id.passwordField);
         findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 login();
             }
         });
         findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 resetFields();
-                mAutofillManager.cancel();
             }
         });
-        mAutofillManager = getSystemService(AutofillManager.class);
     }
 
     private void resetFields() {
-        mUsernameLine.reset();
-        mPasswordLine.reset();
-        mCustomVirtualView.postInvalidate();
+        mUsernameEditText.setText("");
+        mPasswordEditText.setText("");
     }
 
     /**
      * Emulates a login action.
      */
     private void login() {
-        String username = mUsernameLine.getText().toString();
-        String password = mPasswordLine.getText().toString();
+        String username = mUsernameEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
         boolean valid = isValidCredentials(username, password);
         if (valid) {
-            Intent intent = WelcomeActivity.getStartActivityIntent(VirtualSignInActivity.this);
+            Intent intent = WelcomeActivity.getStartActivityIntent(StandardSignInActivity.this);
             startActivity(intent);
             finish();
         } else {
@@ -98,6 +83,6 @@ public class VirtualSignInActivity extends AppCompatActivity {
      * authenticate users.
      */
     public boolean isValidCredentials(String username, String password) {
-        return username != null && password != null && username.equals(password);
+        return username != null && password != null && username.equalsIgnoreCase(password);
     }
 }

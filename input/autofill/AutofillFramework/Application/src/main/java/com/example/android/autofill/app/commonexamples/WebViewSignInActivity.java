@@ -13,7 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.example.android.autofill.app;
+
+package com.example.android.autofill.app.commonexamples;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +25,10 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import static com.example.android.autofill.app.CommonUtil.DEBUG;
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import com.example.android.autofill.app.R;
+
+import static com.example.android.autofill.app.Util.DEBUG;
+import static com.example.android.autofill.app.Util.TAG;
 
 public class WebViewSignInActivity extends AppCompatActivity {
 

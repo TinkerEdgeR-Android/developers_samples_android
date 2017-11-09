@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.service;
 
 import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
@@ -27,7 +27,7 @@ import android.view.autofill.AutofillValue;
 import java.util.Arrays;
 import java.util.Set;
 
-public final class CommonUtil {
+public final class Util {
 
     public static final String TAG = "AutofillSample";
     public static final boolean DEBUG = true;

@@ -26,8 +26,8 @@ import com.example.android.autofill.service.datasource.SharedPrefsDigitalAssetLi
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
-import static com.example.android.autofill.service.CommonUtil.DEBUG;
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.DEBUG;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an

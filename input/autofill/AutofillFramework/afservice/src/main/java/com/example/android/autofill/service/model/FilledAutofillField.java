@@ -24,7 +24,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.Arrays;
 
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.TAG;
 import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
 import static com.example.android.autofill.service.AutofillHints.filterForSupportedHints;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.view.autofillable;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -29,9 +29,11 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 
+import com.example.android.autofill.app.R;
+
 import java.util.Calendar;
 
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import static com.example.android.autofill.app.Util.TAG;
 
 /**
  * A custom view that represents a {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE} using

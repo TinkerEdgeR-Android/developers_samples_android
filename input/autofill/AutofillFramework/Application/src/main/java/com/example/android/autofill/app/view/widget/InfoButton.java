@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.view.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -21,6 +21,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.example.android.autofill.app.R;
 
 public class InfoButton extends AppCompatImageButton {
     public InfoButton(Context context) {

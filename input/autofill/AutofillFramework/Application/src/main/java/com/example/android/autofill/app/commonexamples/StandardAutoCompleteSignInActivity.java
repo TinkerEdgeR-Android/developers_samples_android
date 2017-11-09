@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.commonexamples;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +28,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.WelcomeActivity;
+
+import static com.example.android.autofill.app.Util.TAG;
 
 public class StandardAutoCompleteSignInActivity extends AppCompatActivity {
     private AutoCompleteTextView mUsernameAutoCompleteField;

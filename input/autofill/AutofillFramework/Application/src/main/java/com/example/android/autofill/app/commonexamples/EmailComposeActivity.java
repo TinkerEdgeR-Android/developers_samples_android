@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.commonexamples;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +21,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.WelcomeActivity;
 
 public class EmailComposeActivity extends AppCompatActivity {
 

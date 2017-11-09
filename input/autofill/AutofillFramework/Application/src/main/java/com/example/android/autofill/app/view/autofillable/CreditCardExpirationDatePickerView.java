@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.view.autofillable;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -31,11 +31,13 @@ import android.view.View;
 import android.view.autofill.AutofillValue;
 import android.widget.DatePicker;
 
+import com.example.android.autofill.app.R;
+
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.example.android.autofill.app.CommonUtil.DEBUG;
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import static com.example.android.autofill.app.Util.DEBUG;
+import static com.example.android.autofill.app.Util.TAG;
 
 /**
  * A custom view that represents a {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE} using

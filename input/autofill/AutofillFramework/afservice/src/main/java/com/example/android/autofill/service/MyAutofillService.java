@@ -39,10 +39,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.android.autofill.service.CommonUtil.TAG;
-import static com.example.android.autofill.service.CommonUtil.VERBOSE;
-import static com.example.android.autofill.service.CommonUtil.bundleToString;
-import static com.example.android.autofill.service.CommonUtil.dumpStructure;
+import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.VERBOSE;
+import static com.example.android.autofill.service.Util.bundleToString;
+import static com.example.android.autofill.service.Util.dumpStructure;
 
 public class MyAutofillService extends AutofillService {
 

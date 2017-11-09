@@ -25,7 +25,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Calendar;
 
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.TAG;
 
 public final class AutofillHints {
     public static final int PARTITION_OTHER = 0;

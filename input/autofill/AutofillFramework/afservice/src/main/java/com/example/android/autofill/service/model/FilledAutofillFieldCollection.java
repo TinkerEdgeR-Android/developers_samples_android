@@ -31,8 +31,8 @@ import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.android.autofill.service.CommonUtil.DEBUG;
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.DEBUG;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * FilledAutofillFieldCollection is the model that holds all of the data on a client app's page,

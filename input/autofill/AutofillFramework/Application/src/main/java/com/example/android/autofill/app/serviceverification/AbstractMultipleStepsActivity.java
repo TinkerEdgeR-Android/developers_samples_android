@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app;
+package com.example.android.autofill.app.serviceverification;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,8 +29,8 @@ import com.example.android.autofill.app.R;
 
 import java.util.Map;
 
-import static com.example.android.autofill.app.CommonUtil.DEBUG;
-import static com.example.android.autofill.app.CommonUtil.TAG;
+import static com.example.android.autofill.app.Util.DEBUG;
+import static com.example.android.autofill.app.Util.TAG;
 
 /**
  * Activity that emulates a multiple-steps wizard activity, where each step shows just one

@@ -40,9 +40,9 @@ import java.util.HashMap;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
-import static com.example.android.autofill.service.CommonUtil.EXTRA_DATASET_NAME;
-import static com.example.android.autofill.service.CommonUtil.EXTRA_FOR_RESPONSE;
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.EXTRA_DATASET_NAME;
+import static com.example.android.autofill.service.Util.EXTRA_FOR_RESPONSE;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * This Activity controls the UI for logging in to the Autofill service.

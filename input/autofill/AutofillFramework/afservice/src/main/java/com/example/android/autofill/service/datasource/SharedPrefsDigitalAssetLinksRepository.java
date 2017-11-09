@@ -20,7 +20,7 @@ import android.util.Log;
 
 import com.example.android.autofill.service.SecurityHelper;
 
-import static com.example.android.autofill.service.CommonUtil.TAG;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * Singleton repository that caches the result of Digital Asset Links checks.
