@@ -25,9 +25,9 @@ import android.view.View;
 import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 
-import com.example.android.autofill.app.view.autofillable.CreditCardExpirationDatePickerView;
 import com.example.android.autofill.app.R;
 import com.example.android.autofill.app.WelcomeActivity;
+import com.example.android.autofill.app.view.autofillable.CreditCardExpirationDatePickerView;
 
 import static com.example.android.autofill.app.Util.TAG;
 

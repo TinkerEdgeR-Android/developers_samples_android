@@ -24,9 +24,9 @@ import com.google.gson.annotations.Expose;
 
 import java.util.Arrays;
 
-import static com.example.android.autofill.service.Util.TAG;
 import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
 import static com.example.android.autofill.service.AutofillHints.filterForSupportedHints;
+import static com.example.android.autofill.service.Util.TAG;
 
 /**
  * JSON serializable data class containing the same data as an {@link AutofillValue}.

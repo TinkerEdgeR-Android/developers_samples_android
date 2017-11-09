@@ -32,8 +32,8 @@ import android.widget.NumberPicker;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.android.autofill.service.R;
 import com.example.android.autofill.service.AutofillHints;
+import com.example.android.autofill.service.R;
 import com.example.android.autofill.service.datasource.SharedPrefsAutofillRepository;
 import com.example.android.autofill.service.datasource.SharedPrefsPackageVerificationRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;

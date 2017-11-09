@@ -153,7 +153,7 @@ public final class FilledAutofillFieldCollection {
     /**
      * Populates a {@link Dataset.Builder} with appropriate values for each {@link AutofillId}
      * in a {@code AutofillFieldMetadataCollection}.
-     *
+     * <p>
      * In other words, it constructs an autofill
      * {@link Dataset.Builder} by applying saved values (from this {@code FilledAutofillFieldCollection})
      * to Views specified in a {@code AutofillFieldMetadataCollection}, which represents the current

@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static com.example.android.autofill.service.Util.TAG;
 import static com.example.android.autofill.service.Util.DEBUG;
+import static com.example.android.autofill.service.Util.TAG;
 import static com.example.android.autofill.service.Util.bundleToString;
 import static com.example.android.autofill.service.Util.getSaveTypeAsString;
 
@@ -44,6 +44,7 @@ import static com.example.android.autofill.service.Util.getSaveTypeAsString;
  */
 public final class AutofillHelper {
 
+    static final String CLIENT_STATE_PARTIAL_ID_TEMPLATE = "partial-%s";
     // TODO: move to settings activity and document it
     private static final boolean SUPPORT_MULTIPLE_STEPS = true;
 
@@ -128,16 +129,14 @@ public final class AutofillHelper {
     }
 
     private static void setFullSaveInfo(FillResponse.Builder responseBuilder, int saveType,
-                                        AutofillFieldMetadataCollection autofillFields) {
+            AutofillFieldMetadataCollection autofillFields) {
         AutofillId[] autofillIds = autofillFields.getAutofillIds();
         responseBuilder.setSaveInfo(new SaveInfo.Builder(saveType, autofillIds).build());
     }
 
-    static final String CLIENT_STATE_PARTIAL_ID_TEMPLATE = "partial-%s";
-
     private static void setPartialSaveInfo(FillResponse.Builder responseBuilder, int saveType,
-                                           AutofillFieldMetadataCollection autofillFields,
-                                           Bundle previousClientState) {
+            AutofillFieldMetadataCollection autofillFields,
+            Bundle previousClientState) {
         AutofillId[] autofillIds = autofillFields.getAutofillIds();
         List<String> allHints = autofillFields.getAllHints();
         if (DEBUG) {
@@ -152,7 +151,7 @@ public final class AutofillHelper {
                 && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
                 || autofillIds.length != 1 || allHints.size() != 1) {
             if (DEBUG) Log.d(TAG, "Unsupported activity for partial info; returning full");
-            setFullSaveInfo(responseBuilder,saveType, autofillFields);
+            setFullSaveInfo(responseBuilder, saveType, autofillFields);
             return;
         }
 
@@ -179,7 +178,7 @@ public final class AutofillHelper {
         newClientState.putParcelable(key, value);
 
         if (previousValue != null) {
-            AutofillId[] newIds = new AutofillId[] {previousValue, value};
+            AutofillId[] newIds = new AutofillId[]{previousValue, value};
             int newSaveType = saveType | previousSaveType;
             if (DEBUG) {
                 Log.d(TAG, "new values: type=" + getSaveTypeAsString(newSaveType)

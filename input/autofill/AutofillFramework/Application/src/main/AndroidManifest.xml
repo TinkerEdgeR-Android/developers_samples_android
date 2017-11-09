@@ -74,7 +74,7 @@
         <activity
             android:name=".serviceverification.MultipleStepsSignInActivity"
             android:taskAffinity=".MultipleStepsSignInActivity">
-            <!-- TODO: remove intent-filter and addCommonAutofillExamplesActivityvity menu instead -->
+            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -85,7 +85,7 @@
         <activity
             android:name=".serviceverification.MultipleStepsCreditCardActivity"
             android:taskAffinity=".MultipleStepsCreditCardActivity">
-            <!-- TODO: remove intent-filter and add MainActivity menu instead -->
+            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

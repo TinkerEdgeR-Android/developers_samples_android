@@ -18,7 +18,6 @@ package com.example.android.autofill.app.commonexamples;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,38 +45,38 @@ public class CommonExamplesFragment extends BaseMainFragment {
         NavigationItem creditCardAntiPatternPicker = root.findViewById(R.id.creditCardAntiPatternButton);
         NavigationItem multiplePartitions = root.findViewById(R.id.multiplePartitionsButton);
         NavigationItem loginWebView = root.findViewById(R.id.webviewSignInButton);
-        loginEditTexts.setNavigationButtonClickListener( (view) ->
+        loginEditTexts.setNavigationButtonClickListener((view) ->
                 startActivity(StandardSignInActivity.getStartActivityIntent(getContext()))
         );
-        loginCustomVirtual.setNavigationButtonClickListener( (view) ->
+        loginCustomVirtual.setNavigationButtonClickListener((view) ->
                 startActivity(VirtualSignInActivity.getStartActivityIntent(getContext()))
         );
-        creditCard.setNavigationButtonClickListener( (view) ->
+        creditCard.setNavigationButtonClickListener((view) ->
                 startActivity(CreditCardActivity.getStartActivityIntent(getContext()))
         );
-        creditCardSpinners.setNavigationButtonClickListener( (view) ->
+        creditCardSpinners.setNavigationButtonClickListener((view) ->
                 startActivity(CreditCardSpinnersActivity.getStartActivityIntent(getContext()))
         );
-        loginAutoComplete.setNavigationButtonClickListener( (view) ->
+        loginAutoComplete.setNavigationButtonClickListener((view) ->
                 startActivity(
                         StandardAutoCompleteSignInActivity.getStartActivityIntent(getContext()))
         );
-        emailCompose.setNavigationButtonClickListener( (view) ->
+        emailCompose.setNavigationButtonClickListener((view) ->
                 startActivity(EmailComposeActivity.getStartActivityIntent(getContext()))
         );
-        creditCardCompoundView.setNavigationButtonClickListener( (view) ->
+        creditCardCompoundView.setNavigationButtonClickListener((view) ->
                 startActivity(CreditCardCompoundViewActivity.getStartActivityIntent(getContext()))
         );
-        creditCardDatePicker.setNavigationButtonClickListener( (view) ->
+        creditCardDatePicker.setNavigationButtonClickListener((view) ->
                 startActivity(CreditCardDatePickerActivity.getStartActivityIntent(getContext()))
         );
-        creditCardAntiPatternPicker.setNavigationButtonClickListener( (view) ->
+        creditCardAntiPatternPicker.setNavigationButtonClickListener((view) ->
                 startActivity(CreditCardAntiPatternActivity.getStartActivityIntent(getContext()))
         );
-        multiplePartitions.setNavigationButtonClickListener( (view) ->
+        multiplePartitions.setNavigationButtonClickListener((view) ->
                 startActivity(MultiplePartitionsActivity.getStartActivityIntent(getContext()))
         );
-        loginWebView.setNavigationButtonClickListener( (view) ->
+        loginWebView.setNavigationButtonClickListener((view) ->
                 startActivity(WebViewSignInActivity.getStartActivityIntent(getContext()))
         );
         return root;
