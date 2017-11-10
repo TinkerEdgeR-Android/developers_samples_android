@@ -17,12 +17,17 @@ package com.example.android.autofill.service.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.service.autofill.Dataset;
+import android.service.autofill.FillResponse;
 import android.support.annotation.NonNull;
+
+import com.example.android.autofill.service.Util;
 
 public class MyPreferences {
     private static final String RESPONSE_AUTH_KEY = "response_auth";
     private static final String DATASET_AUTH_KEY = "dataset_auth";
     private static final String MASTER_PASSWORD_KEY = "master_password";
+    private static final String LOGGING_LEVEL = "logging_level";
     private static MyPreferences sInstance;
     private final SharedPreferences mPrefs;
 
@@ -82,5 +87,14 @@ public class MyPreferences {
 
     public void clearCredentials() {
         mPrefs.edit().remove(MASTER_PASSWORD_KEY).apply();
+    }
+
+    public Util.LogLevel getLoggingLevel() {
+        return Util.LogLevel.values()[mPrefs.getInt(LOGGING_LEVEL, Util.LogLevel.OFF.ordinal())];
+    }
+
+    public void setLoggingLevel(Util.LogLevel level) {
+        mPrefs.edit().putInt(LOGGING_LEVEL, level.ordinal()).apply();
+        Util.setLoggingLevel(level);
     }
 }

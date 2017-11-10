@@ -26,7 +26,8 @@ import java.util.Arrays;
 
 import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
 import static com.example.android.autofill.service.AutofillHints.filterForSupportedHints;
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logw;
+import android.view.autofill.AutofillValue;
 
 /**
  * JSON serializable data class containing the same data as an {@link AutofillValue}.
@@ -60,7 +61,7 @@ public class FilledAutofillField {
         if (autofillOptions != null && autofillOptions.length > 0) {
             mTextValue = autofillOptions[listValue].toString();
         } else {
-            Log.w(TAG, "autofillOptions should have at least one entry.");
+            logw("autofillOptions should have at least one entry.");
         }
     }
 

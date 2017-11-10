@@ -26,7 +26,6 @@ import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
-import android.util.Log;
 import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
@@ -42,14 +41,20 @@ import java.util.List;
 
 import static com.example.android.autofill.service.AutofillHelper.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
 import static com.example.android.autofill.service.Util.AUTOFILL_ID_FILTER;
-import static com.example.android.autofill.service.Util.DEBUG;
-import static com.example.android.autofill.service.Util.TAG;
-import static com.example.android.autofill.service.Util.VERBOSE;
 import static com.example.android.autofill.service.Util.bundleToString;
 import static com.example.android.autofill.service.Util.dumpStructure;
 import static com.example.android.autofill.service.Util.findNodeByFilter;
+import static com.example.android.autofill.service.Util.logVerboseEnabled;
+import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.Util.logv;
+import static com.example.android.autofill.service.Util.logw;
 
 public class MyAutofillService extends AutofillService {
+
+    @Override public void onCreate() {
+        super.onCreate();
+        Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
+    }
 
     @Override
     public void onFillRequest(FillRequest request, CancellationSignal cancellationSignal,
@@ -64,17 +69,14 @@ public class MyAutofillService extends AutofillService {
             return;
         }
         final Bundle clientState = request.getClientState();
-        if (VERBOSE) {
-            Log.v(TAG, "onFillRequest(): clientState=" + bundleToString(clientState));
-            dumpStructure(structure);
+        if (logVerboseEnabled()) {
+            logv("onFillRequest(): clientState=%s", bundleToString(clientState));
         }
+        dumpStructure(structure);
 
-        cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                Log.w(TAG, "Cancel autofill not implemented in this sample.");
-            }
-        });
+        cancellationSignal.setOnCancelListener(() ->
+                logw("Cancel autofill not implemented in this sample.")
+        );
         // Parse AutoFill data in Activity
         StructureParser parser = new StructureParser(getApplicationContext(), structure);
         // TODO: try / catch on other places (onSave, auth activity, etc...)
@@ -83,7 +85,7 @@ public class MyAutofillService extends AutofillService {
         } catch (SecurityException e) {
             // TODO: handle cases where DAL didn't pass by showing a custom UI asking the user
             // to confirm the mapping. Might require subclassing SecurityException.
-            Log.w(TAG, "Security exception handling " + request, e);
+            logw(e, "Security exception handling %s", request);
             callback.onFailure(e.getMessage());
             return;
         }
@@ -124,27 +126,25 @@ public class MyAutofillService extends AutofillService {
             callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
             return;
         }
-        final Bundle clientState = request.getClientState();
-        if (VERBOSE) {
-            Log.v(TAG, "onSaveRequest(): clientState=" + bundleToString(clientState));
-            dumpStructure(structure);
+        Bundle clientState = request.getClientState();
+        if (logVerboseEnabled()) {
+            logv("onSaveRequest(): clientState=%s", bundleToString(clientState));
         }
+        dumpStructure(structure);
 
         // TODO: hardcode check for partial username
         if (clientState != null) {
             String usernameKey =
                     String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_USERNAME);
             AutofillId usernameId = clientState.getParcelable(usernameKey);
-            if (DEBUG) Log.d(TAG, "client state for " + usernameKey + ": " + usernameId);
+            logd("client state for %s: %s", usernameKey, usernameId);
             if (usernameId != null) {
                 String passwordKey =
                         String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_PASSWORD);
                 AutofillId passwordId = clientState.getParcelable(passwordKey);
 
-                if (DEBUG) {
-                    Log.d(TAG, "Scanning " + size + " contexts for username id "
-                            + usernameId + " and password id " + passwordId);
-                }
+                logd("Scanning %d contexts for username ID %s and password ID %s.", size,
+                        usernameId, passwordId);
                 AssistStructure.ViewNode usernameNode =
                         findNodeByFilter(fillContexts, usernameId, AUTOFILL_ID_FILTER);
                 AssistStructure.ViewNode passwordNode =
@@ -158,12 +158,12 @@ public class MyAutofillService extends AutofillService {
                 }
 
                 if (username != null && password != null) {
-                    if (DEBUG) Log.d(TAG, "user: " + username + " pass: " + password);
+                    logd("user: %s, pass: %s", username, password);
                     // TODO: save it
                     callback.onFailure("TODO: save " + username + "/" + password);
                     return;
                 } else {
-                    Log.w(TAG, " missing user (" + username + ") or pass (" + password + ")");
+                    logw(" missing user (%s) or pass (%s)", username, password);
                 }
             }
         }
@@ -177,11 +177,11 @@ public class MyAutofillService extends AutofillService {
 
     @Override
     public void onConnected() {
-        Log.d(TAG, "onConnected");
+        logd("onConnected");
     }
 
     @Override
     public void onDisconnected() {
-        Log.d(TAG, "onDisconnected");
+        logd("onDisconnected");
     }
 }

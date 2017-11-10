@@ -22,7 +22,6 @@ import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
 import android.support.annotation.DrawableRes;
-import android.util.Log;
 import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
@@ -34,10 +33,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static com.example.android.autofill.service.Util.DEBUG;
-import static com.example.android.autofill.service.Util.TAG;
+
 import static com.example.android.autofill.service.Util.bundleToString;
 import static com.example.android.autofill.service.Util.getSaveTypeAsString;
+import static com.example.android.autofill.service.Util.logd;
 
 /**
  * This is a class containing helper methods for building Autofill Datasets and Responses.
@@ -123,7 +122,7 @@ public final class AutofillHelper {
             }
             return responseBuilder.build();
         } else {
-            Log.d(TAG, "These fields are not meant to be saved by autofill.");
+            logd("These fields are not meant to be saved by autofill.");
             return null;
         }
     }
@@ -139,10 +138,10 @@ public final class AutofillHelper {
             Bundle previousClientState) {
         AutofillId[] autofillIds = autofillFields.getAutofillIds();
         List<String> allHints = autofillFields.getAllHints();
-        if (DEBUG) {
-            Log.d(TAG, "setPartialSaveInfo() for type " + getSaveTypeAsString(saveType)
-                    + ": allHints=" + allHints + ", ids=" + Arrays.toString(autofillIds)
-                    + ", clientState=" + bundleToString(previousClientState));
+        if (Util.logDebugEnabled()) {
+            logd("setPartialSaveInfo() for type %s: allHints=%s, ids=%s, clientState=%s",
+                    getSaveTypeAsString(saveType), allHints, Arrays.toString(autofillIds),
+                    bundleToString(previousClientState));
         }
 
         // TODO: this should be more generic, but for now it's hardcode to support just activities
@@ -150,7 +149,7 @@ public final class AutofillHelper {
         if ((saveType != SaveInfo.SAVE_DATA_TYPE_USERNAME
                 && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
                 || autofillIds.length != 1 || allHints.size() != 1) {
-            if (DEBUG) Log.d(TAG, "Unsupported activity for partial info; returning full");
+            logd("Unsupported activity for partial info; returning full");
             setFullSaveInfo(responseBuilder, saveType, autofillFields);
             return;
         }
@@ -169,21 +168,19 @@ public final class AutofillHelper {
         AutofillId previousValue = previousClientState == null
                 ? null
                 : previousClientState.getParcelable(previousKey);
-        if (DEBUG) Log.d(TAG, "previous: " + previousKey + "=" + previousValue);
+        logd("previous: %s=%s", previousKey, previousValue);
 
         Bundle newClientState = new Bundle();
         String key = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, allHints.get(0));
         AutofillId value = autofillIds[0];
-        if (DEBUG) Log.d(TAG, "New client state: " + key + "=" + value);
+        logd("New client state: %s = %s", key, value);
         newClientState.putParcelable(key, value);
 
         if (previousValue != null) {
             AutofillId[] newIds = new AutofillId[]{previousValue, value};
             int newSaveType = saveType | previousSaveType;
-            if (DEBUG) {
-                Log.d(TAG, "new values: type=" + getSaveTypeAsString(newSaveType)
-                        + ", ids=" + Arrays.toString(newIds));
-            }
+            logd("new values: type=%s, ids=%s",
+                    getSaveTypeAsString(newSaveType), Arrays.toString(newIds));
             newClientState.putAll(previousClientState);
             responseBuilder.setSaveInfo
                     (new SaveInfo.Builder(newSaveType, newIds)

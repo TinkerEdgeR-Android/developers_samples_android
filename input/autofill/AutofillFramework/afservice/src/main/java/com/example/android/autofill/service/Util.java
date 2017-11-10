@@ -36,14 +36,15 @@ import java.util.Set;
 
 public final class Util {
 
-    public static final String TAG = "AutofillSample";
-    public static final boolean DEBUG = true;
-    public static final boolean VERBOSE = false;
+    private static final String TAG = "AutofillSample";
     public static final String EXTRA_DATASET_NAME = "dataset_name";
     public static final String EXTRA_FOR_RESPONSE = "for_response";
-    public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) -> {
-        return id.equals(node.getAutofillId());
-    };
+    public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) ->
+            id.equals(node.getAutofillId());
+
+    public enum LogLevel { OFF, DEBUG, VERBOSE }
+
+    public static LogLevel sLoggingLevel = LogLevel.OFF;
 
     private static void bundleToString(StringBuilder builder, Bundle data) {
         final Set<String> keySet = data.keySet();
@@ -103,18 +104,22 @@ public final class Util {
     }
 
     public static void dumpStructure(AssistStructure structure) {
-        int nodeCount = structure.getWindowNodeCount();
-        Log.v(TAG, "dumpStructure(): component=" + structure.getActivityComponent()
-                + " numberNodes=" + nodeCount);
-        for (int i = 0; i < nodeCount; i++) {
-            Log.v(TAG, "node #" + i);
-            WindowNode node = structure.getWindowNodeAt(i);
-            dumpNode("  ", node.getRootViewNode());
+        if (logVerboseEnabled()) {
+            int nodeCount = structure.getWindowNodeCount();
+            logv("dumpStructure(): component=%s numberNodes=%d",
+                    structure.getActivityComponent(), nodeCount);
+            for (int i = 0; i < nodeCount; i++) {
+                logv("node #%d", i);
+                WindowNode node = structure.getWindowNodeAt(i);
+                dumpNode(new StringBuilder(), "  ", node.getRootViewNode(), 0);
+            }
         }
     }
 
-    private static void dumpNode(String prefix, ViewNode node) {
-        StringBuilder builder = new StringBuilder();
+    private static void dumpNode(StringBuilder builder, String prefix, ViewNode node, int childNumber) {
+        builder.append(prefix)
+                .append("child #").append(childNumber).append("\n");
+
         builder.append(prefix)
                 .append("autoFillId: ").append(node.getAutofillId())
                 .append("\tidEntry: ").append(node.getIdEntry())
@@ -154,12 +159,11 @@ public final class Util {
                 .append("\ttext: ").append(node.getText())
                 .append('\n');
 
-        Log.v(TAG, builder.toString());
         final String prefix2 = prefix + "  ";
         for (int i = 0; i < numberChildren; i++) {
-            Log.v(TAG, prefix + "child #" + i);
-            dumpNode(prefix2, node.getChildAt(i));
+            dumpNode(builder, prefix2, node.getChildAt(i), i);
         }
+        logv(builder.toString());
     }
 
     public static String getSaveTypeAsString(int type) {
@@ -204,7 +208,7 @@ public final class Util {
      */
     public static ViewNode findNodeByFilter(@NonNull AssistStructure structure, @NonNull Object id,
             @NonNull NodeFilter filter) {
-        Log.v(TAG, "Parsing request for activity " + structure.getActivityComponent());
+        logv("Parsing request for activity %s", structure.getActivityComponent());
         final int nodes = structure.getWindowNodeCount();
         for (int i = 0; i < nodes; i++) {
             final WindowNode windowNode = structure.getWindowNodeAt(i);
@@ -235,6 +239,46 @@ public final class Util {
             }
         }
         return null;
+    }
+
+    public static void logd(String message, Object... params) {
+        if (logDebugEnabled()) {
+            Log.d(TAG, String.format(message, params));
+        }
+    }
+
+    public static void logv(String message, Object... params) {
+        if (logVerboseEnabled()) {
+            Log.v(TAG, String.format(message, params));
+        }
+    }
+
+    public static boolean logDebugEnabled() {
+        return sLoggingLevel.ordinal() >= LogLevel.DEBUG.ordinal();
+    }
+
+    public static boolean logVerboseEnabled() {
+        return sLoggingLevel.ordinal() >= LogLevel.VERBOSE.ordinal();
+    }
+
+    public static void logw(String message, Object... params) {
+        Log.w(TAG, String.format(message, params));
+    }
+
+    public static void logw(Throwable throwable, String message, Object... params) {
+        Log.w(TAG, String.format(message, params), throwable);
+    }
+
+    public static void loge(String message, Object... params) {
+        Log.e(TAG, String.format(message, params));
+    }
+
+    public static void loge(Throwable throwable, String message, Object... params) {
+        Log.e(TAG, String.format(message, params), throwable);
+    }
+
+    public static void setLoggingLevel(LogLevel level) {
+        sLoggingLevel = level;
     }
 
     /**

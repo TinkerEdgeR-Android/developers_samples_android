@@ -43,7 +43,8 @@ import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
 import static com.example.android.autofill.service.Util.EXTRA_DATASET_NAME;
 import static com.example.android.autofill.service.Util.EXTRA_FOR_RESPONSE;
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logw;
+
 
 /**
  * This Activity controls the UI for logging in to the Autofill service.
@@ -116,7 +117,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void onFailure() {
-        Log.w(TAG, "Failed auth.");
+        logw("Failed auth.");
         mReplyIntent = null;
     }
 

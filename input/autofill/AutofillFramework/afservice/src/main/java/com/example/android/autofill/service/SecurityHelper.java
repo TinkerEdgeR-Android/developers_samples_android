@@ -36,9 +36,9 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import static com.example.android.autofill.service.Util.DEBUG;
-import static com.example.android.autofill.service.Util.TAG;
-import static com.example.android.autofill.service.Util.VERBOSE;
+import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.Util.logv;
+import static com.example.android.autofill.service.Util.logw;
 
 /**
  * Helper class for security checks.
@@ -60,8 +60,8 @@ public final class SecurityHelper {
 
     private static boolean isValidSync(String webDomain, String permission, String packageName,
             String fingerprint) {
-        if (DEBUG) Log.d(TAG, "validating domain " + webDomain + " for pkg " + packageName
-                + " and fingerprint " + fingerprint + " for permission" + permission);
+        logd("validating domain %s for pkg %s and fingerprint %s for permission %s",
+                webDomain, packageName, fingerprint, permission);
         if (!webDomain.startsWith("http:") && !webDomain.startsWith("https:")) {
             // Unfortunately AssistStructure.ViewNode does not tell what the domain is, so let's
             // assume it's https
@@ -70,7 +70,7 @@ public final class SecurityHelper {
 
         String restUrl =
                 String.format(REST_TEMPLATE, webDomain, permission, packageName, fingerprint);
-        if (DEBUG) Log.d(TAG, "DAL REST request: " + restUrl);
+        logd("DAL REST request: %s", restUrl);
 
         HttpURLConnection urlConnection = null;
         StringBuilder output = new StringBuilder();
@@ -85,11 +85,11 @@ public final class SecurityHelper {
                 }
             }
             String response = output.toString();
-            if (VERBOSE) Log.v(TAG, "DAL REST Response: " + response);
+            logv("DAL REST Response: %s", response);
 
             JSONObject jsonObject = new JSONObject(response);
             boolean valid = jsonObject.optBoolean("linked", false);
-            if (DEBUG) Log.d(TAG, "Valid: " + valid);
+            logd("Valid: %b", valid);
 
             return valid;
         } catch (Exception e) {
@@ -108,10 +108,8 @@ public final class SecurityHelper {
         if (!isValid) {
             // Ideally we should only check for the get_login_creds, but not all domains set
             // it yet, so validating for handle_all_urls gives a higher coverage.
-            if (DEBUG) {
-                Log.d(TAG, PERMISSION_GET_LOGIN_CREDS + " validation failed; trying "
-                        + PERMISSION_HANDLE_ALL_URLS);
-            }
+            logd("%s validation failed; trying %s", PERMISSION_GET_LOGIN_CREDS,
+                    PERMISSION_HANDLE_ALL_URLS);
             isValid = isValidSync(webDomain, PERMISSION_HANDLE_ALL_URLS, packageName, fingerprint);
         }
         return isValid;
@@ -127,8 +125,8 @@ public final class SecurityHelper {
 
     public static boolean isValid(String webDomain, String packageName, String fingerprint) {
         String canonicalDomain = getCanonicalDomain(webDomain);
-        if (DEBUG) Log.d(TAG, "validating domain " + canonicalDomain + " (" + webDomain
-                + ") for pkg " + packageName + " and fingerprint " + fingerprint);
+        logd("validating domain %s (%s) for pkg %s and fingerprint %s.", canonicalDomain,
+                webDomain, packageName, fingerprint);
         final String fullDomain;
         if (!webDomain.startsWith("http:") && !webDomain.startsWith("https:")) {
             // Unfortunately AssistStructure.ViewNode does not tell what the domain is, so let's
@@ -151,9 +149,9 @@ public final class SecurityHelper {
             return task.execute((String[]) null).get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            Log.w(TAG, "Thread interrupted");
+            logw("Thread interrupted");
         } catch (Exception e) {
-            Log.w(TAG, "Async task failed", e);
+            logw(e, "Async task failed");
         }
         return false;
     }

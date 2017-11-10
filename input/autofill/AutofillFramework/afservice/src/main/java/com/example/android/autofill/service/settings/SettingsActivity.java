@@ -17,29 +17,38 @@ package com.example.android.autofill.service.settings;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.autofill.AutofillManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.R;
+import com.example.android.autofill.service.Util;
 import com.example.android.autofill.service.datasource.SharedPrefsAutofillRepository;
 import com.example.android.autofill.service.datasource.SharedPrefsPackageVerificationRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
+import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.Util.logw;
+
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SettingsActivity";
+    private static final int REQUEST_CODE_SET_DEFAULT = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +83,41 @@ public class SettingsActivity extends AppCompatActivity {
                         buildNewCredentialsDialog().show();
                     }
                 });
+        setupSettingsButton(R.id.settingsSetServiceContainer,
+                R.id.settingsSetServiceLabel,
+                R.id.settingsSetServiceIcon,
+                (view) -> setService());
+        setupSettingsButton(R.id.settingsDisableContainer,
+                R.id.settingsDisableServiceLabel,
+                R.id.settingsDisableServiceIcon,
+                (view) -> disableService());
+        RadioGroup loggingLevelContainer = findViewById(R.id.loggingLevelContainer);
+        Util.LogLevel loggingLevel = preferences.getLoggingLevel();
+        Util.setLoggingLevel(loggingLevel);
+        switch (loggingLevel) {
+            case OFF:
+                loggingLevelContainer.check(R.id.loggingOff);
+                break;
+            case DEBUG:
+                loggingLevelContainer.check(R.id.loggingDebug);
+                break;
+            case VERBOSE:
+                loggingLevelContainer.check(R.id.loggingVerbose);
+                break;
+        }
+        loggingLevelContainer.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.loggingOff:
+                    preferences.setLoggingLevel(Util.LogLevel.OFF);
+                    break;
+                case R.id.loggingDebug:
+                    preferences.setLoggingLevel(Util.LogLevel.DEBUG);
+                    break;
+                case R.id.loggingVerbose:
+                    preferences.setLoggingLevel(Util.LogLevel.VERBOSE);
+                    break;
+            }
+        });
     }
 
     private AlertDialog buildClearDataDialog() {
@@ -125,7 +169,7 @@ public class SettingsActivity extends AppCompatActivity {
      */
     private boolean buildAndSaveMockedAutofillFieldCollection(Context context, int numOfDatasets) {
         if (numOfDatasets < 0 || numOfDatasets > 10) {
-            Log.w(TAG, "Number of Datasets out of range.");
+            logw("Number of Datasets (%d) out of range.", numOfDatasets);
             return false;
         }
         for (int i = 0; i < numOfDatasets * 2; i += 2) {
@@ -202,5 +246,49 @@ public class SettingsActivity extends AppCompatActivity {
         ImageView imageView = container.findViewById(imageViewId);
         imageView.setContentDescription(buttonLabelText);
         container.setOnClickListener(onClickListener);
+    }
+
+    private void disableService() {
+        AutofillManager manager = getSystemService(AutofillManager.class);
+        if (manager != null) {
+            manager.disableAutofillServices();
+            Snackbar.make(findViewById(R.id.settings_layout),
+                    R.string.settings_autofill_disabled_message, Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setService() {
+        Intent intent = new Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE);
+        intent.setData(Uri.parse("package:com.example.android.autofill.service"));
+        logd(TAG, "enableService(): intent=%s", intent);
+        startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        logd(TAG, "onActivityResult(): req=%s", requestCode);
+        switch (requestCode) {
+            case REQUEST_CODE_SET_DEFAULT:
+                defaultServiceSet(resultCode);
+                break;
+        }
+    }
+
+    private void defaultServiceSet(int resultCode) {
+        logd(TAG, "resultCode=%d", resultCode);
+        switch(resultCode) {
+            case RESULT_OK:
+                logd("Autofill service set.");
+                Snackbar.make(findViewById(R.id.settings_layout),
+                        R.string.settings_autofill_service_set, Snackbar.LENGTH_SHORT)
+                        .show();
+                break;
+            case RESULT_CANCELED:
+                logd("Autofill service not selected.");
+                Snackbar.make(findViewById(R.id.settings_layout),
+                        R.string.settings_autofill_service_not_set, Snackbar.LENGTH_SHORT)
+                        .show();
+                break;
+        }
     }
 }

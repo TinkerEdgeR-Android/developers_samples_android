@@ -25,7 +25,8 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Calendar;
 
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logw;
+
 
 public final class AutofillHints {
     public static final int PARTITION_OTHER = 0;
@@ -761,7 +762,7 @@ public final class AutofillHints {
             if (AutofillHints.isValidHint(hint)) {
                 filteredHints[i++] = hint;
             } else {
-                Log.w(TAG, "Invalid autofill hint: " + hint);
+                logw("Invalid autofill hint: %s", hint);
             }
         }
         if (i == 0) {

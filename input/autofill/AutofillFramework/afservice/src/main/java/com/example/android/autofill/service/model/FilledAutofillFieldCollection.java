@@ -31,8 +31,9 @@ import com.google.gson.annotations.Expose;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.android.autofill.service.Util.DEBUG;
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.Util.loge;
+import static com.example.android.autofill.service.Util.logw;
 
 /**
  * FilledAutofillFieldCollection is the model that holds all of the data on a client app's page,
@@ -91,7 +92,7 @@ public final class FilledAutofillFieldCollection {
             case W3cHints.IMPP:
                 return true;
         }
-        Log.w(TAG, "Invalid W3C type hint: " + hint);
+        logw("Invalid W3C type hint: %s", hint);
         return false;
     }
 
@@ -123,7 +124,7 @@ public final class FilledAutofillFieldCollection {
             // First convert the compound W3C autofill hints
             if (isW3cSectionPrefix(hint) && i < autofillHints.length - 1) {
                 hint = autofillHints[++i];
-                if (DEBUG) Log.d(TAG, "Hint is a W3C section prefix; using " + hint + " instead");
+                logd("Hint is a W3C section prefix; using %s instead", hint);
                 if (i < autofillHints.length - 1) {
                     nextHint = autofillHints[i + 1];
                 }
@@ -131,12 +132,12 @@ public final class FilledAutofillFieldCollection {
             if (isW3cTypePrefix(hint) && nextHint != null && isW3cTypeHint(nextHint)) {
                 hint = nextHint;
                 i++;
-                if (DEBUG) Log.d(TAG, "Hint is a W3C type prefix; using " + hint + " instead");
+                logd("Hint is a W3C type prefix; using %s instead", hint);
             }
             if (isW3cAddressType(hint) && nextHint != null) {
                 hint = nextHint;
                 i++;
-                if (DEBUG) Log.d(TAG, "Hint is a W3C address prefix; using " + hint + " instead");
+                logd("Hint is a W3C address prefix; using %s instead", hint);
             }
 
             // Then check if the "actual" hint is supported.
@@ -145,7 +146,7 @@ public final class FilledAutofillFieldCollection {
             if (AutofillHints.isValidHint(hint)) {
                 mHintMap.put(hint, filledAutofillField);
             } else {
-                Log.e(TAG, "Invalid hint: " + autofillHints[i]);
+                loge("Invalid hint: %s", autofillHints[i]);
             }
         }
     }
@@ -209,7 +210,7 @@ public final class FilledAutofillFieldCollection {
                         break;
                     case View.AUTOFILL_TYPE_NONE:
                     default:
-                        Log.w(TAG, "Invalid autofill type - " + autofillType);
+                        logw("Invalid autofill type - %d", autofillType);
                         break;
                 }
             }

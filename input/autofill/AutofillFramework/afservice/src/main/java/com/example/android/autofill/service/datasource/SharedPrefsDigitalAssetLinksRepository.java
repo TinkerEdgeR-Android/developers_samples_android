@@ -20,7 +20,8 @@ import android.util.Log;
 
 import com.example.android.autofill.service.SecurityHelper;
 
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logw;
+
 
 /**
  * Singleton repository that caches the result of Digital Asset Links checks.
@@ -50,7 +51,7 @@ public class SharedPrefsDigitalAssetLinksRepository implements DigitalAssetLinks
         try {
             fingerprint = SecurityHelper.getFingerprint(context, packageName);
         } catch (Exception e) {
-            Log.w(TAG, "error getting fingerprint for " + packageName, e);
+            logw(e, "error getting fingerprint for %s", packageName);
             return false;
         }
         return SecurityHelper.isValid(webDomain, packageName, fingerprint);

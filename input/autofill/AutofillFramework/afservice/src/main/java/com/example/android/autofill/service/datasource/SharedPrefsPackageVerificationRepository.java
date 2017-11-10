@@ -17,11 +17,11 @@ package com.example.android.autofill.service.datasource;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.example.android.autofill.service.SecurityHelper;
 
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.Util.logw;
 
 public class SharedPrefsPackageVerificationRepository implements PackageVerificationDataSource {
 
@@ -52,9 +52,9 @@ public class SharedPrefsPackageVerificationRepository implements PackageVerifica
         String hash;
         try {
             hash = SecurityHelper.getFingerprint(context, packageName);
-            Log.d(TAG, "Hash for " + packageName + ": " + hash);
+            logd("Hash for %s: %s", packageName, hash);
         } catch (Exception e) {
-            Log.w(TAG, "Error getting hash for " + packageName + ": " + e);
+            logw(e, "Error getting hash for %s.", packageName);
             return false;
         }
 

@@ -19,15 +19,13 @@ import android.app.assist.AssistStructure;
 import android.app.assist.AssistStructure.ViewNode;
 import android.app.assist.AssistStructure.WindowNode;
 import android.content.Context;
-import android.util.Log;
 import android.view.autofill.AutofillValue;
 
 import com.example.android.autofill.service.datasource.SharedPrefsDigitalAssetLinksRepository;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
-import static com.example.android.autofill.service.Util.DEBUG;
-import static com.example.android.autofill.service.Util.TAG;
+import static com.example.android.autofill.service.Util.logd;
 
 /**
  * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an
@@ -58,7 +56,7 @@ final class StructureParser {
      * Traverse AssistStructure and add ViewNode metadata to a flat list.
      */
     private void parse(boolean forFill) {
-        if (DEBUG) Log.d(TAG, "Parsing structure for " + mStructure.getActivityComponent());
+        logd("Parsing structure for %s", mStructure.getActivityComponent());
         int nodes = mStructure.getWindowNodeCount();
         mFilledAutofillFieldCollection = new FilledAutofillFieldCollection();
         StringBuilder webDomain = new StringBuilder();
@@ -75,16 +73,16 @@ final class StructureParser {
                 throw new SecurityException(mContext.getString(
                         R.string.invalid_link_association, webDomain, packageName));
             }
-            if (DEBUG) Log.d(TAG, "Domain " + webDomain + " is valid for " + packageName);
+            logd("Domain %s is valid for %s", webDomain, packageName);
         } else {
-            if (DEBUG) Log.d(TAG, "no web domain");
+            logd("no web domain");
         }
     }
 
     private void parseLocked(boolean forFill, ViewNode viewNode, StringBuilder validWebDomain) {
         String webDomain = viewNode.getWebDomain();
         if (webDomain != null) {
-            if (DEBUG) Log.d(TAG, "child web domain: " + webDomain);
+            logd("child web domain: %s", webDomain);
             if (validWebDomain.length() > 0) {
                 if (!webDomain.equals(validWebDomain.toString())) {
                     throw new SecurityException("Found multiple web domains: valid= "

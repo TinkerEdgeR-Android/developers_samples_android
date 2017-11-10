@@ -21,6 +21,16 @@
     <string name="settings_clear_data_confirmation_title">Confirmation</string>
     <string name="settings_authentication_header">Authentication</string>
     <string name="settings_data_header">Data</string>
+    <string name="settings_logging_header">Logging</string>
+    <string name="settings_logging_off">Off</string>
+    <string name="settings_logging_debug">Debug</string>
+    <string name="settings_logging_verbose">Verbose</string>
+    <string name="settings_enable_header">Enable/Disable</string>
+    <string name="settings_set_service">Set default Autofill service</string>
+    <string name="settings_disable_service">Disable Autofill services</string>
+    <string name="settings_autofill_disabled_message">Autofill service has been disabled.</string>
+    <string name="settings_autofill_service_set">Sample service set to default.</string>
+    <string name="settings_autofill_service_not_set">Sample service not set to default.</string>
     <string name="settings_auth_credentials_label">Update credentials</string>
     <string name="settings_auth_enter_current_password">Enter current password</string>
     <string name="settings_auth_enter_new_password">Enter new password</string>
