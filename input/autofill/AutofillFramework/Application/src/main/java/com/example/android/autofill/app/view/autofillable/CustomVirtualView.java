@@ -38,8 +38,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.autofill.app.Util;
 import com.example.android.autofill.app.R;
+import com.example.android.autofill.app.Util;
 import com.google.common.base.Preconditions;
 
 import java.text.DateFormat;
@@ -60,7 +60,7 @@ public class CustomVirtualView extends View {
     /**
      * When set, it notifies AutofillManager of focus change as the view scrolls, so the
      * autofill UI is continually drawn.
-     *
+     * <p>
      * <p>This is janky and incompatible with the way the autofill UI works on native views, but
      * it's a cool experiment!
      */

@@ -41,6 +41,9 @@ public final class Util {
     public static final boolean VERBOSE = false;
     public static final String EXTRA_DATASET_NAME = "dataset_name";
     public static final String EXTRA_FOR_RESPONSE = "for_response";
+    public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) -> {
+        return id.equals(node.getAutofillId());
+    };
 
     private static void bundleToString(StringBuilder builder, Bundle data) {
         final Set<String> keySet = data.keySet();
@@ -233,10 +236,6 @@ public final class Util {
         }
         return null;
     }
-
-    public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) -> {
-        return id.equals(node.getAutofillId());
-    };
 
     /**
      * Helper interface used to filter Assist nodes.

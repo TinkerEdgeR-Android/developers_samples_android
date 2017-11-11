@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
      * A simple pager adapter that holds 2 Fragments.
      */
     private static class ScreenSlidePagerAdapter extends FragmentPagerAdapter {
-        private BaseMainFragment[] fragments = new BaseMainFragment[] {new CommonExamplesFragment(),
+        private BaseMainFragment[] fragments = new BaseMainFragment[]{new CommonExamplesFragment(),
                 new ServiceVerificationFragment()};
 
         private Context mContext;

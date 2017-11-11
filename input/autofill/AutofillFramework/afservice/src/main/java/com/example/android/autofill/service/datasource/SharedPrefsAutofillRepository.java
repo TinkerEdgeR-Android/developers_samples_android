@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * Singleton autofill data repository that stores autofill fields to SharedPreferences.
- *
+ * <p>
  * <p><b>Disclaimer</b>: you should not store sensitive fields like user data unencrypted.
  * This is done here only for simplicity and learning purposes.
  */

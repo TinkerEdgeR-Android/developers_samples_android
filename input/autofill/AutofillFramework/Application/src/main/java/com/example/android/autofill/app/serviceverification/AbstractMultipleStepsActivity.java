@@ -35,7 +35,7 @@ import static com.example.android.autofill.app.Util.TAG;
 /**
  * Activity that emulates a multiple-steps wizard activity, where each step shows just one
  * label and input.
- *
+ * <p>
  * <p>Its's useful to verify how an autofill service handles account creation that takes multiple
  * steps.
  */
