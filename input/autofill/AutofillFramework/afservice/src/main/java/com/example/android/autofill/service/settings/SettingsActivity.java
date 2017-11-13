@@ -49,11 +49,13 @@ import static com.example.android.autofill.service.Util.logw;
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "SettingsActivity";
     private static final int REQUEST_CODE_SET_DEFAULT = 1;
+    private AutofillManager mAutofillManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multidataset_service_settings_activity);
+        mAutofillManager = getSystemService(AutofillManager.class);
         final MyPreferences preferences = MyPreferences.getInstance(this);
         setupSettingsSwitch(R.id.settings_auth_responses_container,
                 R.id.settings_auth_responses_label,
@@ -83,14 +85,11 @@ public class SettingsActivity extends AppCompatActivity {
                         buildNewCredentialsDialog().show();
                     }
                 });
-        setupSettingsButton(R.id.settingsSetServiceContainer,
+        setupSettingsSwitch(R.id.settingsSetServiceContainer,
                 R.id.settingsSetServiceLabel,
-                R.id.settingsSetServiceIcon,
-                (view) -> setService());
-        setupSettingsButton(R.id.settingsDisableContainer,
-                R.id.settingsDisableServiceLabel,
-                R.id.settingsDisableServiceIcon,
-                (view) -> disableService());
+                R.id.settingsSetServiceSwitch,
+                mAutofillManager.hasEnabledAutofillServices(),
+                (compoundButton, serviceSet) -> setService(serviceSet));
         RadioGroup loggingLevelContainer = findViewById(R.id.loggingLevelContainer);
         Util.LogLevel loggingLevel = preferences.getLoggingLevel();
         Util.setLoggingLevel(loggingLevel);
@@ -248,20 +247,33 @@ public class SettingsActivity extends AppCompatActivity {
         container.setOnClickListener(onClickListener);
     }
 
-    private void disableService() {
-        AutofillManager manager = getSystemService(AutofillManager.class);
-        if (manager != null) {
-            manager.disableAutofillServices();
-            Snackbar.make(findViewById(R.id.settings_layout),
-                    R.string.settings_autofill_disabled_message, Snackbar.LENGTH_SHORT).show();
+    private void setService(boolean enableService) {
+        if (enableService) {
+            startEnableService();
+        } else {
+            disableService();
         }
     }
 
-    private void setService() {
-        Intent intent = new Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE);
-        intent.setData(Uri.parse("package:com.example.android.autofill.service"));
-        logd(TAG, "enableService(): intent=%s", intent);
-        startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT);
+    private void disableService() {
+        if (mAutofillManager != null && mAutofillManager.hasEnabledAutofillServices()) {
+            mAutofillManager.disableAutofillServices();
+            Snackbar.make(findViewById(R.id.settings_layout),
+                    R.string.settings_autofill_disabled_message, Snackbar.LENGTH_SHORT).show();
+        } else {
+            logd("Sample service already disabled.");
+        }
+    }
+
+    private void startEnableService() {
+        if (mAutofillManager != null && !mAutofillManager.hasEnabledAutofillServices()) {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE);
+            intent.setData(Uri.parse("package:com.example.android.autofill.service"));
+            logd(TAG, "enableService(): intent=%s", intent);
+            startActivityForResult(intent, REQUEST_CODE_SET_DEFAULT);
+        } else {
+            logd("Sample service already enabled.");
+        }
     }
 
     @Override
@@ -276,7 +288,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void defaultServiceSet(int resultCode) {
         logd(TAG, "resultCode=%d", resultCode);
-        switch(resultCode) {
+        switch (resultCode) {
             case RESULT_OK:
                 logd("Autofill service set.");
                 Snackbar.make(findViewById(R.id.settings_layout),

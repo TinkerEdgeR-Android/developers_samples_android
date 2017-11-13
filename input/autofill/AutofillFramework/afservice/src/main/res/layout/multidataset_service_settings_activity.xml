@@ -217,38 +217,13 @@
                 android:layout_weight="1"
                 android:text="@string/settings_set_service" />
 
-            <ImageView
-                android:id="@+id/settingsSetServiceIcon"
+            <Switch
+                android:id="@+id/settingsSetServiceSwitch"
                 style="@style/Settings.Switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_normal"
-                android:minHeight="@dimen/a11y_min_touch_target_dimen"
-                android:src="@drawable/ic_settings_black_24dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/settingsDisableContainer"
-            style="@style/Settings.Container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/settingsDisableServiceLabel"
-                style="@style/Settings.Label"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/settings_disable_service" />
-
-            <ImageView
-                android:id="@+id/settingsDisableServiceIcon"
-                style="@style/Settings.Switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_normal"
-                android:minHeight="@dimen/a11y_min_touch_target_dimen"
-                android:src="@drawable/ic_disable_black_24dp" />
+                android:minHeight="@dimen/a11y_min_touch_target_dimen" />
         </LinearLayout>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
