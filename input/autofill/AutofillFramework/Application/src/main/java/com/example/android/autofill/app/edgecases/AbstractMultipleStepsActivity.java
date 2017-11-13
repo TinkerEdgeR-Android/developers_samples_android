@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.serviceverification;
+package com.example.android.autofill.app.edgecases;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -42,7 +42,6 @@ import static com.example.android.autofill.app.Util.TAG;
 
 /*
  * TODO list
- * - remove from manifest and add to MainActivity launcher
  * - use ConstraintLayout
  * - use Fragments instead of replacing views directly
  * - use custom view and/or layout xml for mSteps

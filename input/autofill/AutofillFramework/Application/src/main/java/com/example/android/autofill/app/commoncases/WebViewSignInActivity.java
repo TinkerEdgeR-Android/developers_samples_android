@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.example.android.autofill.app.commonexamples;
+package com.example.android.autofill.app.commoncases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,11 +31,6 @@ import static com.example.android.autofill.app.Util.DEBUG;
 import static com.example.android.autofill.app.Util.TAG;
 
 public class WebViewSignInActivity extends AppCompatActivity {
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, WebViewSignInActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

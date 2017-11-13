@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.serviceverification;
+package com.example.android.autofill.app.edgecases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -51,11 +51,6 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
 
     private CustomVirtualView.Partition mCredentialsPartition;
     private CustomVirtualView.Partition mCcPartition;
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, MultiplePartitionsActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -27,15 +27,13 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.android.autofill.app.commonexamples.CommonExamplesFragment;
-import com.example.android.autofill.app.serviceverification.ServiceVerificationFragment;
+import com.example.android.autofill.app.commoncases.CommonCasesFragment;
+import com.example.android.autofill.app.edgecases.EdgeCasesFragment;
 
 /**
  * This is used to launch sample activities that showcase autofill.
  */
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
      * A simple pager adapter that holds 2 Fragments.
      */
     private static class ScreenSlidePagerAdapter extends FragmentPagerAdapter {
-        private BaseMainFragment[] fragments = new BaseMainFragment[]{new CommonExamplesFragment(),
-                new ServiceVerificationFragment()};
+        private BaseMainFragment[] fragments = new BaseMainFragment[]{new CommonCasesFragment(),
+                new EdgeCasesFragment()};
 
         private Context mContext;
 

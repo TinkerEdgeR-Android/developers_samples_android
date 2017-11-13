@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.commonexamples;
+package com.example.android.autofill.app.commoncases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -41,11 +41,6 @@ public class CreditCardSpinnersActivity extends AppCompatActivity {
     private Spinner mCcExpirationYearSpinner;
     private EditText mCcCardNumber;
     private EditText mCcSecurityCode;
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, CreditCardSpinnersActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

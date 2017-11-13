@@ -17,6 +17,7 @@
     <declare-styleable name="NavigationItem">
         <attr name="labelText" format="string" />
         <attr name="infoText" format="string" />
+        <attr name="destinationActivityName" format="string" />
         <attr name="itemLogo" format="integer" />
         <attr name="imageColor" format="reference" />
     </declare-styleable>

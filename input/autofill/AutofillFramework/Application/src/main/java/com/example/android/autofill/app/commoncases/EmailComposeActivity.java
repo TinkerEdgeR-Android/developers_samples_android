@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.commonexamples;
+package com.example.android.autofill.app.commoncases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,11 +26,6 @@ import com.example.android.autofill.app.R;
 import com.example.android.autofill.app.WelcomeActivity;
 
 public class EmailComposeActivity extends AppCompatActivity {
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, EmailComposeActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

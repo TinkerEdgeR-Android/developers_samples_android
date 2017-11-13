@@ -16,6 +16,7 @@
 package com.example.android.autofill.app.view.widget;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -25,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -32,9 +34,9 @@ import android.widget.TextView;
 
 import com.example.android.autofill.app.R;
 
-public class NavigationItem extends FrameLayout {
-    CardView mCardView;
+import static com.example.android.autofill.app.Util.TAG;
 
+public class NavigationItem extends FrameLayout {
     public NavigationItem(Context context) {
         this(context, null);
     }
@@ -56,23 +58,30 @@ public class NavigationItem extends FrameLayout {
         String infoText = typedArray.getString(R.styleable.NavigationItem_infoText);
         Drawable logoDrawable = typedArray.getDrawable(R.styleable.NavigationItem_itemLogo);
         @ColorRes int colorRes = typedArray.getResourceId(R.styleable.NavigationItem_imageColor, 0);
+        String launchingActivityName = typedArray.getString(R.styleable.NavigationItem_destinationActivityName);
         int imageColor = ContextCompat.getColor(getContext(), colorRes);
         typedArray.recycle();
         View rootView = LayoutInflater.from(context).inflate(R.layout.navigation_item, this);
-        if (logoDrawable != null) {
-            logoDrawable.setColorFilter(imageColor, PorterDuff.Mode.SRC_IN);
-        }
         TextView buttonLabel = rootView.findViewById(R.id.buttonLabel);
         buttonLabel.setText(labelText);
-        buttonLabel.setCompoundDrawablesRelativeWithIntrinsicBounds(logoDrawable, null,
-                null, null);
+        if (logoDrawable != null) {
+            Drawable mutatedLogoDrawable = logoDrawable.mutate();
+            mutatedLogoDrawable.setColorFilter(imageColor, PorterDuff.Mode.SRC_IN);
+            buttonLabel.setCompoundDrawablesRelativeWithIntrinsicBounds(mutatedLogoDrawable, null,
+                    null, null);
+        }
         InfoButton infoButton = rootView.findViewById(R.id.infoButton);
         infoButton.setInfoText(infoText);
         infoButton.setColorFilter(imageColor);
-        mCardView = rootView.findViewById(R.id.cardView);
-    }
-
-    public void setNavigationButtonClickListener(@Nullable OnClickListener l) {
-        mCardView.setOnClickListener(l);
+        CardView outerView = rootView.findViewById(R.id.cardView);
+        outerView.setOnClickListener((view) -> {
+            if (launchingActivityName != null) {
+                Intent intent = new Intent();
+                intent.setClassName(getContext().getPackageName(), launchingActivityName);
+                context.startActivity(intent);
+            } else {
+                Log.w(TAG, "Launching Activity name not set.");
+            }
+        });
     }
 }

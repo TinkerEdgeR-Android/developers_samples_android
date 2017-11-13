@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.commonexamples;
+package com.example.android.autofill.app.commoncases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,11 +36,6 @@ public class CreditCardDatePickerActivity extends AppCompatActivity {
     private CreditCardExpirationDatePickerView mCcExpDateView;
     private EditText mCcExpNumber;
     private EditText mCcSecurityCode;
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, CreditCardDatePickerActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

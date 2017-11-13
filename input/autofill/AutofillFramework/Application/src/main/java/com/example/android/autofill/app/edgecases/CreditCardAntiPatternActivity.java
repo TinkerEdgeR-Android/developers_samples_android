@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.app.serviceverification;
+package com.example.android.autofill.app.edgecases;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,27 +27,18 @@ import android.widget.EditText;
 import com.example.android.autofill.app.R;
 import com.example.android.autofill.app.WelcomeActivity;
 
-public class CreditCardActivity extends AppCompatActivity {
+public class CreditCardAntiPatternActivity extends AppCompatActivity {
 
-    private EditText mCcExpDayView;
-    private EditText mCcExpMonthView;
-    private EditText mCcExpYearView;
-    private EditText mCcNumber;
+    private EditText mCcExpDateView;
+    private EditText mCcExpNumber;
     private EditText mCcSecurityCode;
-
-    public static Intent getStartActivityIntent(Context context) {
-        Intent intent = new Intent(context, CreditCardActivity.class);
-        return intent;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.credit_card_activity);
-        mCcExpDayView = findViewById(R.id.expirationDay);
-        mCcExpMonthView = findViewById(R.id.expirationMonth);
-        mCcExpYearView = findViewById(R.id.expirationYear);
-        mCcNumber = findViewById(R.id.creditCardNumberField);
+        setContentView(R.layout.credit_card_anti_pattern_activity);
+        mCcExpDateView = findViewById(R.id.creditCardExpirationView);
+        mCcExpNumber = findViewById(R.id.creditCardNumberField);
         mCcSecurityCode = findViewById(R.id.creditCardSecurityCode);
         findViewById(R.id.submitButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,10 +56,8 @@ public class CreditCardActivity extends AppCompatActivity {
     }
 
     private void resetFields() {
-        mCcExpDayView.setText("");
-        mCcExpMonthView.setText("");
-        mCcExpYearView.setText("");
-        mCcNumber.setText("");
+        mCcExpDateView.setText("");
+        mCcExpNumber.setText("");
         mCcSecurityCode.setText("");
     }
 

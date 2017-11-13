@@ -31,67 +31,25 @@
             android:taskAffinity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.StandardSignInActivity"
-            android:taskAffinity=".StandardSignInActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.StandardAutoCompleteSignInActivity"
-            android:taskAffinity=".StandardAutoCompleteSignInActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.VirtualSignInActivity"
-            android:taskAffinity=".VirtualSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.StandardSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.StandardAutoCompleteSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.VirtualSignInActivity" />
         <activity android:name="com.example.android.autofill.app.WelcomeActivity" />
+        <activity android:name="com.example.android.autofill.app.edgecases.CreditCardActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.CreditCardSpinnersActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.EmailComposeActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.CreditCardCompoundViewActivity" />
+        <activity android:name="com.example.android.autofill.app.commoncases.CreditCardDatePickerActivity" />
+        <activity android:name="com.example.android.autofill.app.edgecases.CreditCardAntiPatternActivity" />
         <activity
-            android:name="com.example.android.autofill.app.serviceverification.CreditCardActivity"
-            android:taskAffinity=".CreditCardActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.CreditCardSpinnersActivity"
-            android:taskAffinity=".CreditCardSpinnersActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.EmailComposeActivity"
-            android:taskAffinity=".EmailComposeActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.CreditCardCompoundViewActivity"
-            android:taskAffinity=".CreditCardCompoundViewActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.CreditCardDatePickerActivity"
-            android:taskAffinity=".CreditCardDatePickerActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.serviceverification.CreditCardAntiPatternActivity"
-            android:taskAffinity=".CreditCardAntiPatternActivity" />
-        <activity
-            android:name="com.example.android.autofill.app.serviceverification.MultiplePartitionsActivity"
-            android:taskAffinity=".MultiplePartitionsActivity"
+            android:name="com.example.android.autofill.app.edgecases.MultiplePartitionsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name="com.example.android.autofill.app.commonexamples.WebViewSignInActivity"
-            android:taskAffinity=".WebViewSignInActivity" />
-
-        <activity
-            android:name=".serviceverification.MultipleStepsSignInActivity"
-            android:taskAffinity=".MultipleStepsSignInActivity">
-            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".serviceverification.MultipleStepsCreditCardActivity"
-            android:taskAffinity=".MultipleStepsCreditCardActivity">
-            <!-- TODO: remove intent-filter and add to MainActivity menu instead -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name="com.example.android.autofill.app.commoncases.WebViewSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.edgecases.MultipleStepsSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.edgecases.MultipleStepsCreditCardActivity" />
 
     </application>
 
