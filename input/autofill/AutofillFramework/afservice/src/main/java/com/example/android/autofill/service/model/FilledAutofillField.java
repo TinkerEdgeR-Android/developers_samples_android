@@ -15,97 +15,185 @@
  */
 package com.example.android.autofill.service.model;
 
-import android.util.Log;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.example.android.autofill.service.AutofillHints;
 import com.google.common.base.Preconditions;
-import com.google.gson.annotations.Expose;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
 import static com.example.android.autofill.service.AutofillHints.filterForSupportedHints;
-import static com.example.android.autofill.service.Util.logw;
-import android.view.autofill.AutofillValue;
+import static com.example.android.autofill.service.AutofillHints.isW3cAddressType;
+import static com.example.android.autofill.service.AutofillHints.isW3cSectionPrefix;
+import static com.example.android.autofill.service.AutofillHints.isW3cTypeHint;
+import static com.example.android.autofill.service.AutofillHints.isW3cTypePrefix;
+import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.loge;
 
-/**
- * JSON serializable data class containing the same data as an {@link AutofillValue}.
- */
+@Entity(primaryKeys = {"datasetId", "hint"}, foreignKeys = @ForeignKey(
+        entity = AutofillDataset.class, parentColumns = "id", childColumns = "datasetId",
+        onDelete = ForeignKey.CASCADE))
 public class FilledAutofillField {
-    @Expose
-    private String mTextValue = null;
-    @Expose
-    private Long mDateValue = null;
-    @Expose
-    private Boolean mToggleValue = null;
 
-    //TODO add explicit mListValue
+    @NonNull
+    @ColumnInfo(name = "datasetId")
+    private final String mDatasetId;
 
-    /**
-     * Does not need to be serialized into persistent storage, so it's not exposed.
-     */
-    private String[] mAutofillHints = null;
+    @Nullable
+    @ColumnInfo(name = "textValue")
+    private final String mTextValue;
 
-    public FilledAutofillField(String... hints) {
-        mAutofillHints = filterForSupportedHints(hints);
-        convertToStoredHintNames(mAutofillHints);
+    @Nullable
+    @ColumnInfo(name = "dateValue")
+    private final Long mDateValue;
+
+    @Nullable
+    @ColumnInfo(name = "toggleValue")
+    private final Boolean mToggleValue;
+
+    @NonNull
+    @ColumnInfo(name = "hint")
+    private final String mHint;
+
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+            @Nullable String textValue, @Nullable Long dateValue, @Nullable Boolean toggleValue) {
+        mDatasetId = datasetId;
+        mHint = hint;
+        mTextValue = textValue;
+        mDateValue = dateValue;
+        mToggleValue = toggleValue;
     }
 
-    public void setListValue(CharSequence[] autofillOptions, int listValue) {
-        /* Only set list value when a hint is allowed to store list values. */
-        Preconditions.checkArgument(
-                AutofillHints.isValidTypeForHints(mAutofillHints, View.AUTOFILL_TYPE_LIST),
-                "List is invalid autofill type for hint(s) - %s",
-                Arrays.toString(mAutofillHints));
-        if (autofillOptions != null && autofillOptions.length > 0) {
-            mTextValue = autofillOptions[listValue].toString();
-        } else {
-            logw("autofillOptions should have at least one entry.");
+    @Ignore
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+            @Nullable String textValue, @Nullable Long dateValue) {
+        this(datasetId, hint, textValue, dateValue, null);
+    }
+
+    @Ignore
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+            @Nullable String textValue) {
+        this(datasetId, hint, textValue, null, null);
+    }
+
+    @Ignore
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+            @Nullable Long dateValue) {
+        this(datasetId, hint, null, dateValue, null);
+    }
+
+    @Ignore
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+            @Nullable Boolean toggleValue) {
+        this(datasetId, hint, null, null, toggleValue);
+    }
+
+    @Ignore
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint) {
+        this(datasetId, hint, null, null, null);
+    }
+
+
+    @Nullable
+    public static List<FilledAutofillField> build(String datasetId, String[] hints,
+            @Nullable String textValue, @Nullable Long dateValue, @Nullable Boolean toggleValue,
+            @Nullable CharSequence[] autofillOptions, @Nullable Integer listIndex) {
+        String[] filteredHints = filterForSupportedHints(hints);
+        convertToStoredHintNames(filteredHints);
+        List<FilledAutofillField> fields = new ArrayList<>();
+        if (filteredHints == null) {
+            return null;
         }
+        String nextHint = null;
+        for (int i = 0; i < filteredHints.length; i++) {
+            String hint = filteredHints[i];
+            if (i < filteredHints.length - 1) {
+                nextHint = filteredHints[i + 1];
+            }
+            // First convert the compound W3C autofill hints
+            if (isW3cSectionPrefix(hint) && i < filteredHints.length - 1) {
+                hint = filteredHints[++i];
+                logd("Hint is a W3C section prefix; using %s instead", hint);
+                if (i < filteredHints.length - 1) {
+                    nextHint = filteredHints[i + 1];
+                }
+            }
+            if (isW3cTypePrefix(hint) && nextHint != null && isW3cTypeHint(nextHint)) {
+                hint = nextHint;
+                i++;
+                logd("Hint is a W3C type prefix; using %s instead", hint);
+            }
+            if (isW3cAddressType(hint) && nextHint != null) {
+                hint = nextHint;
+                i++;
+                logd("Hint is a W3C address prefix; using %s instead", hint);
+            }
+            // Then check if the "actual" hint is supported.
+            if (AutofillHints.isValidHint(hint)) {
+                // Only add the field if the hint is supported by the type.
+                if (textValue != null) {
+                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
+                            View.AUTOFILL_TYPE_TEXT),
+                            "Text is invalid type for hint '%s'", hint);
+                }
+                if (autofillOptions != null && listIndex != null &&
+                        autofillOptions.length > listIndex) {
+                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
+                            View.AUTOFILL_TYPE_LIST),
+                            "List is invalid type for hint '%s'", hint);
+                    textValue = autofillOptions[listIndex].toString();
+                }
+                if (dateValue != null) {
+                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
+                            View.AUTOFILL_TYPE_DATE),
+                            "Date is invalid type for hint '%s'", hint);
+                }
+                if (toggleValue != null) {
+                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
+                            View.AUTOFILL_TYPE_TOGGLE),
+                            "Toggle is invalid type for hint '%s'", hint);
+                }
+                fields.add(new FilledAutofillField(datasetId, filteredHints[i], textValue,
+                        dateValue, toggleValue));
+            } else {
+                loge("Invalid hint: %s", hint);
+            }
+        }
+        return fields;
     }
 
-    public String[] getAutofillHints() {
-        return mAutofillHints;
+    @NonNull
+    public String getDatasetId() {
+        return mDatasetId;
     }
 
+    @Nullable
     public String getTextValue() {
         return mTextValue;
     }
 
-    public void setTextValue(CharSequence textValue) {
-        /* Only set text value when a hint is allowed to store text values. */
-        Preconditions.checkArgument(
-                AutofillHints.isValidTypeForHints(mAutofillHints, View.AUTOFILL_TYPE_TEXT),
-                "Text is invalid autofill type for hint(s) - %s",
-                Arrays.toString(mAutofillHints));
-        mTextValue = textValue.toString();
-    }
-
+    @Nullable
     public Long getDateValue() {
         return mDateValue;
     }
 
-    public void setDateValue(Long dateValue) {
-        /* Only set date value when a hint is allowed to store date values. */
-        Preconditions.checkArgument(
-                AutofillHints.isValidTypeForHints(mAutofillHints, View.AUTOFILL_TYPE_DATE),
-                "Date is invalid autofill type for hint(s) - %s"
-                , Arrays.toString(mAutofillHints));
-        mDateValue = dateValue;
-    }
-
+    @Nullable
     public Boolean getToggleValue() {
         return mToggleValue;
     }
 
-    public void setToggleValue(Boolean toggleValue) {
-        /* Only set toggle value when a hint is allowed to store toggle values. */
-        Preconditions.checkArgument(
-                AutofillHints.isValidTypeForHints(mAutofillHints, View.AUTOFILL_TYPE_TOGGLE),
-                "Toggle is invalid autofill type for hint(s) - %s",
-                Arrays.toString(mAutofillHints));
-        mToggleValue = toggleValue;
+    @NonNull
+    public String getHint() {
+        return mHint;
     }
 
     public boolean isNull() {

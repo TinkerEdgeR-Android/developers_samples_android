@@ -27,16 +27,16 @@ import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
+import com.example.android.autofill.service.util.Util;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-
-import static com.example.android.autofill.service.Util.bundleToString;
-import static com.example.android.autofill.service.Util.getSaveTypeAsString;
-import static com.example.android.autofill.service.Util.logd;
+import static com.example.android.autofill.service.util.Util.bundleToString;
+import static com.example.android.autofill.service.util.Util.getSaveTypeAsString;
+import static com.example.android.autofill.service.util.Util.logd;
 
 /**
  * This is a class containing helper methods for building Autofill Datasets and Responses.
@@ -58,26 +58,24 @@ public final class AutofillHelper {
     public static Dataset newDataset(Context context,
             AutofillFieldMetadataCollection autofillFields,
             FilledAutofillFieldCollection filledAutofillFieldCollection, boolean datasetAuth) {
-        String datasetName = filledAutofillFieldCollection.getDatasetName();
-        if (datasetName != null) {
-            Dataset.Builder datasetBuilder;
-            if (datasetAuth) {
-                datasetBuilder = new Dataset.Builder
-                        (newRemoteViews(context.getPackageName(), datasetName,
-                                R.drawable.ic_lock_black_24dp));
-                IntentSender sender =
-                        AuthActivity.getAuthIntentSenderForDataset(context, datasetName);
-                datasetBuilder.setAuthentication(sender);
-            } else {
-                datasetBuilder = new Dataset.Builder
-                        (newRemoteViews(context.getPackageName(), datasetName,
-                                R.drawable.ic_person_black_24dp));
-            }
-            boolean setValueAtLeastOnce =
-                    filledAutofillFieldCollection.applyToFields(autofillFields, datasetBuilder);
-            if (setValueAtLeastOnce) {
-                return datasetBuilder.build();
-            }
+        String datasetName = filledAutofillFieldCollection.getDataset().getDatasetName();
+        Dataset.Builder datasetBuilder;
+        if (datasetAuth) {
+            datasetBuilder = new Dataset.Builder
+                    (newRemoteViews(context.getPackageName(), datasetName,
+                            R.drawable.ic_lock_black_24dp));
+            IntentSender sender =
+                    AuthActivity.getAuthIntentSenderForDataset(context, datasetName);
+            datasetBuilder.setAuthentication(sender);
+        } else {
+            datasetBuilder = new Dataset.Builder
+                    (newRemoteViews(context.getPackageName(), datasetName,
+                            R.drawable.ic_person_black_24dp));
+        }
+        boolean setValueAtLeastOnce =
+                filledAutofillFieldCollection.applyToFields(autofillFields, datasetBuilder);
+        if (setValueAtLeastOnce) {
+            return datasetBuilder.build();
         }
         return null;
     }

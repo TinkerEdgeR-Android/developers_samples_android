@@ -1,6 +1,5 @@
 <resources>
     <string name="invalid_package_signature">Invalid package signature</string>
-    <string name="invalid_link_association">Could not associate web domain %1$s with app %2$s</string>
     <string name="autofill_sign_in_prompt">Tap to sign in.</string>
     <string name="settings_name">Autofill Settings</string>
     <string name="settings_cancel">Cancel</string>

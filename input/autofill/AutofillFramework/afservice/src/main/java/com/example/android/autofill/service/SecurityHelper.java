@@ -20,7 +20,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.common.net.InternetDomainName;
 
@@ -36,9 +35,9 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import static com.example.android.autofill.service.Util.logd;
-import static com.example.android.autofill.service.Util.logv;
-import static com.example.android.autofill.service.Util.logw;
+import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.logv;
+import static com.example.android.autofill.service.util.Util.logw;
 
 /**
  * Helper class for security checks.

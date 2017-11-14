@@ -15,8 +15,6 @@
  */
 package com.example.android.autofill.service.datasource;
 
-import android.content.Context;
-
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
 import java.util.HashMap;
@@ -28,17 +26,18 @@ public interface AutofillDataSource {
      * Gets saved FilledAutofillFieldCollection that contains some objects that can autofill fields
      * with these {@code autofillHints}.
      */
-    HashMap<String, FilledAutofillFieldCollection> getFilledAutofillFieldCollection(Context context,
-            List<String> focusedAutofillHints, List<String> allAutofillHints);
+    void getFilledAutofillFieldCollection(
+            List<String> focusedAutofillHints, List<String> allAutofillHints,
+            Callback<HashMap<String, FilledAutofillFieldCollection>> datasetsCallback);
 
     /**
      * Stores a collection of Autofill fields.
      */
-    void saveFilledAutofillFieldCollection(Context context,
-            FilledAutofillFieldCollection filledAutofillFieldCollection);
+    void saveFilledAutofillFieldCollection(FilledAutofillFieldCollection
+            filledAutofillFieldCollection);
 
     /**
      * Clears all data.
      */
-    void clear(Context context);
+    void clear();
 }

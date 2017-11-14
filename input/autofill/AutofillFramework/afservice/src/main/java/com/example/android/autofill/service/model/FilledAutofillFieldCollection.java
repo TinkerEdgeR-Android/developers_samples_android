@@ -17,138 +17,51 @@ package com.example.android.autofill.service.model;
 
 import android.service.autofill.Dataset;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillValue;
 
 import com.example.android.autofill.service.AutofillFieldMetadata;
 import com.example.android.autofill.service.AutofillFieldMetadataCollection;
-import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.W3cHints;
-import com.google.gson.annotations.Expose;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.android.autofill.service.Util.logd;
-import static com.example.android.autofill.service.Util.loge;
-import static com.example.android.autofill.service.Util.logw;
+import static com.example.android.autofill.service.util.Util.logw;
 
 /**
  * FilledAutofillFieldCollection is the model that holds all of the data on a client app's page,
  * plus the dataset name associated with it.
  */
 public final class FilledAutofillFieldCollection {
-    @Expose
+
     private final HashMap<String, FilledAutofillField> mHintMap;
-    @Expose
-    private String mDatasetName;
+    private final AutofillDataset mDataset;
 
-    public FilledAutofillFieldCollection() {
-        this(null, new HashMap<String, FilledAutofillField>());
-    }
-
-    public FilledAutofillFieldCollection(String datasetName, HashMap<String, FilledAutofillField> hintMap) {
-        mHintMap = hintMap;
-        mDatasetName = datasetName;
-    }
-
-    private static boolean isW3cSectionPrefix(String hint) {
-        return hint.startsWith(W3cHints.PREFIX_SECTION);
-    }
-
-    private static boolean isW3cAddressType(String hint) {
-        switch (hint) {
-            case W3cHints.SHIPPING:
-            case W3cHints.BILLING:
-                return true;
-        }
-        return false;
-    }
-
-    private static boolean isW3cTypePrefix(String hint) {
-        switch (hint) {
-            case W3cHints.PREFIX_WORK:
-            case W3cHints.PREFIX_FAX:
-            case W3cHints.PREFIX_HOME:
-            case W3cHints.PREFIX_PAGER:
-                return true;
-        }
-        return false;
-    }
-
-    private static boolean isW3cTypeHint(String hint) {
-        switch (hint) {
-            case W3cHints.TEL:
-            case W3cHints.TEL_COUNTRY_CODE:
-            case W3cHints.TEL_NATIONAL:
-            case W3cHints.TEL_AREA_CODE:
-            case W3cHints.TEL_LOCAL:
-            case W3cHints.TEL_LOCAL_PREFIX:
-            case W3cHints.TEL_LOCAL_SUFFIX:
-            case W3cHints.TEL_EXTENSION:
-            case W3cHints.EMAIL:
-            case W3cHints.IMPP:
-                return true;
-        }
-        logw("Invalid W3C type hint: %s", hint);
-        return false;
-    }
-
-    /**
-     * Returns the name of the {@link Dataset}.
-     */
-    public String getDatasetName() {
-        return mDatasetName;
-    }
-
-    /**
-     * Sets the {@link Dataset} name.
-     */
-    public void setDatasetName(String datasetName) {
-        mDatasetName = datasetName;
+    public FilledAutofillFieldCollection(AutofillDataset dataset) {
+        mDataset = dataset;
+        mHintMap = new HashMap<>();
     }
 
     /**
      * Adds a {@code FilledAutofillField} to the collection, indexed by all of its hints.
      */
     public void add(@NonNull FilledAutofillField filledAutofillField) {
-        String[] autofillHints = filledAutofillField.getAutofillHints();
-        String nextHint = null;
-        for (int i = 0; i < autofillHints.length; i++) {
-            String hint = autofillHints[i];
-            if (i < autofillHints.length - 1) {
-                nextHint = autofillHints[i + 1];
-            }
-            // First convert the compound W3C autofill hints
-            if (isW3cSectionPrefix(hint) && i < autofillHints.length - 1) {
-                hint = autofillHints[++i];
-                logd("Hint is a W3C section prefix; using %s instead", hint);
-                if (i < autofillHints.length - 1) {
-                    nextHint = autofillHints[i + 1];
-                }
-            }
-            if (isW3cTypePrefix(hint) && nextHint != null && isW3cTypeHint(nextHint)) {
-                hint = nextHint;
-                i++;
-                logd("Hint is a W3C type prefix; using %s instead", hint);
-            }
-            if (isW3cAddressType(hint) && nextHint != null) {
-                hint = nextHint;
-                i++;
-                logd("Hint is a W3C address prefix; using %s instead", hint);
-            }
+        mHintMap.put(filledAutofillField.getHint(), filledAutofillField);
+    }
 
-            // Then check if the "actual" hint is supported.
-
-
-            if (AutofillHints.isValidHint(hint)) {
-                mHintMap.put(hint, filledAutofillField);
-            } else {
-                loge("Invalid hint: %s", autofillHints[i]);
-            }
+    /**
+     * Adds a {@code List<FilledAutofillField>} to the collection, indexed by all of its hints.
+     */
+    public void add(@NonNull List<FilledAutofillField> filledAutofillFields) {
+        for (FilledAutofillField field : filledAutofillFields) {
+            add(field);
         }
+    }
+
+    public Collection<FilledAutofillField> getAllFields() {
+        return mHintMap.values();
     }
 
     /**
@@ -181,7 +94,8 @@ public final class FilledAutofillFieldCollection {
                 int autofillType = autofillFieldMetadata.getAutofillType();
                 switch (autofillType) {
                     case View.AUTOFILL_TYPE_LIST:
-                        int listValue = autofillFieldMetadata.getAutofillOptionIndex(filledAutofillField.getTextValue());
+                        int listValue = autofillFieldMetadata.getAutofillOptionIndex(
+                                filledAutofillField.getTextValue());
                         if (listValue != -1) {
                             datasetBuilder.setValue(autofillId, AutofillValue.forList(listValue));
                             setValueAtLeastOnce = true;
@@ -218,18 +132,7 @@ public final class FilledAutofillFieldCollection {
         return setValueAtLeastOnce;
     }
 
-    /**
-     * Takes in a list of autofill hints (autofillHints), usually associated with a View or set of
-     * Views. Returns whether any of the filled fields on the page have at least 1 of these
-     * autofillHints.
-     */
-    public boolean helpsWithHints(List<String> autofillHints) {
-        for (int i = 0; i < autofillHints.size(); i++) {
-            String autofillHint = autofillHints.get(i);
-            if (mHintMap.containsKey(autofillHint) && !mHintMap.get(autofillHint).isNull()) {
-                return true;
-            }
-        }
-        return false;
+    public AutofillDataset getDataset() {
+        return mDataset;
     }
 }

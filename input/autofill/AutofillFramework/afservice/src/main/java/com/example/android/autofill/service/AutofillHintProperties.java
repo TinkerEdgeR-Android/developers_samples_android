@@ -44,8 +44,8 @@ public final class AutofillHintProperties {
     /**
      * Generates dummy autofill field data that is relevant to the autofill hint.
      */
-    public FilledAutofillField generateFakeField(int seed) {
-        return mFakeFieldGenerator.generate(seed);
+    public FilledAutofillField generateFakeField(int seed, String datasetId) {
+        return mFakeFieldGenerator.generate(seed, datasetId);
     }
 
     /**

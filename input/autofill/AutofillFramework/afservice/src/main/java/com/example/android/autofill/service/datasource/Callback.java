@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service;
 
-import com.example.android.autofill.service.model.FilledAutofillField;
+package com.example.android.autofill.service.datasource;
 
-interface FakeFieldGenerator {
-    FilledAutofillField generate(int seed, String datasetId);
+public interface Callback<T> {
+    void onLoaded(T object);
+
+    void onDataNotAvailable(String msg);
 }

@@ -26,39 +26,51 @@ import android.service.autofill.FillRequest;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
-import com.example.android.autofill.service.datasource.SharedPrefsAutofillRepository;
-import com.example.android.autofill.service.datasource.SharedPrefsPackageVerificationRepository;
+import com.example.android.autofill.service.datasource.Callback;
+import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
+import com.example.android.autofill.service.datasource.local.SharedPrefsDigitalAssetLinksRepository;
+import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 import com.example.android.autofill.service.settings.MyPreferences;
+import com.example.android.autofill.service.util.AppExecutors;
+import com.example.android.autofill.service.util.Util;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.example.android.autofill.service.AutofillHelper.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
-import static com.example.android.autofill.service.Util.AUTOFILL_ID_FILTER;
-import static com.example.android.autofill.service.Util.bundleToString;
-import static com.example.android.autofill.service.Util.dumpStructure;
-import static com.example.android.autofill.service.Util.findNodeByFilter;
-import static com.example.android.autofill.service.Util.logVerboseEnabled;
-import static com.example.android.autofill.service.Util.logd;
-import static com.example.android.autofill.service.Util.logv;
-import static com.example.android.autofill.service.Util.logw;
+import static com.example.android.autofill.service.util.Util.AUTOFILL_ID_FILTER;
+import static com.example.android.autofill.service.util.Util.bundleToString;
+import static com.example.android.autofill.service.util.Util.dumpStructure;
+import static com.example.android.autofill.service.util.Util.findNodeByFilter;
+import static com.example.android.autofill.service.util.Util.logVerboseEnabled;
+import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.logv;
+import static com.example.android.autofill.service.util.Util.logw;
 
 public class MyAutofillService extends AutofillService {
 
-    @Override public void onCreate() {
+    private LocalAutofillDataSource mLocalAutofillDataSource;
+    private SharedPrefsDigitalAssetLinksRepository mDalRepository;
+
+    @Override
+    public void onCreate() {
         super.onCreate();
         Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
+        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this, new AppExecutors());
+        mDalRepository = SharedPrefsDigitalAssetLinksRepository.getInstance();
     }
 
     @Override
-    public void onFillRequest(FillRequest request, CancellationSignal cancellationSignal,
-            FillCallback callback) {
+    public void onFillRequest(@NonNull FillRequest request,
+            @NonNull CancellationSignal cancellationSignal,
+            @NonNull FillCallback callback) {
         AssistStructure structure = request.getFillContexts()
                 .get(request.getFillContexts().size() - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
@@ -78,7 +90,8 @@ public class MyAutofillService extends AutofillService {
                 logw("Cancel autofill not implemented in this sample.")
         );
         // Parse AutoFill data in Activity
-        StructureParser parser = new StructureParser(getApplicationContext(), structure);
+        StructureParser parser = new StructureParser(getApplicationContext(), structure,
+                mLocalAutofillDataSource, mDalRepository);
         // TODO: try / catch on other places (onSave, auth activity, etc...)
         try {
             parser.parseForFill();
@@ -106,17 +119,28 @@ public class MyAutofillService extends AutofillService {
             callback.onSuccess(responseBuilder.build());
         } else {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
-            HashMap<String, FilledAutofillFieldCollection> clientFormDataMap =
-                    SharedPrefsAutofillRepository.getInstance().getFilledAutofillFieldCollection(
-                            this, autofillFields.getFocusedHints(), autofillFields.getAllHints());
-            FillResponse response = AutofillHelper.newResponse
-                    (this, clientState, datasetAuth, autofillFields, clientFormDataMap);
-            callback.onSuccess(response);
+            mLocalAutofillDataSource.getFilledAutofillFieldCollection(
+                    autofillFields.getFocusedHints(), autofillFields.getAllHints(),
+                    new Callback<HashMap<String, FilledAutofillFieldCollection>>() {
+                        @Override
+                        public void onLoaded(HashMap<String, FilledAutofillFieldCollection>
+                                clientFormDataMap) {
+                            FillResponse response = AutofillHelper.newResponse
+                                    (MyAutofillService.this, clientState, datasetAuth,
+                                            autofillFields, clientFormDataMap);
+                            callback.onSuccess(response);
+                        }
+
+                        @Override
+                        public void onDataNotAvailable(String msg) {
+                            logw(msg);
+                        }
+                    });
         }
     }
 
     @Override
-    public void onSaveRequest(SaveRequest request, SaveCallback callback) {
+    public void onSaveRequest(@NonNull SaveRequest request, @NonNull SaveCallback callback) {
         List<FillContext> fillContexts = request.getFillContexts();
         int size = fillContexts.size();
         AssistStructure structure = fillContexts.get(size - 1).getStructure();
@@ -168,11 +192,11 @@ public class MyAutofillService extends AutofillService {
             }
         }
 
-        StructureParser parser = new StructureParser(getApplicationContext(), structure);
+        StructureParser parser = new StructureParser(getApplicationContext(), structure,
+                mLocalAutofillDataSource, mDalRepository);
         parser.parseForSave();
         FilledAutofillFieldCollection filledAutofillFieldCollection = parser.getClientFormData();
-        SharedPrefsAutofillRepository.getInstance()
-                .saveFilledAutofillFieldCollection(this, filledAutofillFieldCollection);
+        mLocalAutofillDataSource.saveFilledAutofillFieldCollection(filledAutofillFieldCollection);
     }
 
     @Override

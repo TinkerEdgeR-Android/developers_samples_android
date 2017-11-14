@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.datasource;
+package com.example.android.autofill.service.datasource.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.android.autofill.service.SecurityHelper;
+import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
 
-import static com.example.android.autofill.service.Util.logd;
-import static com.example.android.autofill.service.Util.logw;
+import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.logw;
 
 public class SharedPrefsPackageVerificationRepository implements PackageVerificationDataSource {
 

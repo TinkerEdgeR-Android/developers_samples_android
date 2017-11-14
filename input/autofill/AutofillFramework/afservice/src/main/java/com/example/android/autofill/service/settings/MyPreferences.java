@@ -21,7 +21,7 @@ import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.support.annotation.NonNull;
 
-import com.example.android.autofill.service.Util;
+import com.example.android.autofill.service.util.Util;
 
 public class MyPreferences {
     private static final String RESPONSE_AUTH_KEY = "response_auth";

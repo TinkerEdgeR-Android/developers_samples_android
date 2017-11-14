@@ -26,24 +26,23 @@ import android.service.autofill.FillResponse;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.android.autofill.service.datasource.SharedPrefsAutofillRepository;
+import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
+import com.example.android.autofill.service.datasource.local.SharedPrefsDigitalAssetLinksRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 import com.example.android.autofill.service.settings.MyPreferences;
-
+import com.example.android.autofill.service.util.AppExecutors;
+import com.example.android.autofill.service.datasource.Callback;
 import java.util.HashMap;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
 import static android.view.autofill.AutofillManager.EXTRA_AUTHENTICATION_RESULT;
-import static com.example.android.autofill.service.Util.EXTRA_DATASET_NAME;
-import static com.example.android.autofill.service.Util.EXTRA_FOR_RESPONSE;
-import static com.example.android.autofill.service.Util.logw;
+import static com.example.android.autofill.service.util.Util.EXTRA_DATASET_NAME;
+import static com.example.android.autofill.service.util.Util.EXTRA_FOR_RESPONSE;
+import static com.example.android.autofill.service.util.Util.logw;
 
 
 /**
@@ -56,6 +55,8 @@ public class AuthActivity extends AppCompatActivity {
     // Unique id for dataset intents.
     private static int sDatasetPendingIntentId = 0;
 
+    private LocalAutofillDataSource mLocalAutofillDataSource;
+    private SharedPrefsDigitalAssetLinksRepository mDalRepository;
     private EditText mMasterPassword;
     private Intent mReplyIntent;
 
@@ -77,20 +78,14 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multidataset_service_auth_activity);
+        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this,
+                new AppExecutors());
+        mDalRepository = SharedPrefsDigitalAssetLinksRepository.getInstance();
         mMasterPassword = findViewById(R.id.master_password);
-        findViewById(R.id.login).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-
-        });
-        findViewById(R.id.cancel).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFailure();
-                AuthActivity.this.finish();
-            }
+        findViewById(R.id.login).setOnClickListener((view) -> login());
+        findViewById(R.id.cancel).setOnClickListener((view) -> {
+            onFailure();
+            AuthActivity.this.finish();
         });
     }
 
@@ -126,22 +121,35 @@ public class AuthActivity extends AppCompatActivity {
         boolean forResponse = intent.getBooleanExtra(EXTRA_FOR_RESPONSE, true);
         Bundle clientState = intent.getBundleExtra(AutofillManager.EXTRA_CLIENT_STATE);
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
-        StructureParser parser = new StructureParser(getApplicationContext(), structure);
+        StructureParser parser = new StructureParser(getApplicationContext(), structure,
+                mLocalAutofillDataSource, mDalRepository);
         parser.parseForFill();
         AutofillFieldMetadataCollection autofillFields = parser.getAutofillFields();
         int saveTypes = autofillFields.getSaveType();
         mReplyIntent = new Intent();
-        HashMap<String, FilledAutofillFieldCollection> clientFormDataMap =
-                SharedPrefsAutofillRepository.getInstance().getFilledAutofillFieldCollection
-                        (this, autofillFields.getFocusedHints(), autofillFields.getAllHints());
-        if (forResponse) {
-            setResponseIntent(AutofillHelper.newResponse
-                    (this, clientState, false, autofillFields, clientFormDataMap));
-        } else {
-            String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
-            setDatasetIntent(AutofillHelper.newDataset
-                    (this, autofillFields, clientFormDataMap.get(datasetName), false));
-        }
+
+        mLocalAutofillDataSource.getFilledAutofillFieldCollection(
+                autofillFields.getFocusedHints(), autofillFields.getAllHints(),
+                new Callback<HashMap<String, FilledAutofillFieldCollection>>() {
+                    @Override
+                    public void onLoaded(HashMap<String, FilledAutofillFieldCollection> clientFormDataMap) {
+                        if (forResponse) {
+                            setResponseIntent(AutofillHelper.newResponse
+                                    (AuthActivity.this, clientState, false,
+                                            autofillFields, clientFormDataMap));
+                        } else {
+                            String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
+                            setDatasetIntent(AutofillHelper.newDataset
+                                    (AuthActivity.this, autofillFields,
+                                            clientFormDataMap.get(datasetName), false));
+                        }
+                    }
+
+                    @Override
+                    public void onDataNotAvailable(String msg) {
+                        logw(msg);
+                    }
+                });
     }
 
     private void setResponseIntent(FillResponse fillResponse) {
