@@ -297,8 +297,8 @@ class MainActivity : AppCompatActivity(),
             findViewById<View>(R.id.encrypted_message).visibility = View.GONE
 
             val fragment = FingerprintAuthenticationDialogFragment()
-            fragment.cryptoObject = FingerprintManager.CryptoObject(cipher)
-            fragment.callback = this@MainActivity
+            fragment.setCryptoObject(FingerprintManager.CryptoObject(cipher))
+            fragment.setCallback(this@MainActivity)
 
             // Set up the crypto object for later, which will be authenticated by fingerprint usage.
             if (initCipher(cipher, keyName)) {
@@ -308,15 +308,15 @@ class MainActivity : AppCompatActivity(),
                 val useFingerprintPreference = sharedPreferences
                         .getBoolean(getString(R.string.use_fingerprint_to_authenticate_key), true)
                 if (useFingerprintPreference) {
-                    fragment.stage = Stage.FINGERPRINT
+                    fragment.setStage(Stage.FINGERPRINT)
                 } else {
-                    fragment.stage = Stage.PASSWORD
+                    fragment.setStage(Stage.PASSWORD)
                 }
             } else {
                 // This happens if the lock screen has been disabled or or a fingerprint was
                 // enrolled. Thus, show the dialog to authenticate with their password first and ask
                 // the user if they want to authenticate with a fingerprint in the future.
-                fragment.stage = Stage.NEW_FINGERPRINT_ENROLLED
+                fragment.setStage(Stage.NEW_FINGERPRINT_ENROLLED)
             }
             fragment.show(fragmentManager, DIALOG_FRAGMENT_TAG)
         }
