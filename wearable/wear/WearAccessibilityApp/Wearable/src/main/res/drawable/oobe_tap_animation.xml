@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/oobe_tap">
+    <target
+        android:animation="@anim/oobe_tap_rectangle_path_3_animation"
+        android:name="rectangle_path_3"/>
+    <target
+        android:animation="@anim/oobe_tap_ellipse_21_animation"
+        android:name="ellipse_21"/>
+    <target
+        android:animation="@anim/oobe_tap_path_23_animation"
+        android:name="path_23"/>
+    <target
+        android:animation="@anim/oobe_tap_ellipse_22_animation"
+        android:name="ellipse_22"/>
+    <target
+        android:animation="@anim/oobe_tap_path_24_animation"
+        android:name="path_24"/>
+</animated-vector>

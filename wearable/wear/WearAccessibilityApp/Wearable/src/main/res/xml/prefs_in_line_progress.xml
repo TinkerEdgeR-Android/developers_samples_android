@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_progress_screen"
+    android:title="@string/in_line_progress">
+    <SwitchPreference
+        android:key="pref_determinant_switch"
+        android:title="@string/determinant"/>
+    <com.example.android.wearable.wear.wearaccessibilityapp.CircledImageViewPreference
+        android:key="pref_circled_image_view"
+        android:title="@string/start"/>
+</PreferenceScreen>
