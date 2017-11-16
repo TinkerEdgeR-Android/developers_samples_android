@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/notifications">
+    <SwitchPreference
+        android:key="pref_action"
+        android:title="@string/inline_action"/>
+    <SwitchPreference
+        android:key="pref_avatar"
+        android:title="@string/avatar"/>
+    <Preference
+        android:key="pref_push_notification"
+        android:title="@string/push_notification"
+        android:icon="@drawable/arrow_circle"/>
+</PreferenceScreen>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="oobe_swipe_left_long_g"
+    android:width="190dp"
+    android:viewportWidth="190"
+    android:height="78dp"
+    android:viewportHeight="78" >
+    <group
+        android:name="swipeuptrace_2"
+        android:translateX="153.575"
+        android:translateY="39"
+        android:scaleX="1.82"
+        android:scaleY="1.82"
+        android:rotation="270" >
+        <group
+            android:name="swipeuptrace_pivot_2"
+            android:translateX="-1.95508"
+            android:translateY="111.925" >
+            <group
+                android:name="ellipse_7"
+                android:translateX="1.95508"
+                android:translateY="-111.77148"
+                android:scaleX="0.75"
+                android:scaleY="0.75" >
+                <path
+                    android:name="path_7"
+                    android:pathData="M 0.0,-20.5 c 11.3218383789,0.0 20.5,9.17816162109 20.5,20.5 c 0.0,11.3218383789 -9.17816162109,20.5 -20.5,20.5 c -11.3218383789,0.0 -20.5,-9.17816162109 -20.5,-20.5 c 0.0,-11.3218383789 9.17816162109,-20.5 20.5,-20.5 Z"
+                    android:fillColor="#FF000000"
+                    android:fillAlpha="0" />
+            </group>
+        </group>
+    </group>
+    <group
+        android:name="swipeupbluecircle_2"
+        android:translateX="153.575"
+        android:translateY="39"
+        android:rotation="270" >
+        <group
+            android:name="swipeupbluecircle_pivot_2"
+            android:translateX="-1.95508"
+            android:translateY="111.925" >
+            <group
+                android:name="ellipse_8"
+                android:translateX="1.95508"
+                android:translateY="-111.77148"
+                android:scaleX="0.2"
+                android:scaleY="0.2" >
+                <path
+                    android:name="path_8"
+                    android:pathData="M 0.0,-20.5 c 11.3218383789,0.0 20.5,9.17816162109 20.5,20.5 c 0.0,11.3218383789 -9.17816162109,20.5 -20.5,20.5 c -11.3218383789,0.0 -20.5,-9.17816162109 -20.5,-20.5 c 0.0,-11.3218383789 9.17816162109,-20.5 20.5,-20.5 Z"
+                    android:fillColor="#FF5E97F6"
+                    android:fillAlpha="0" />
+            </group>
+        </group>
+    </group>
+</vector>
