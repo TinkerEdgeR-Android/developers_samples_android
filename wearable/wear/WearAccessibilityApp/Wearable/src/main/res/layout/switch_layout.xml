@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/switch_widget_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+    <Switch
+        android:id="@+id/switch_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:layout_marginStart="?android:listPreferredItemPaddingStart"
+        android:clickable="false">
+    </Switch>
+    <TextView
+        android:id="@+id/switch_text"
+        android:text="@string/switch_name"
+        android:textAppearance="@style/android:TextAppearance.Material.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"/>
+</LinearLayout>

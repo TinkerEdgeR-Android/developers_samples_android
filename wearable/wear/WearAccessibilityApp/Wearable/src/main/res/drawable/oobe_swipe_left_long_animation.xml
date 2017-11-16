@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/oobe_swipe_left_long" >
+    <target
+        android:name="swipeuptrace_2"
+        android:animation="@anim/oobe_swipe_left_long_g_swipeuptrace_2_animation" />
+    <target
+        android:name="ellipse_7"
+        android:animation="@anim/oobe_swipe_left_long_g_ellipse_7_animation" />
+    <target
+        android:name="path_7"
+        android:animation="@anim/oobe_swipe_left_long_g_path_7_animation" />
+    <target
+        android:name="swipeupbluecircle_2"
+        android:animation="@anim/oobe_swipe_left_long_g_swipeupbluecircle_2_animation" />
+    <target
+        android:name="ellipse_8"
+        android:animation="@anim/oobe_swipe_left_long_g_ellipse_8_animation" />
+    <target
+        android:name="path_8"
+        android:animation="@anim/oobe_swipe_left_long_g_path_8_animation" />
+</animated-vector>
