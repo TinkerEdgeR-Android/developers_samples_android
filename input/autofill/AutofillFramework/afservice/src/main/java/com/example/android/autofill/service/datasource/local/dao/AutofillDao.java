@@ -20,6 +20,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.support.annotation.NonNull;
 
 import com.example.android.autofill.service.model.AutofillDataset;
 import com.example.android.autofill.service.model.FilledAutofillField;
@@ -71,6 +72,27 @@ public interface AutofillDao {
                 FilledAutofillField filledAutofillField) {
             this.dataset = dataset;
             this.filledAutofillField = filledAutofillField;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            AutofillDatasetField that = (AutofillDatasetField) o;
+
+            if (dataset != null ? !dataset.equals(that.dataset) : that.dataset != null)
+                return false;
+            return filledAutofillField != null ? filledAutofillField.equals(
+                    that.filledAutofillField) : that.filledAutofillField == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = dataset != null ? dataset.hashCode() : 0;
+            result = 31 * result + (filledAutofillField != null ?
+                    filledAutofillField.hashCode() : 0);
+            return result;
         }
     }
 }

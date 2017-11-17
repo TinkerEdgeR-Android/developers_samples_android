@@ -42,4 +42,22 @@ public class AutofillDataset {
     @NonNull public String getDatasetName() {
         return mDatasetName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AutofillDataset that = (AutofillDataset) o;
+
+        if (!mId.equals(that.mId)) return false;
+        return mDatasetName.equals(that.mDatasetName);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId.hashCode();
+        result = 31 * result + mDatasetName.hashCode();
+        return result;
+    }
 }
