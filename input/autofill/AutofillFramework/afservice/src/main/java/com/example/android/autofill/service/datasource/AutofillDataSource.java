@@ -28,7 +28,7 @@ public interface AutofillDataSource {
      */
     void getFilledAutofillFieldCollection(
             List<String> focusedAutofillHints, List<String> allAutofillHints,
-            Callback<HashMap<String, FilledAutofillFieldCollection>> datasetsCallback);
+            DataCallback<HashMap<String, FilledAutofillFieldCollection>> datasetsCallback);
 
     /**
      * Stores a collection of Autofill fields.

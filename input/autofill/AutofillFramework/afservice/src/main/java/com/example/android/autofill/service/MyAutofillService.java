@@ -31,9 +31,9 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
-import com.example.android.autofill.service.datasource.Callback;
+import com.example.android.autofill.service.datasource.DataCallback;
 import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
-import com.example.android.autofill.service.datasource.local.SharedPrefsDigitalAssetLinksRepository;
+import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 import com.example.android.autofill.service.settings.MyPreferences;
@@ -57,14 +57,14 @@ import static com.example.android.autofill.service.util.Util.logw;
 public class MyAutofillService extends AutofillService {
 
     private LocalAutofillDataSource mLocalAutofillDataSource;
-    private SharedPrefsDigitalAssetLinksRepository mDalRepository;
+    private DigitalAssetLinksRepository mDalRepository;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this, new AppExecutors());
-        mDalRepository = SharedPrefsDigitalAssetLinksRepository.getInstance();
+        mDalRepository = DigitalAssetLinksRepository.getInstance(this);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class MyAutofillService extends AutofillService {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
             mLocalAutofillDataSource.getFilledAutofillFieldCollection(
                     autofillFields.getFocusedHints(), autofillFields.getAllHints(),
-                    new Callback<HashMap<String, FilledAutofillFieldCollection>>() {
+                    new DataCallback<HashMap<String, FilledAutofillFieldCollection>>() {
                         @Override
                         public void onLoaded(HashMap<String, FilledAutofillFieldCollection>
                                 clientFormDataMap) {
@@ -132,8 +132,8 @@ public class MyAutofillService extends AutofillService {
                         }
 
                         @Override
-                        public void onDataNotAvailable(String msg) {
-                            logw(msg);
+                        public void onDataNotAvailable(String msg, Object... params) {
+                            logw(msg, params);
                         }
                     });
         }

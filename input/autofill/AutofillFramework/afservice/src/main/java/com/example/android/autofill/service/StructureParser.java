@@ -21,9 +21,12 @@ import android.app.assist.AssistStructure.WindowNode;
 import android.content.Context;
 import android.view.autofill.AutofillValue;
 
-import com.example.android.autofill.service.datasource.local.SharedPrefsDigitalAssetLinksRepository;
+import com.example.android.autofill.service.datasource.DataCallback;
+import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
 import com.example.android.autofill.service.model.AutofillDataset;
+import com.example.android.autofill.service.model.DalCheck;
+import com.example.android.autofill.service.model.DalInfo;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 
@@ -31,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.logw;
 
 /**
  * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an
@@ -41,15 +45,13 @@ final class StructureParser {
     private final AutofillFieldMetadataCollection mAutofillFields =
             new AutofillFieldMetadataCollection();
     private final LocalAutofillDataSource mLocalAutofillDataSource;
-    private final SharedPrefsDigitalAssetLinksRepository mDalRepository;
+    private final DigitalAssetLinksRepository mDalRepository;
     private final AssistStructure mStructure;
     private FilledAutofillFieldCollection mFilledAutofillFieldCollection;
-    private final Context mContext;
 
     StructureParser(Context context, AssistStructure structure,
             LocalAutofillDataSource localAutofillDataSource,
-            SharedPrefsDigitalAssetLinksRepository dalRepository) {
-        mContext = context;
+            DigitalAssetLinksRepository dalRepository) {
         mLocalAutofillDataSource = localAutofillDataSource;
         mDalRepository = dalRepository;
         mStructure = structure;
@@ -81,12 +83,27 @@ final class StructureParser {
         }
         if (webDomain.length() > 0) {
             String packageName = mStructure.getActivityComponent().getPackageName();
-            boolean valid = mDalRepository.isValid(mContext, webDomain.toString(), packageName);
-            if (!valid) {
-                throw new SecurityException(String.format(
-                        "Could not associate web domain %s with app %s", webDomain, packageName));
-            }
-            logd("Domain %s is valid for %s", webDomain, packageName);
+            mDalRepository.checkValid(new DalInfo(webDomain.toString(), packageName),
+                    new DataCallback<DalCheck>() {
+                @Override
+                public void onLoaded(DalCheck dalCheck) {
+                    if (dalCheck.linked) {
+                        logd("Domain %s is valid for %s", webDomain, packageName);
+                    } else {
+                        throw new SecurityException(String.format(
+                                "Could not associate web domain %s with app %s", webDomain,
+                                packageName));
+                    }
+                }
+
+                @Override
+                public void onDataNotAvailable(String msg, Object... params) {
+                    logw(msg, params);
+                    throw new SecurityException(String.format(
+                            "Could not associate web domain %s with app %s", webDomain,
+                            packageName));
+                }
+            });
         } else {
             logd("no web domain");
         }

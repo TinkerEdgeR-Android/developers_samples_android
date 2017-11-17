@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.android.autofill.service.datasource.AutofillDataSource;
-import com.example.android.autofill.service.datasource.Callback;
+import com.example.android.autofill.service.datasource.DataCallback;
 import com.example.android.autofill.service.datasource.local.dao.AutofillDao;
 import com.example.android.autofill.service.datasource.local.db.AutofillDatabase;
 import com.example.android.autofill.service.model.AutofillDataset;
@@ -63,7 +63,7 @@ public class LocalAutofillDataSource implements AutofillDataSource {
     @Override
     public void getFilledAutofillFieldCollection(List<String> focusedAutofillHints,
             List<String> allAutofillHints,
-            Callback<HashMap<String, FilledAutofillFieldCollection>> datasetsCallback) {
+            DataCallback<HashMap<String, FilledAutofillFieldCollection>> datasetsCallback) {
         mAppExecutors.diskIO().execute(() -> {
             List<AutofillDao.AutofillDatasetField> autofillDatasetFields =
                     mAutofillDao.getFilledAutofillFields(focusedAutofillHints, allAutofillHints);

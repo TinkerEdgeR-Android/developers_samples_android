@@ -30,12 +30,13 @@ import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.android.autofill.service.datasource.DataCallback;
+import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
-import com.example.android.autofill.service.datasource.local.SharedPrefsDigitalAssetLinksRepository;
 import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
-import com.example.android.autofill.service.datasource.Callback;
+
 import java.util.HashMap;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
@@ -56,7 +57,7 @@ public class AuthActivity extends AppCompatActivity {
     private static int sDatasetPendingIntentId = 0;
 
     private LocalAutofillDataSource mLocalAutofillDataSource;
-    private SharedPrefsDigitalAssetLinksRepository mDalRepository;
+    private DigitalAssetLinksRepository mDalRepository;
     private EditText mMasterPassword;
     private Intent mReplyIntent;
 
@@ -80,7 +81,7 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.multidataset_service_auth_activity);
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this,
                 new AppExecutors());
-        mDalRepository = SharedPrefsDigitalAssetLinksRepository.getInstance();
+        mDalRepository = DigitalAssetLinksRepository.getInstance(this);
         mMasterPassword = findViewById(R.id.master_password);
         findViewById(R.id.login).setOnClickListener((view) -> login());
         findViewById(R.id.cancel).setOnClickListener((view) -> {
@@ -130,9 +131,10 @@ public class AuthActivity extends AppCompatActivity {
 
         mLocalAutofillDataSource.getFilledAutofillFieldCollection(
                 autofillFields.getFocusedHints(), autofillFields.getAllHints(),
-                new Callback<HashMap<String, FilledAutofillFieldCollection>>() {
+                new DataCallback<HashMap<String, FilledAutofillFieldCollection>>() {
                     @Override
-                    public void onLoaded(HashMap<String, FilledAutofillFieldCollection> clientFormDataMap) {
+                    public void onLoaded(HashMap<String, FilledAutofillFieldCollection>
+                            clientFormDataMap) {
                         if (forResponse) {
                             setResponseIntent(AutofillHelper.newResponse
                                     (AuthActivity.this, clientState, false,
@@ -146,8 +148,8 @@ public class AuthActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onDataNotAvailable(String msg) {
-                        logw(msg);
+                    public void onDataNotAvailable(String msg, Object... params) {
+                        logw(msg, params);
                     }
                 });
     }
