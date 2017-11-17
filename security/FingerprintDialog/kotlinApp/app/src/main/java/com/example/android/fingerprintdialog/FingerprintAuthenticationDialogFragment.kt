@@ -50,13 +50,13 @@ class FingerprintAuthenticationDialogFragment : DialogFragment(),
     private lateinit var secondDialogButton: Button
     private lateinit var useFingerprintFutureCheckBox: CheckBox
 
-    internal lateinit var callback: Callback
-    internal lateinit var cryptoObject: FingerprintManager.CryptoObject
+    private lateinit var callback: Callback
+    private lateinit var cryptoObject: FingerprintManager.CryptoObject
     private lateinit var fingerprintUiHelper: FingerprintUiHelper
     private lateinit var inputMethodManager: InputMethodManager
     private lateinit var sharedPreferences: SharedPreferences
 
-    internal var stage = Stage.FINGERPRINT
+    private var stage = Stage.FINGERPRINT
 
     private val showKeyboardRunnable = Runnable {
         inputMethodManager.showSoftInput(passwordEditText, 0)
@@ -126,6 +126,18 @@ class FingerprintAuthenticationDialogFragment : DialogFragment(),
         super.onAttach(context)
         inputMethodManager = context.getSystemService(InputMethodManager::class.java)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    }
+
+    fun setCallback(callback: Callback) {
+        this.callback = callback
+    }
+
+    fun setCryptoObject(cryptoObject: FingerprintManager.CryptoObject) {
+        this.cryptoObject = cryptoObject
+    }
+
+    fun setStage(stage: Stage) {
+        this.stage = stage
     }
 
     /**
