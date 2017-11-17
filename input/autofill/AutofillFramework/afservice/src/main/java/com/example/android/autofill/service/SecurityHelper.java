@@ -41,11 +41,9 @@ public final class SecurityHelper {
     /**
      * Gets the fingerprint of the signed certificate of a package.
      */
-    public static String getFingerprint(Context context, String packageName) throws
+    public static String getFingerprint(PackageInfo packageInfo, String packageName) throws
             PackageManager.NameNotFoundException, IOException, NoSuchAlgorithmException,
             CertificateException {
-        PackageManager pm = context.getPackageManager();
-        PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
         Signature[] signatures = packageInfo.signatures;
         if (signatures.length != 1) {
             throw new SecurityException(packageName + " has " + signatures.length + " signatures");

@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.R;
+import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
 import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
@@ -51,6 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SET_DEFAULT = 1;
     private AutofillManager mAutofillManager;
     private LocalAutofillDataSource mLocalAutofillDataSource;
+    private PackageVerificationDataSource mPackageVerificationDataSource;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class SettingsActivity extends AppCompatActivity {
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this,
                 new AppExecutors());
         mAutofillManager = getSystemService(AutofillManager.class);
+        mPackageVerificationDataSource = SharedPrefsPackageVerificationRepository.getInstance(this);
 
         final MyPreferences preferences = MyPreferences.getInstance(this);
         setupSettingsSwitch(R.id.settings_auth_responses_container,
@@ -130,8 +133,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.settings_cancel, null)
                 .setPositiveButton(R.string.settings_ok, (dialog, which) -> {
                     mLocalAutofillDataSource.clear();
-                    SharedPrefsPackageVerificationRepository.getInstance()
-                            .clear(SettingsActivity.this);
+                    mPackageVerificationDataSource.clear();
                     MyPreferences.getInstance(SettingsActivity.this).clearCredentials();
                     dialog.dismiss();
                 })

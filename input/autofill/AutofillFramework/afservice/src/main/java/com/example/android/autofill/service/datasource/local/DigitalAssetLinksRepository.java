@@ -16,6 +16,8 @@
 package com.example.android.autofill.service.datasource.local;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
 import com.example.android.autofill.service.SecurityHelper;
@@ -90,7 +92,9 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
 
         final String fingerprint;
         try {
-            fingerprint = SecurityHelper.getFingerprint(mContext, packageName);
+            PackageManager pm = mContext.getPackageManager();
+            PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            fingerprint = SecurityHelper.getFingerprint(packageInfo, packageName);
         } catch (Exception e) {
             dalCheckDataCallback.onDataNotAvailable("Error getting fingerprint for %s",
                     packageName);
@@ -117,7 +121,8 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
                                 }
 
                                 @Override
-                                public void onFailure(Call<DalCheck> call, Throwable t) {
+                                public void onFailure(@NonNull Call<DalCheck> call,
+                                        @NonNull Throwable t) {
                                     dalCheckDataCallback.onDataNotAvailable(t.getMessage());
                                 }
                             });

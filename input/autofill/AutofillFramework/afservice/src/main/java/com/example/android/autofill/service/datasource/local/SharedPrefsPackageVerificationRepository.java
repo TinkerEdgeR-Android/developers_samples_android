@@ -17,6 +17,8 @@ package com.example.android.autofill.service.datasource.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import com.example.android.autofill.service.SecurityHelper;
 import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
@@ -30,57 +32,55 @@ public class SharedPrefsPackageVerificationRepository implements PackageVerifica
             + ".datasource.PackageVerificationDataSource";
     private static PackageVerificationDataSource sInstance;
 
-    private SharedPrefsPackageVerificationRepository() {
+    private final SharedPreferences mSharedPrefs;
+    private final Context mContext;
+
+    private SharedPrefsPackageVerificationRepository(Context context) {
+        mSharedPrefs = context.getApplicationContext()
+                .getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        mContext = context.getApplicationContext();
     }
 
-    public static PackageVerificationDataSource getInstance() {
+    public static PackageVerificationDataSource getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new SharedPrefsPackageVerificationRepository();
+            sInstance = new SharedPrefsPackageVerificationRepository(
+                    context.getApplicationContext());
         }
         return sInstance;
     }
 
     @Override
-    public void clear(Context context) {
-        context.getApplicationContext().getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .apply();
+    public void clear() {
+        mSharedPrefs.edit().clear().apply();
     }
 
     @Override
-    public boolean putPackageSignatures(Context context, String packageName) {
+    public boolean putPackageSignatures(String packageName) {
         String hash;
         try {
-            hash = SecurityHelper.getFingerprint(context, packageName);
+            PackageManager pm = mContext.getPackageManager();
+            PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            hash = SecurityHelper.getFingerprint(packageInfo, packageName);
             logd("Hash for %s: %s", packageName, hash);
         } catch (Exception e) {
             logw(e, "Error getting hash for %s.", packageName);
             return false;
         }
 
-        if (!containsSignatureForPackage(context, packageName)) {
+        if (!containsSignatureForPackage(packageName)) {
             // Storage does not yet contain signature for this package name.
-            context.getApplicationContext()
-                    .getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(packageName, hash)
-                    .apply();
+            mSharedPrefs.edit().putString(packageName, hash).apply();
             return true;
         }
-        return containsMatchingSignatureForPackage(context, packageName, hash);
+        return containsMatchingSignatureForPackage(packageName, hash);
     }
 
-    private boolean containsSignatureForPackage(Context context, String packageName) {
-        SharedPreferences prefs = context.getApplicationContext().getSharedPreferences(
-                SHARED_PREF_KEY, Context.MODE_PRIVATE);
-        return prefs.contains(packageName);
+    private boolean containsSignatureForPackage(String packageName) {
+        return mSharedPrefs.contains(packageName);
     }
 
-    private boolean containsMatchingSignatureForPackage(Context context, String packageName,
+    private boolean containsMatchingSignatureForPackage(String packageName,
             String hash) {
-        SharedPreferences prefs = context.getApplicationContext().getSharedPreferences(
-                SHARED_PREF_KEY, Context.MODE_PRIVATE);
-        return hash.equals(prefs.getString(packageName, null));
+        return hash.equals(mSharedPrefs.getString(packageName, null));
     }
 }

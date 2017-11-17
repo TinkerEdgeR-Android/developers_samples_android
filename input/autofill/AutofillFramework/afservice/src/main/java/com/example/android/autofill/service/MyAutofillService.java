@@ -32,6 +32,7 @@ import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.datasource.DataCallback;
+import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
 import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
 import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
@@ -58,6 +59,7 @@ public class MyAutofillService extends AutofillService {
 
     private LocalAutofillDataSource mLocalAutofillDataSource;
     private DigitalAssetLinksRepository mDalRepository;
+    private PackageVerificationDataSource mPackageVerificationRepository;
 
     @Override
     public void onCreate() {
@@ -65,6 +67,7 @@ public class MyAutofillService extends AutofillService {
         Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this, new AppExecutors());
         mDalRepository = DigitalAssetLinksRepository.getInstance(this);
+        mPackageVerificationRepository = SharedPrefsPackageVerificationRepository.getInstance(this);
     }
 
     @Override
@@ -74,8 +77,7 @@ public class MyAutofillService extends AutofillService {
         AssistStructure structure = request.getFillContexts()
                 .get(request.getFillContexts().size() - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
-        if (!SharedPrefsPackageVerificationRepository.getInstance()
-                .putPackageSignatures(getApplicationContext(), packageName)) {
+        if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(
                     getApplicationContext().getString(R.string.invalid_package_signature));
             return;
@@ -145,8 +147,7 @@ public class MyAutofillService extends AutofillService {
         int size = fillContexts.size();
         AssistStructure structure = fillContexts.get(size - 1).getStructure();
         String packageName = structure.getActivityComponent().getPackageName();
-        if (!SharedPrefsPackageVerificationRepository.getInstance()
-                .putPackageSignatures(getApplicationContext(), packageName)) {
+        if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
             return;
         }
