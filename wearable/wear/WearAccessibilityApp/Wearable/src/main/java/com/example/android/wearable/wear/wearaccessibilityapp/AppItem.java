@@ -25,8 +25,8 @@ public class AppItem {
     private final int mViewType;
     private final Class mClass;
 
-    public AppItem(String itemName, int imageId, int viewType, Class<?
-            extends WearableActivity> clazz) {
+    public AppItem(
+            String itemName, int imageId, int viewType, Class<? extends WearableActivity> clazz) {
         mItemName = itemName;
         mImageId = imageId;
         mViewType = viewType;

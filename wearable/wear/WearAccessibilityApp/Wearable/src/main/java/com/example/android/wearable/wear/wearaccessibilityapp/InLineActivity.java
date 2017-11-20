@@ -28,7 +28,8 @@ public class InLineActivity extends WearableActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager().beginTransaction()
+        getFragmentManager()
+                .beginTransaction()
                 .replace(android.R.id.content, new InLinePrefFragment())
                 .commit();
     }
@@ -46,35 +47,38 @@ public class InLineActivity extends WearableActivity {
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.prefs_in_line_progress);
 
-            mDeterminantSwitchPref = (SwitchPreference) findPreference(
-                    getString(R.string.key_pref_determinant_switch));
+            mDeterminantSwitchPref =
+                    (SwitchPreference)
+                            findPreference(getString(R.string.key_pref_determinant_switch));
             mDeterminantSwitchPref.setChecked(true);
 
-            mCircledImageViewPref = (CircledImageViewPreference)
-                    findPreference(getString(R.string.key_pref_circled_image_view));
+            mCircledImageViewPref =
+                    (CircledImageViewPreference)
+                            findPreference(getString(R.string.key_pref_circled_image_view));
 
-            mPreferenceScreen = (PreferenceScreen) findPreference(
-                    getString(R.string.key_pref_progress_screen));
+            mPreferenceScreen =
+                    (PreferenceScreen) findPreference(getString(R.string.key_pref_progress_screen));
 
             mProgressBarPreference = new ProgressBarPreference(getContext());
             mProgressBarPreference.setTitle("@string/indeterminant_progress");
 
-            mDeterminantSwitchPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mDeterminantSwitchPref.setChecked(!mDeterminantSwitchPref.isChecked());
-                    if (mDeterminantSwitchPref.isChecked()) {
-                        mCircledImageViewPref.cancelCountDownTimer();
-                        mCircledImageViewPref.setStartCircledImageView();
-                        mPreferenceScreen.removePreference(mProgressBarPreference);
-                        mPreferenceScreen.addPreference(mCircledImageViewPref);
-                    } else {
-                        mPreferenceScreen.removePreference(mCircledImageViewPref);
-                        mPreferenceScreen.addPreference(mProgressBarPreference);
-                    }
-                    return true;
-                }
-            });
+            mDeterminantSwitchPref.setOnPreferenceChangeListener(
+                    new OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            mDeterminantSwitchPref.setChecked(!mDeterminantSwitchPref.isChecked());
+                            if (mDeterminantSwitchPref.isChecked()) {
+                                mCircledImageViewPref.cancelCountDownTimer();
+                                mCircledImageViewPref.setStartCircledImageView();
+                                mPreferenceScreen.removePreference(mProgressBarPreference);
+                                mPreferenceScreen.addPreference(mCircledImageViewPref);
+                            } else {
+                                mPreferenceScreen.removePreference(mCircledImageViewPref);
+                                mPreferenceScreen.addPreference(mProgressBarPreference);
+                            }
+                            return true;
+                        }
+                    });
         }
     }
 }

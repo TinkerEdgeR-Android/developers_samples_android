@@ -40,7 +40,8 @@ public class NotificationsActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
+        getFragmentManager()
+                .beginTransaction()
                 .replace(android.R.id.content, new NotificationsPrefsFragment())
                 .commit();
     }
@@ -49,8 +50,8 @@ public class NotificationsActivity extends WearableActivity {
 
         private static final String TAG = "NotificationsActivity";
         private NotificationManagerCompat mNotificationManagerCompat;
-        private boolean mActionOn;   //if true, displays in-line action
-        private boolean mAvatarOn;   //if true, displays avatar of messenger
+        private boolean mActionOn; // if true, displays in-line action
+        private boolean mAvatarOn; // if true, displays avatar of messenger
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -61,12 +62,12 @@ public class NotificationsActivity extends WearableActivity {
 
             mNotificationManagerCompat = NotificationManagerCompat.from(getActivity());
 
-            final SwitchPreference mActionSwitchPref = (SwitchPreference) findPreference(
-                    getString(R.string.key_pref_action));
-            final SwitchPreference mAvatarSwitchPref = (SwitchPreference) findPreference(
-                    getString(R.string.key_pref_avatar));
-            Preference mPushNotificationPref = findPreference(
-                    getString(R.string.key_pref_push_notification));
+            final SwitchPreference mActionSwitchPref =
+                    (SwitchPreference) findPreference(getString(R.string.key_pref_action));
+            final SwitchPreference mAvatarSwitchPref =
+                    (SwitchPreference) findPreference(getString(R.string.key_pref_avatar));
+            Preference mPushNotificationPref =
+                    findPreference(getString(R.string.key_pref_push_notification));
 
             initInLineAction(mActionSwitchPref);
             initAvatar(mAvatarSwitchPref);
@@ -76,56 +77,59 @@ public class NotificationsActivity extends WearableActivity {
         public void initInLineAction(SwitchPreference switchPref) {
             switchPref.setChecked(true);
             mActionOn = switchPref.isChecked();
-            switchPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mActionOn = (Boolean) newValue;
-                    return true;
-                }
-            });
+            switchPref.setOnPreferenceChangeListener(
+                    new OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            mActionOn = (Boolean) newValue;
+                            return true;
+                        }
+                    });
         }
 
         public void initAvatar(SwitchPreference switchPref) {
             switchPref.setChecked(true);
             mAvatarOn = switchPref.isChecked();
-            switchPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mAvatarOn = (Boolean) newValue;
-                    return true;
-                }
-            });
+            switchPref.setOnPreferenceChangeListener(
+                    new OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            mAvatarOn = (Boolean) newValue;
+                            return true;
+                        }
+                    });
         }
 
         public void initPushNotification(Preference pref) {
-            pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    generateMessagingStyleNotification();
-                    return true;
-                }
-            });
+            pref.setOnPreferenceClickListener(
+                    new OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            generateMessagingStyleNotification();
+                            return true;
+                        }
+                    });
         }
 
         /*
-        * Generates a MESSAGING_STYLE Notification that supports both Wear 1.+ and Wear 2.0. For
-        * devices on API level 24 (Wear 2.0) and after, displays MESSAGING_STYLE. Otherwise,
-        * displays a basic BIG_TEXT_STYLE.
-        *
-        * IMPORTANT NOTE:
-        * Notification Styles behave slightly different on Wear 2.0 when they are launched by a
-        * native/local Wear app, i.e., they will NOT expand when the user taps them but will
-        * instead take the user directly into the local app for the richest experience. In
-        * contrast, a bridged Notification launched from the phone will expand with the style
-        * details (whether there is a local app or not).
-        *
-        * If you want to enable an action on your Notification without launching the app, you can
-        * do so with the setHintDisplayActionInline() feature (shown below), but this only allows
-        * one action.
-        *
-        * If you wish to replicate the original experience of a bridged notification, please
-        * review the generateBigTextStyleNotification() method above to see how.
-        */
+         * Generates a MESSAGING_STYLE Notification that supports both Wear 1.+ and Wear 2.0. For
+         * devices on API level 24 (Wear 2.0) and after, displays MESSAGING_STYLE. Otherwise,
+         * displays a basic BIG_TEXT_STYLE.
+         *
+         * IMPORTANT NOTE:
+         * Notification Styles behave slightly different on Wear 2.0 when they are launched by a
+         * native/local Wear app, i.e., they will NOT expand when the user taps them but will
+         * instead take the user directly into the local app for the richest experience. In
+         * contrast, a bridged Notification launched from the phone will expand with the style
+         * details (whether there is a local app or not).
+         *
+         * If you want to enable an action on your Notification without launching the app, you can
+         * do so with the setHintDisplayActionInline() feature (shown below), but this only allows
+         * one action.
+         *
+         * If you wish to replicate the original experience of a bridged notification, please
+         * review the generateBigTextStyleNotification() method above to see how.
+         */
         private void generateMessagingStyleNotification() {
             Log.d(TAG, "generateMessagingStyleNotification()");
 
@@ -143,12 +147,14 @@ public class NotificationsActivity extends WearableActivity {
             // 1. Build the Notification.Style (MESSAGING_STYLE)
             String contentTitle = messagingStyleCommsAppData.getContentTitle();
 
-            MessagingStyle messagingStyle = new NotificationCompat
-                    .MessagingStyle(messagingStyleCommsAppData.getReplayName())
-                    // You could set a different title to appear when the messaging style
-                    // is supported on device (24+) if you wish. In our case, we use the same
-                    // title.
-                    .setConversationTitle(contentTitle);
+            MessagingStyle messagingStyle =
+                    new NotificationCompat.MessagingStyle(
+                                    messagingStyleCommsAppData.getReplayName())
+                            // You could set a different title to appear when the messaging style
+                            // is supported on device (24+) if you wish. In our case, we use the
+                            // same
+                            // title.
+                            .setConversationTitle(contentTitle);
 
             // Adds all Messages
             // Note: Messages include the text, timestamp, and sender
@@ -161,21 +167,17 @@ public class NotificationsActivity extends WearableActivity {
 
             PendingIntent mainPendingIntent =
                     PendingIntent.getActivity(
-                            getActivity(),
-                            0,
-                            notifyIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
-
+                            getActivity(), 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             // 3. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice)
             // directly from the notification without entering the app.
 
             // Create the RemoteInput specifying this key.
             String replyLabel = getString(R.string.reply_label);
-            RemoteInput remoteInput = new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
-                    .setLabel(replyLabel)
-                    .build();
+            RemoteInput remoteInput =
+                    new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
+                            .setLabel(replyLabel)
+                            .build();
 
             // Create PendingIntent for service that handles input.
             Intent replyIntent = new Intent(getActivity(), MessagingIntentService.class);
@@ -190,17 +192,15 @@ public class NotificationsActivity extends WearableActivity {
                             .setHintDisplayActionInline(mActionOn)
                             .setHintLaunchesActivity(false);
 
-            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                    R.drawable.reply,
-                    replyLabel,
-                    replyActionPendingIntent)
-                    .addRemoteInput(remoteInput)
-                    // Allows system to generate replies by context of conversation
-                    .setAllowGeneratedReplies(true)
-                    // Add WearableExtender to enable inline actions
-                    .extend(inlineActionForWear2)
-                    .build();
-
+            NotificationCompat.Action replyAction =
+                    new NotificationCompat.Action.Builder(
+                                    R.drawable.reply, replyLabel, replyActionPendingIntent)
+                            .addRemoteInput(remoteInput)
+                            // Allows system to generate replies by context of conversation
+                            .setAllowGeneratedReplies(true)
+                            // Add WearableExtender to enable inline actions
+                            .extend(inlineActionForWear2)
+                            .build();
 
             // 4. Build and issue the notification
 
@@ -211,8 +211,8 @@ public class NotificationsActivity extends WearableActivity {
             NotificationCompat.Builder notificationCompatBuilder =
                     new NotificationCompat.Builder(getActivity());
 
-            GlobalNotificationBuilder
-                    .setNotificationCompatBuilderInstance(notificationCompatBuilder);
+            GlobalNotificationBuilder.setNotificationCompatBuilderInstance(
+                    notificationCompatBuilder);
 
             // Builds and issues notification
             notificationCompatBuilder
@@ -224,9 +224,8 @@ public class NotificationsActivity extends WearableActivity {
                     .setContentIntent(mainPendingIntent)
 
                     // Number of new notifications for API <24 (Wear 1.+) devices
-                    .setSubText(Integer.toString(messagingStyleCommsAppData
-                            .getNumberOfNewMessages()))
-
+                    .setSubText(
+                            Integer.toString(messagingStyleCommsAppData.getNumberOfNewMessages()))
                     .addAction(replyAction)
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setPriority(Notification.PRIORITY_HIGH)
@@ -234,9 +233,9 @@ public class NotificationsActivity extends WearableActivity {
                     // Hides content on the lock-screen
                     .setVisibility(Notification.VISIBILITY_PRIVATE);
 
-            notificationCompatBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                    mAvatarOn ? R.drawable.avatar : R.drawable.watch));
-
+            notificationCompatBuilder.setLargeIcon(
+                    BitmapFactory.decodeResource(
+                            getResources(), mAvatarOn ? R.drawable.avatar : R.drawable.watch));
 
             // If the phone is in "Do not disturb mode, the user will still be notified if
             // the sender(s) is starred as a favorite.

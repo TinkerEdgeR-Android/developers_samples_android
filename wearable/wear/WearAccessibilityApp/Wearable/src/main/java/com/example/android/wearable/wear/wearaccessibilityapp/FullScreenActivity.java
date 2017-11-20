@@ -25,5 +25,4 @@ public class FullScreenActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen_progress);
     }
-
 }

@@ -31,19 +31,19 @@ public class OpenOnPhoneAnimationActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_open_on_phone_animation);
 
-        mAnimationCallback = new AnimationCallback() {
-            @Override
-            public void onAnimationEnd(Drawable drawable) {
-                super.onAnimationEnd(drawable);
-                // Go back to main Dialogs screen after animation.
-                finish();
-            }
-        };
+        mAnimationCallback =
+                new AnimationCallback() {
+                    @Override
+                    public void onAnimationEnd(Drawable drawable) {
+                        super.onAnimationEnd(drawable);
+                        // Go back to main Dialogs screen after animation.
+                        finish();
+                    }
+                };
 
         // Play 'swipe left' animation only once.
         ImageView phoneImage = findViewById(R.id.open_on_phone_animation_image);
-        mAnimatedVectorDrawablePhone =
-                (AnimatedVectorDrawable) phoneImage.getDrawable();
+        mAnimatedVectorDrawablePhone = (AnimatedVectorDrawable) phoneImage.getDrawable();
         mAnimatedVectorDrawablePhone.registerAnimationCallback(mAnimationCallback);
         mAnimatedVectorDrawablePhone.start();
     }

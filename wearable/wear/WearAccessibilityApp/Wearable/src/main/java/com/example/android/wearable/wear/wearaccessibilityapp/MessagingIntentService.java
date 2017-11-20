@@ -41,7 +41,6 @@ public class MessagingIntentService extends IntentService {
     public static final String EXTRA_REPLY =
             "com.example.android.wearable.wear.wearnotifications.handlers.extra.REPLY";
 
-
     public MessagingIntentService() {
         super("MessagingIntentService");
     }
@@ -58,9 +57,7 @@ public class MessagingIntentService extends IntentService {
         }
     }
 
-    /**
-     * Handles action for replying to messages from the notification.
-     */
+    /** Handles action for replying to messages from the notification. */
     private void handleActionReply(CharSequence replyCharSequence) {
         Log.d(TAG, "handleActionReply(): " + replyCharSequence);
 
@@ -96,21 +93,18 @@ public class MessagingIntentService extends IntentService {
                 notificationCompatBuilder = recreateBuilderWithMessagingStyle();
             }
 
-
             // Since we are adding to the MessagingStyle, we need to first retrieve the
             // current MessagingStyle from the Notification itself.
             Notification notification = notificationCompatBuilder.build();
             MessagingStyle messagingStyle =
-                    NotificationCompat.MessagingStyle
-                            .extractMessagingStyleFromNotification(notification);
+                    NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(
+                            notification);
 
             // Add new message to the MessagingStyle
             messagingStyle.addMessage(replyCharSequence, System.currentTimeMillis(), null);
 
             // Updates the Notification
-            notification = notificationCompatBuilder
-                    .setStyle(messagingStyle)
-                    .build();
+            notification = notificationCompatBuilder.setStyle(messagingStyle).build();
 
             // Pushes out the updated Notification
             NotificationManagerCompat notificationManagerCompat =
@@ -161,16 +155,18 @@ public class MessagingIntentService extends IntentService {
             messagingStyle.addMessage(message);
         }
 
-
         // 2. Add support for Wear 1.+.
         String fullMessageForWearVersion1 = messagingStyleCommsAppData.getFullConversation();
 
-        Notification chatHistoryForWearV1 = new NotificationCompat.Builder(getApplicationContext())
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(fullMessageForWearVersion1))
-                .setContentTitle(contentTitle)
-                .setSmallIcon(R.drawable.watch)
-                .setContentText(fullMessageForWearVersion1)
-                .build();
+        Notification chatHistoryForWearV1 =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setStyle(
+                                new NotificationCompat.BigTextStyle()
+                                        .bigText(fullMessageForWearVersion1))
+                        .setContentTitle(contentTitle)
+                        .setSmallIcon(R.drawable.watch)
+                        .setContentText(fullMessageForWearVersion1)
+                        .build();
 
         // Adds page with all text to support Wear 1.+.
         NotificationCompat.WearableExtender wearableExtenderForWearVersion1 =
@@ -182,20 +178,15 @@ public class MessagingIntentService extends IntentService {
         Intent notifyIntent = new Intent(this, MessagingMainActivity.class);
 
         PendingIntent mainPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
+                PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // 4. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice) directly
         // from the notification without entering the app.
         String replyLabel = getString(R.string.reply_label);
-        RemoteInput remoteInput = new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
-                .setLabel(replyLabel)
-                .build();
+        RemoteInput remoteInput =
+                new RemoteInput.Builder(MessagingIntentService.EXTRA_REPLY)
+                        .setLabel(replyLabel)
+                        .build();
 
         Intent replyIntent = new Intent(this, MessagingIntentService.class);
         replyIntent.setAction(MessagingIntentService.ACTION_REPLY);
@@ -210,16 +201,13 @@ public class MessagingIntentService extends IntentService {
 
         NotificationCompat.Action replyAction =
                 new NotificationCompat.Action.Builder(
-                        R.drawable.reply,
-                        replyLabel,
-                        replyActionPendingIntent)
+                                R.drawable.reply, replyLabel, replyActionPendingIntent)
                         .addRemoteInput(remoteInput)
                         // Allows system to generate replies by context of conversation
                         .setAllowGeneratedReplies(true)
                         // Add WearableExtender to enable inline actions
                         .extend(inlineActionForWear2_0)
                         .build();
-
 
         // 5. Build and issue the notification
         NotificationCompat.Builder notificationCompatBuilder =
@@ -233,9 +221,7 @@ public class MessagingIntentService extends IntentService {
                 .setContentTitle(contentTitle)
                 .setContentText(messagingStyleCommsAppData.getContentText())
                 .setSmallIcon(R.drawable.watch)
-                .setLargeIcon(BitmapFactory.decodeResource(
-                        getResources(),
-                        R.drawable.avatar))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.avatar))
                 .setContentIntent(mainPendingIntent)
                 .setSubText(Integer.toString(messagingStyleCommsAppData.getNumberOfNewMessages()))
                 .addAction(replyAction)
