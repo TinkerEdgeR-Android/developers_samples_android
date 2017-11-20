@@ -32,12 +32,11 @@ public class ProgressBarPreference extends Preference {
         super(context);
     }
 
-
     @Override
     protected View onCreateView(ViewGroup parent) {
         super.onCreateView(parent);
-        LayoutInflater inflater = (LayoutInflater) getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater =
+                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(R.layout.progress_bar_with_text_layout, parent, false);
     }
 }

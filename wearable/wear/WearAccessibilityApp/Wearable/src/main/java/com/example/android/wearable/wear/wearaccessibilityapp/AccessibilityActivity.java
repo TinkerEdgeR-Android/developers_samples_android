@@ -36,11 +36,14 @@ public class AccessibilityActivity extends WearableActivity {
         TextView accessibilityText = findViewById(R.id.icon_text_view);
         accessibilityText.setText(R.string.accessibility_settings);
 
-        findViewById(R.id.accessibility_button_include).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), 0);
-            }
-        });
+        findViewById(R.id.accessibility_button_include)
+                .setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivityForResult(
+                                        new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), 0);
+                            }
+                        });
     }
 }
