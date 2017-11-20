@@ -28,8 +28,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class LongListRecyclerViewAdapter extends
-    RecyclerView.Adapter<LongListRecyclerViewAdapter.Holder> {
+public class LongListRecyclerViewAdapter
+        extends RecyclerView.Adapter<LongListRecyclerViewAdapter.Holder> {
 
     // For custom listener.
     public interface SwitchChangeListener {
@@ -43,8 +43,8 @@ public class LongListRecyclerViewAdapter extends
     private Switch mSwitchWidget;
     private Context mContext;
 
-    public LongListRecyclerViewAdapter(Context context, List<AppItem> items,
-                                       SwitchChangeListener switchChangeListener) {
+    public LongListRecyclerViewAdapter(
+            Context context, List<AppItem> items, SwitchChangeListener switchChangeListener) {
         mContext = context;
         mItems = items;
         mInflater = LayoutInflater.from(context);
@@ -71,23 +71,29 @@ public class LongListRecyclerViewAdapter extends
 
                 mSwitchWidget = view.findViewById(R.id.switch_widget);
 
-                view.setContentDescription(mContext.getResources().
-                        getString(R.string.switch_bottom_action_drawer,
-                        getSwitchToggleString(mSwitchWidget.isChecked())));
+                view.setContentDescription(
+                        mContext.getResources()
+                                .getString(
+                                        R.string.switch_bottom_action_drawer,
+                                        getSwitchToggleString(mSwitchWidget.isChecked())));
 
                 // Set the OnClickListener (Observer pattern used here).
-                view.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mSwitchWidget.setChecked(!(mSwitchWidget.isChecked()));
-                        if (mSwitchChangeListener != null) {
-                            mSwitchChangeListener.onChange(mSwitchWidget.isChecked());
-                        }
-                        view.setContentDescription(mContext.getResources().
-                                getString(R.string.switch_bottom_action_drawer,
-                                getSwitchToggleString(mSwitchWidget.isChecked())));
-                    }
-                });
+                view.setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mSwitchWidget.setChecked(!(mSwitchWidget.isChecked()));
+                                if (mSwitchChangeListener != null) {
+                                    mSwitchChangeListener.onChange(mSwitchWidget.isChecked());
+                                }
+                                view.setContentDescription(
+                                        mContext.getResources()
+                                                .getString(
+                                                        R.string.switch_bottom_action_drawer,
+                                                        getSwitchToggleString(
+                                                                mSwitchWidget.isChecked())));
+                            }
+                        });
                 break;
             case SampleAppConstants.HEADER_FOOTER:
                 view = mInflater.inflate(R.layout.header_footer_layout, parent, false);
@@ -153,9 +159,7 @@ public class LongListRecyclerViewAdapter extends
             mImageView = itemView.findViewById(R.id.shifted_icon_image_view);
         }
 
-        /**
-         * Bind appItem info to main screen (displays the item).
-         */
+        /** Bind appItem info to main screen (displays the item). */
         public void bind(AppItem item) {
             mTextView.setText(item.getItemName());
             mImageView.setImageResource(item.getImageId());

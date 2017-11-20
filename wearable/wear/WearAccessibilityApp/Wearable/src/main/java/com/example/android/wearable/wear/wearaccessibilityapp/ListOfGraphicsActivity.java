@@ -36,10 +36,18 @@ public class ListOfGraphicsActivity extends WearableActivity {
 
         // Store all data in a list for adapter to use.
         mItems = new ArrayList<AppItem>();
-        mItems.add(new AppItem(getString(R.string.photo_carousel), R.drawable.heart_circle,
-                SampleAppConstants.NORMAL, PhotoCarouselActivity.class));
-        mItems.add(new AppItem(getString(R.string.images), R.drawable.heart_circle,
-                SampleAppConstants.NORMAL, ImagesActivity.class));
+        mItems.add(
+                new AppItem(
+                        getString(R.string.photo_carousel),
+                        R.drawable.heart_circle,
+                        SampleAppConstants.NORMAL,
+                        PhotoCarouselActivity.class));
+        mItems.add(
+                new AppItem(
+                        getString(R.string.images),
+                        R.drawable.heart_circle,
+                        SampleAppConstants.NORMAL,
+                        ImagesActivity.class));
 
         // Set up an adapter and pass in all the items you initialized above.
         AppItemListViewAdapter adapter = new AppItemListViewAdapter(this, mItems);
@@ -55,12 +63,14 @@ public class ListOfGraphicsActivity extends WearableActivity {
 
         // Goes to a new screen when you click on one of the list items.
         // Dependent upon position of click.
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mItems.get(position - listView.getHeaderViewsCount())
-                        .launchActivity(getApplicationContext());
-            }
-        });
+        listView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        mItems.get(position - listView.getHeaderViewsCount())
+                                .launchActivity(getApplicationContext());
+                    }
+                });
     }
 }

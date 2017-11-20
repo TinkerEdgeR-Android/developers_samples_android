@@ -33,13 +33,14 @@ public class ImagesActivity extends WearableActivity {
         setContentView(R.layout.activity_images);
 
         // Used to repeat animation from the beginning.
-        mAnimationCallback = new AnimationCallback() {
-            @Override
-            public void onAnimationEnd(Drawable drawable) {
-                super.onAnimationEnd(drawable);
-                ((AnimatedVectorDrawable) drawable).start();
-            }
-        };
+        mAnimationCallback =
+                new AnimationCallback() {
+                    @Override
+                    public void onAnimationEnd(Drawable drawable) {
+                        super.onAnimationEnd(drawable);
+                        ((AnimatedVectorDrawable) drawable).start();
+                    }
+                };
 
         // Play 'swipe left' animation on loop.
         ImageView mSwipeLeftImage = findViewById(R.id.swipe_left_image);

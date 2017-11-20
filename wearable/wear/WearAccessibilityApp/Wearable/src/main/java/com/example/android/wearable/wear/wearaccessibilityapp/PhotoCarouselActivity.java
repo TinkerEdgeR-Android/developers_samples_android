@@ -50,8 +50,7 @@ public class PhotoCarouselActivity extends WearableActivity implements OnClickLi
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(getApplicationContext(), ZoomImageActivity.class);
-        intent.putExtra(getString(R.string.intent_extra_image),
-                (int) v.getTag());
+        intent.putExtra(getString(R.string.intent_extra_image), (int) v.getTag());
         startActivity(intent);
     }
 }

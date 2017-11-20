@@ -26,8 +26,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class MenuRecyclerViewAdapter extends
-    RecyclerView.Adapter<MenuRecyclerViewAdapter.Holder> {
+public class MenuRecyclerViewAdapter extends RecyclerView.Adapter<MenuRecyclerViewAdapter.Holder> {
 
     private final Context mContext;
     private final LayoutInflater mInflater;
@@ -42,7 +41,7 @@ public class MenuRecyclerViewAdapter extends
     @Override
     public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
         /* Add check for viewType here if used.
-           See LongListRecyclerViewAdapter for an example. */
+        See LongListRecyclerViewAdapter for an example. */
 
         return new Holder(mInflater.inflate(R.layout.app_item_layout, parent, false));
     }
@@ -62,12 +61,13 @@ public class MenuRecyclerViewAdapter extends
 
         // Start new activity on click of specific item.
         final int pos = position;
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItems.get(pos).launchActivity(mContext);
-            }
-        });
+        holder.itemView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mItems.get(pos).launchActivity(mContext);
+                    }
+                });
     }
 
     @Override
@@ -80,7 +80,6 @@ public class MenuRecyclerViewAdapter extends
         return mItems.get(position).getViewType();
     }
 
-
     static class Holder extends ViewHolder {
         TextView mTextView;
         ImageView mImageView;
@@ -91,9 +90,7 @@ public class MenuRecyclerViewAdapter extends
             mImageView = itemView.findViewById(R.id.icon_image_view);
         }
 
-        /**
-         * Bind appItem info to main screen (displays the item).
-         */
+        /** Bind appItem info to main screen (displays the item). */
         public void bind(AppItem item) {
             mTextView.setText(item.getItemName());
             mImageView.setImageResource(item.getImageId());

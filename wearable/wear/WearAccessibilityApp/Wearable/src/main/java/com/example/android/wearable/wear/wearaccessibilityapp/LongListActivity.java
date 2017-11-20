@@ -49,24 +49,34 @@ public class LongListActivity extends WearableActivity {
         mItems.add(new AppItem(null, 0, SampleAppConstants.TITLE, null)); // for title
         mItems.add(new AppItem(null, 0, SampleAppConstants.SWITCH, null)); // for switch widget
         for (int i = 1; i <= 10; i++) {
-            mItems.add(new AppItem(getResources().getString(R.string.item_text, i),
-                    R.drawable.heart_circle, SampleAppConstants.NORMAL, null));
+            mItems.add(
+                    new AppItem(
+                            getResources().getString(R.string.item_text, i),
+                            R.drawable.heart_circle,
+                            SampleAppConstants.NORMAL,
+                            null));
         }
 
         // Custom adapter used so we can use custom layout for the rows within the list.
-        mAdapter = new LongListRecyclerViewAdapter(this, mItems, new SwitchChangeListener() {
-            @Override
-            public void onChange(boolean switchOn) {
-                WearableActionDrawer wearableActionDrawer =
-                        findViewById(R.id.action_drawer_long_list);
+        mAdapter =
+                new LongListRecyclerViewAdapter(
+                        this,
+                        mItems,
+                        new SwitchChangeListener() {
+                            @Override
+                            public void onChange(boolean switchOn) {
+                                WearableActionDrawer wearableActionDrawer =
+                                        findViewById(R.id.action_drawer_long_list);
 
-                if(switchOn) {
-                    wearableActionDrawer.setVisibility(View.VISIBLE); // Hide drawer.
-                } else {
-                    wearableActionDrawer.setVisibility(View.INVISIBLE); // Hide drawer.
-                }
-            }
-        });
+                                if (switchOn) {
+                                    wearableActionDrawer.setVisibility(
+                                            View.VISIBLE); // Hide drawer.
+                                } else {
+                                    wearableActionDrawer.setVisibility(
+                                            View.INVISIBLE); // Hide drawer.
+                                }
+                            }
+                        });
         WearableRecyclerView recyclerView = findViewById(R.id.recycler_view_long_list);
 
         recyclerView.setAdapter(mAdapter); // Set adapter to the recyclerView.
@@ -76,7 +86,7 @@ public class LongListActivity extends WearableActivity {
         //         (WearableActionDrawer) findViewById(R.id.action_drawer_long_list);
         // mWearableActionDrawer.setShouldPeekOnScrollDown(true);
 
-        mPreviousLastVisibleItem = 0;  // default
+        mPreviousLastVisibleItem = 0; // default
         mLastVisibleItem = 0;
         mFinishLoad = false;
 
@@ -84,51 +94,54 @@ public class LongListActivity extends WearableActivity {
             return; // invalid layout manager
         }
 
-        final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView
-                .getLayoutManager();
+        final LinearLayoutManager layoutManager =
+                (LinearLayoutManager) recyclerView.getLayoutManager();
 
-        recyclerView.addOnScrollListener(new WearableRecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                mLastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                if (!mFinishLoad) {
-                    int count = layoutManager.getItemCount(); // total items in the recycler view
+        recyclerView.addOnScrollListener(
+                new WearableRecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        mLastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                        if (!mFinishLoad) {
+                            int count =
+                                    layoutManager
+                                            .getItemCount(); // total items in the recycler view
 
-                    // Do not notify LongListActivity if no NEW items have been displayed.
-                    if (mLastVisibleItem <= mPreviousLastVisibleItem) {
-                        return;
+                            // Do not notify LongListActivity if no NEW items have been displayed.
+                            if (mLastVisibleItem <= mPreviousLastVisibleItem) {
+                                return;
+                            }
+
+                            // Do not notify LongListActivity if not yet scrolled to threshold.
+                            if (mLastVisibleItem < count - 1) {
+                                return;
+                            }
+
+                            if (mLastVisibleItem % 10 == 2 && mLastVisibleItem != 2) {
+                                return;
+                            }
+
+                            // End of list, no more loading.
+                            if (mLastVisibleItem >= SampleAppConstants.END_OF_LONG_LIST) {
+                                mFinishLoad = true; // we are done loading more items.
+                                addFooter();
+                                return;
+                            }
+
+                            // Load more items
+                            addData();
+
+                            // To check if new items should be displayed or not.
+                            mPreviousLastVisibleItem = mLastVisibleItem;
+                        }
                     }
-
-                    // Do not notify LongListActivity if not yet scrolled to threshold.
-                    if (mLastVisibleItem < count - 1) {
-                        return;
-                    }
-
-                    if (mLastVisibleItem % 10 == 2 && mLastVisibleItem != 2) {
-                        return;
-                    }
-
-                    // End of list, no more loading.
-                    if (mLastVisibleItem >= SampleAppConstants.END_OF_LONG_LIST) {
-                        mFinishLoad = true; // we are done loading more items.
-                        addFooter();
-                        return;
-                    }
-
-                    // Load more items
-                    addData();
-
-                    // To check if new items should be displayed or not.
-                    mPreviousLastVisibleItem = mLastVisibleItem;
-                }
-            }
-        });
+                });
     }
 
     /**
-     * Add items to List<AppItem> items.
-     * More items requested by adapter (used to load list in batches of 10).
+     * Add items to List<AppItem> items. More items requested by adapter (used to load list in
+     * batches of 10).
      */
     public void addData() {
         // Add progress bar to list.
@@ -136,27 +149,30 @@ public class LongListActivity extends WearableActivity {
         mAdapter.notifyItemInserted(mItems.size() - 1);
 
         // Delay for 1000 milliseconds and then execute below code.
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Remove progress after the delay.
-                mItems.remove(mItems.size() - 1);
+        mHandler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // Remove progress after the delay.
+                        mItems.remove(mItems.size() - 1);
 
-                // Add ten items to List<AppItem> items.
-                int listSize = mItems.size();
-                for (int i = listSize - 1; i <= listSize + 8; i++) {
-                    mItems.add(new AppItem(getResources().getString(R.string.item_text, i),
-                            R.drawable.heart_circle, SampleAppConstants.NORMAL, null));
-                }
-                mAdapter.notifyDataSetChanged();
-            }
-        }, 1000);
+                        // Add ten items to List<AppItem> items.
+                        int listSize = mItems.size();
+                        for (int i = listSize - 1; i <= listSize + 8; i++) {
+                            mItems.add(
+                                    new AppItem(
+                                            getResources().getString(R.string.item_text, i),
+                                            R.drawable.heart_circle,
+                                            SampleAppConstants.NORMAL,
+                                            null));
+                        }
+                        mAdapter.notifyDataSetChanged();
+                    }
+                },
+                1000);
     }
 
-    /**
-     * Add footer to List<AppItem> items.
-     * Requested by adapter (called at the end of the list).
-     */
+    /** Add footer to List<AppItem> items. Requested by adapter (called at the end of the list). */
     public void addFooter() {
         mItems.add(new AppItem(null, 0, SampleAppConstants.HEADER_FOOTER, null)); // add footer
         mAdapter.notifyItemInserted(mItems.size() - 1);

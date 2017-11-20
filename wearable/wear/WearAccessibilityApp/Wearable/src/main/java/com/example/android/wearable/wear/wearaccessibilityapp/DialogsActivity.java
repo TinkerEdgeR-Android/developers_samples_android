@@ -44,83 +44,101 @@ public class DialogsActivity extends WearableActivity {
         setContentView(R.layout.activity_dialogs);
 
         // Supplier objects
-        Supplier<Dialog> twoActionDialog = new Supplier<Dialog>() {
-            @Override
-            public Dialog get() {
-                AcceptDenyDialog twoActionDialog = new AcceptDenyDialog(DialogsActivity.this);
-                twoActionDialog.setTitle(R.string.yes_no_dialog);
-                twoActionDialog.setMessage(getString(R.string.yes_no_dialog_description));
-                twoActionDialog.setPositiveButton(new OnClickListener() {
+        Supplier<Dialog> twoActionDialog =
+                new Supplier<Dialog>() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Add code here for onClick functionality.
+                    public Dialog get() {
+                        AcceptDenyDialog twoActionDialog =
+                                new AcceptDenyDialog(DialogsActivity.this);
+                        twoActionDialog.setTitle(R.string.yes_no_dialog);
+                        twoActionDialog.setMessage(getString(R.string.yes_no_dialog_description));
+                        twoActionDialog.setPositiveButton(
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add code here for onClick functionality.
+                                    }
+                                });
+                        twoActionDialog.setNegativeButton(
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add code here for onClick functionality.
+                                    }
+                                });
+                        return twoActionDialog;
                     }
-                });
-                twoActionDialog.setNegativeButton(new OnClickListener() {
+                };
+
+        Supplier<Dialog> oneActionDialog =
+                new Supplier<Dialog>() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Add code here for onClick functionality.
+                    public Dialog get() {
+                        AcceptDenyDialog oneActionDialog =
+                                new AcceptDenyDialog(DialogsActivity.this);
+                        oneActionDialog.setTitle(R.string.one_action_dialog);
+                        oneActionDialog.setMessage(
+                                getString(R.string.one_action_dialog_description));
+                        oneActionDialog.setPositiveButton(
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add code here for onClick functionality.
+                                    }
+                                });
+                        return oneActionDialog;
                     }
-                });
-                return twoActionDialog;
-            }
-        };
+                };
 
-        Supplier<Dialog> oneActionDialog = new Supplier<Dialog>() {
-            @Override
-            public Dialog get() {
-                AcceptDenyDialog oneActionDialog = new AcceptDenyDialog(DialogsActivity.this);
-                oneActionDialog.setTitle(R.string.one_action_dialog);
-                oneActionDialog.setMessage(getString(R.string.one_action_dialog_description));
-                oneActionDialog.setPositiveButton(new OnClickListener() {
+        Supplier<Dialog> multipleActionDialog =
+                new Supplier<Dialog>() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Add code here for onClick functionality.
+                    public Dialog get() {
+                        DialogBuilder multipleActionBuilder =
+                                new DialogBuilder(DialogsActivity.this);
+                        multipleActionBuilder.setTitle(R.string.multiple_action_dialog);
+                        multipleActionBuilder.setMessage(
+                                R.string.multiple_action_dialog_description);
+
+                        // OK option.
+                        multipleActionBuilder.setPositiveIcon(R.drawable.accept_circle);
+                        multipleActionBuilder.setPositiveButton(
+                                R.string.ok,
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add code here for onClick functionality.
+                                    }
+                                });
+
+                        // Close option.
+                        multipleActionBuilder.setNeutralIcon(R.drawable.deny_circle);
+                        multipleActionBuilder.setNeutralButton(
+                                R.string.close,
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Add code here for onClick functionality.
+                                    }
+                                });
+
+                        // Open in phone option.
+                        multipleActionBuilder.setNegativeIcon(R.drawable.open_in_phone_circle);
+                        multipleActionBuilder.setNegativeButton(
+                                R.string.open_on_phone,
+                                new OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent =
+                                                new Intent(
+                                                        DialogsActivity.this,
+                                                        OpenOnPhoneAnimationActivity.class);
+                                        startActivity(intent);
+                                    }
+                                });
+                        return multipleActionBuilder.create();
                     }
-                });
-                return oneActionDialog;
-            }
-        };
-
-        Supplier<Dialog> multipleActionDialog = new Supplier<Dialog>() {
-            @Override
-            public Dialog get() {
-                DialogBuilder multipleActionBuilder = new DialogBuilder(DialogsActivity.this);
-                multipleActionBuilder.setTitle(R.string.multiple_action_dialog);
-                multipleActionBuilder.setMessage(R.string.multiple_action_dialog_description);
-
-                // OK option.
-                multipleActionBuilder.setPositiveIcon(R.drawable.accept_circle);
-                multipleActionBuilder.setPositiveButton(R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Add code here for onClick functionality.
-                    }
-                });
-
-                // Close option.
-                multipleActionBuilder.setNeutralIcon(R.drawable.deny_circle);
-                multipleActionBuilder.setNeutralButton(R.string.close, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Add code here for onClick functionality.
-                    }
-                });
-
-                // Open in phone option.
-                multipleActionBuilder.setNegativeIcon(R.drawable.open_in_phone_circle);
-                multipleActionBuilder
-                        .setNegativeButton(R.string.open_on_phone, new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(DialogsActivity.this,
-                                        OpenOnPhoneAnimationActivity.class);
-                                startActivity(intent);
-                            }
-                        });
-                return multipleActionBuilder.create();
-            }
-        };
+                };
 
         // Create a list of items for adapter to display.
         mItems = new ArrayList<>();
@@ -146,14 +164,18 @@ public class DialogsActivity extends WearableActivity {
         // Dependent upon position of click.
         // Note: Keep in mind that icons will not appear on dialog unless you
         //       set an onClickListener.
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mView = view;
-                Dialog dialog = mItems.get(position - listView.getHeaderViewsCount())
-                        .getSupplier().get();
-                dialog.show();
-            }
-        });
+        listView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        mView = view;
+                        Dialog dialog =
+                                mItems.get(position - listView.getHeaderViewsCount())
+                                        .getSupplier()
+                                        .get();
+                        dialog.show();
+                    }
+                });
     }
 }

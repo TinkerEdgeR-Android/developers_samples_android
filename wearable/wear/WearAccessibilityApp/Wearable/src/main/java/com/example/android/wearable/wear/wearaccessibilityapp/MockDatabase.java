@@ -19,18 +19,14 @@ import android.support.v4.app.NotificationCompat.MessagingStyle;
 
 import java.util.ArrayList;
 
-/**
- * Mock data for each of the Notification Style Demos.
- */
+/** Mock data for each of the Notification Style Demos. */
 public final class MockDatabase {
 
     public static MessagingStyleCommsAppData getMessagingStyleData() {
         return MessagingStyleCommsAppData.getInstance();
     }
 
-    /**
-     * Represents data needed for MessagingStyle Notification.
-     */
+    /** Represents data needed for MessagingStyle Notification. */
     public static class MessagingStyleCommsAppData {
 
         private static MessagingStyleCommsAppData sInstance = null;
@@ -75,28 +71,28 @@ public final class MockDatabase {
             long currentTime = System.currentTimeMillis();
 
             mMessages = new ArrayList<>();
-            mMessages.add(new MessagingStyle.Message(
-                    "What are you doing tonight?", currentTime - 4000, "Famous"));
-            mMessages.add(new MessagingStyle.Message(
-                    "I don't know, dinner maybe?", currentTime - 3000, null));
-            mMessages.add(new MessagingStyle.Message(
-                    "Sounds good.", currentTime - 2000, "Famous"));
-            mMessages.add(new MessagingStyle.Message(
-                    "How about BBQ?", currentTime - 1000, null));
+            mMessages.add(
+                    new MessagingStyle.Message(
+                            "What are you doing tonight?", currentTime - 4000, "Famous"));
+            mMessages.add(
+                    new MessagingStyle.Message(
+                            "I don't know, dinner maybe?", currentTime - 3000, null));
+            mMessages.add(new MessagingStyle.Message("Sounds good.", currentTime - 2000, "Famous"));
+            mMessages.add(new MessagingStyle.Message("How about BBQ?", currentTime - 1000, null));
             // Last two are the newest message (2) from friend
-            mMessages.add(new MessagingStyle.Message(
-                    "Dude!", currentTime, "Famous"));
-            mMessages.add(new MessagingStyle.Message(
-                    "You know I am a Pesce-pescetarian. :P", currentTime, "Famous"));
-
+            mMessages.add(new MessagingStyle.Message("Dude!", currentTime, "Famous"));
+            mMessages.add(
+                    new MessagingStyle.Message(
+                            "You know I am a Pesce-pescetarian. :P", currentTime, "Famous"));
 
             // String version of the mMessages above
-            mFullConversation = "Famous: What are you doing tonight?\n\n"
-                    + "Me: I don't know, dinner maybe?\n\n"
-                    + "Famous: Sounds good.\n\n"
-                    + "Me: How about BBQ?\n\n"
-                    + "Famous: Dude!\n\n"
-                    + "Famous: You know I am a Pesce-pescetarian. :P\n\n";
+            mFullConversation =
+                    "Famous: What are you doing tonight?\n\n"
+                            + "Me: I don't know, dinner maybe?\n\n"
+                            + "Famous: Sounds good.\n\n"
+                            + "Me: How about BBQ?\n\n"
+                            + "Famous: Dude!\n\n"
+                            + "Famous: You know I am a Pesce-pescetarian. :P\n\n";
 
             mNumberOfNewMessages = 2;
 
@@ -107,7 +103,6 @@ public final class MockDatabase {
             // the user(s) is starred as a favorite.
             mParticipants = new ArrayList<>();
             mParticipants.add("Famous McFamously");
-
         }
 
         public String getContentTitle() {
