@@ -13,167 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.autofill.service;
 
 import android.app.assist.AssistStructure;
-import android.app.assist.AssistStructure.ViewNode;
-import android.app.assist.AssistStructure.WindowNode;
-import android.content.Context;
-import android.view.autofill.AutofillValue;
+import android.support.annotation.NonNull;
 
-import com.example.android.autofill.service.datasource.DataCallback;
-import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
-import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
-import com.example.android.autofill.service.model.AutofillDataset;
-import com.example.android.autofill.service.model.DalCheck;
-import com.example.android.autofill.service.model.DalInfo;
-import com.example.android.autofill.service.model.FilledAutofillField;
-import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
+import com.google.common.base.Preconditions;
 
-import java.util.List;
-import java.util.UUID;
-
-import static com.example.android.autofill.service.util.Util.logd;
-import static com.example.android.autofill.service.util.Util.logw;
+import static android.app.assist.AssistStructure.ViewNode;
 
 /**
- * Parser for an AssistStructure object. This is invoked when the Autofill Service receives an
- * AssistStructure from the client Activity, representing its View hierarchy. In this sample, it
- * parses the hierarchy and collects autofill metadata from {@link ViewNode}s along the way.
+ * Wrapper for {@link AssistStructure} to make it easy to parse.
  */
-final class StructureParser {
-    private final AutofillFieldMetadataCollection mAutofillFields =
-            new AutofillFieldMetadataCollection();
-    private final LocalAutofillDataSource mLocalAutofillDataSource;
-    private final DigitalAssetLinksRepository mDalRepository;
+public final class StructureParser {
     private final AssistStructure mStructure;
-    private FilledAutofillFieldCollection mFilledAutofillFieldCollection;
 
-    StructureParser(Context context, AssistStructure structure,
-            LocalAutofillDataSource localAutofillDataSource,
-            DigitalAssetLinksRepository dalRepository) {
-        mLocalAutofillDataSource = localAutofillDataSource;
-        mDalRepository = dalRepository;
+    public StructureParser(@NonNull AssistStructure structure) {
+        Preconditions.checkNotNull(structure);
         mStructure = structure;
     }
 
-    public void parseForFill() {
-        parse(true);
-    }
-
-    public void parseForSave() {
-        parse(false);
-    }
-
     /**
-     * Traverse AssistStructure and add ViewNode metadata to a flat list.
+     * Traverses through the {@link AssistStructure} and does something at each {@link ViewNode}.
+     *
+     * @param processor contains action to be performed on each {@link ViewNode}.
      */
-    private void parse(boolean forFill) {
-        logd("Parsing structure for %s", mStructure.getActivityComponent());
+    public void parse(NodeProcessor processor) {
         int nodes = mStructure.getWindowNodeCount();
-        String datasetName = "dataset-" + mLocalAutofillDataSource.getDatasetNumber();
-        String datasetId = UUID.randomUUID().toString();
-        AutofillDataset dataset = new AutofillDataset(datasetId, datasetName);
-        mFilledAutofillFieldCollection = new FilledAutofillFieldCollection(dataset);
-        StringBuilder webDomain = new StringBuilder();
         for (int i = 0; i < nodes; i++) {
-            WindowNode node = mStructure.getWindowNodeAt(i);
-            ViewNode view = node.getRootViewNode();
-            parseLocked(forFill, view, webDomain);
-        }
-        if (webDomain.length() > 0) {
-            String packageName = mStructure.getActivityComponent().getPackageName();
-            mDalRepository.checkValid(new DalInfo(webDomain.toString(), packageName),
-                    new DataCallback<DalCheck>() {
-                @Override
-                public void onLoaded(DalCheck dalCheck) {
-                    if (dalCheck.linked) {
-                        logd("Domain %s is valid for %s", webDomain, packageName);
-                    } else {
-                        throw new SecurityException(String.format(
-                                "Could not associate web domain %s with app %s", webDomain,
-                                packageName));
-                    }
-                }
-
-                @Override
-                public void onDataNotAvailable(String msg, Object... params) {
-                    logw(msg, params);
-                    throw new SecurityException(String.format(
-                            "Could not associate web domain %s with app %s", webDomain,
-                            packageName));
-                }
-            });
-        } else {
-            logd("no web domain");
+            AssistStructure.ViewNode viewNode = mStructure.getWindowNodeAt(i).getRootViewNode();
+            traverseRoot(viewNode, processor);
         }
     }
 
-    private void parseLocked(boolean forFill, ViewNode viewNode, StringBuilder validWebDomain) {
-        String webDomain = viewNode.getWebDomain();
-        if (webDomain != null) {
-            logd("child web domain: %s", webDomain);
-            if (validWebDomain.length() > 0) {
-                if (!webDomain.equals(validWebDomain.toString())) {
-                    throw new SecurityException("Found multiple web domains: valid= "
-                            + validWebDomain + ", child=" + webDomain);
-                }
-            } else {
-                validWebDomain.append(webDomain);
-            }
-        }
-
-        if (viewNode.getAutofillHints() != null) {
-            String[] filteredHints = AutofillHints.filterForSupportedHints(
-                    viewNode.getAutofillHints());
-            if (filteredHints != null && filteredHints.length > 0) {
-                if (forFill) {
-                    mAutofillFields.add(new AutofillFieldMetadata(viewNode));
-                } else {
-                    AutofillValue autofillValue = viewNode.getAutofillValue();
-                    String textValue = null;
-                    Long dateValue = null;
-                    Boolean toggleValue = null;
-                    CharSequence[] autofillOptions = null;
-                    Integer listIndex = null;
-                    if (autofillValue != null) {
-                        if (autofillValue.isText()) {
-                            // Using toString of AutofillValue.getTextValue in order to save it to
-                            // SharedPreferences.
-                            textValue = autofillValue.getTextValue().toString();
-                        } else if (autofillValue.isDate()) {
-                            dateValue = autofillValue.getDateValue();
-                        } else if (autofillValue.isList()) {
-                            autofillOptions = viewNode.getAutofillOptions();
-                            listIndex = autofillValue.getListValue();
-                        } else if (autofillValue.isToggle()) {
-                            toggleValue = autofillValue.getToggleValue();
-                        }
-                    }
-                    List<FilledAutofillField> filledAutofillFields =
-                            FilledAutofillField.build(
-                                    mFilledAutofillFieldCollection.getDataset().getId(),
-                                    viewNode.getAutofillHints(),
-                                    textValue, dateValue, toggleValue, autofillOptions, listIndex);
-                    if (filledAutofillFields != null) {
-                        mFilledAutofillFieldCollection.add(filledAutofillFields);
-                    }
-                }
-            }
-        }
+    private void traverseRoot(AssistStructure.ViewNode viewNode, NodeProcessor processor) {
+        processor.processNode(viewNode);
         int childrenSize = viewNode.getChildCount();
         if (childrenSize > 0) {
             for (int i = 0; i < childrenSize; i++) {
-                parseLocked(forFill, viewNode.getChildAt(i), validWebDomain);
+                traverseRoot(viewNode.getChildAt(i), processor);
             }
         }
     }
 
-    public AutofillFieldMetadataCollection getAutofillFields() {
-        return mAutofillFields;
-    }
 
-    public FilledAutofillFieldCollection getClientFormData() {
-        return mFilledAutofillFieldCollection;
+    public interface NodeProcessor {
+        void processNode(ViewNode node);
     }
 }

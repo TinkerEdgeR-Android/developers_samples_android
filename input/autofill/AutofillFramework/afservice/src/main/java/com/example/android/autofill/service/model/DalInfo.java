@@ -16,7 +16,7 @@
 
 package com.example.android.autofill.service.model;
 
-import static com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository.getCanonicalDomain;
+import static com.example.android.autofill.service.data.source.local.DigitalAssetLinksRepository.getCanonicalDomain;
 
 public class DalInfo {
     private final String mWebDomain;

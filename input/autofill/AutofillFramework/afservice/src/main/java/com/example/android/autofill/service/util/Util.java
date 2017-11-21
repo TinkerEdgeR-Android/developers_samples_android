@@ -37,14 +37,11 @@ import java.util.Set;
 
 public final class Util {
 
-    private static final String TAG = "AutofillSample";
     public static final String EXTRA_DATASET_NAME = "dataset_name";
     public static final String EXTRA_FOR_RESPONSE = "for_response";
     public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) ->
             id.equals(node.getAutofillId());
-
-    public enum LogLevel { OFF, DEBUG, VERBOSE }
-
+    private static final String TAG = "AutofillSample";
     public static LogLevel sLoggingLevel = LogLevel.OFF;
 
     private static void bundleToString(StringBuilder builder, Bundle data) {
@@ -281,6 +278,8 @@ public final class Util {
     public static void setLoggingLevel(LogLevel level) {
         sLoggingLevel = level;
     }
+
+    public enum LogLevel {OFF, DEBUG, VERBOSE}
 
     /**
      * Helper interface used to filter Assist nodes.

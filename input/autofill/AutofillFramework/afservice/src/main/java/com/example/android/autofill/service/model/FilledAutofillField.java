@@ -20,24 +20,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.support.annotation.NonNull;
-import android.view.View;
-
-import com.example.android.autofill.service.AutofillHints;
-import com.google.common.base.Preconditions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nullable;
-
-import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
-import static com.example.android.autofill.service.AutofillHints.filterForSupportedHints;
-import static com.example.android.autofill.service.AutofillHints.isW3cAddressType;
-import static com.example.android.autofill.service.AutofillHints.isW3cSectionPrefix;
-import static com.example.android.autofill.service.AutofillHints.isW3cTypeHint;
-import static com.example.android.autofill.service.AutofillHints.isW3cTypePrefix;
-import static com.example.android.autofill.service.util.Util.logd;
-import static com.example.android.autofill.service.util.Util.loge;
 
 @Entity(primaryKeys = {"datasetId", "hint"}, foreignKeys = @ForeignKey(
         entity = AutofillDataset.class, parentColumns = "id", childColumns = "datasetId",
@@ -100,75 +84,6 @@ public class FilledAutofillField {
     @Ignore
     public FilledAutofillField(@NonNull String datasetId, @NonNull String hint) {
         this(datasetId, hint, null, null, null);
-    }
-
-
-    @Nullable
-    public static List<FilledAutofillField> build(String datasetId, String[] hints,
-            @Nullable String textValue, @Nullable Long dateValue, @Nullable Boolean toggleValue,
-            @Nullable CharSequence[] autofillOptions, @Nullable Integer listIndex) {
-        String[] filteredHints = filterForSupportedHints(hints);
-        convertToStoredHintNames(filteredHints);
-        List<FilledAutofillField> fields = new ArrayList<>();
-        if (filteredHints == null) {
-            return null;
-        }
-        String nextHint = null;
-        for (int i = 0; i < filteredHints.length; i++) {
-            String hint = filteredHints[i];
-            if (i < filteredHints.length - 1) {
-                nextHint = filteredHints[i + 1];
-            }
-            // First convert the compound W3C autofill hints
-            if (isW3cSectionPrefix(hint) && i < filteredHints.length - 1) {
-                hint = filteredHints[++i];
-                logd("Hint is a W3C section prefix; using %s instead", hint);
-                if (i < filteredHints.length - 1) {
-                    nextHint = filteredHints[i + 1];
-                }
-            }
-            if (isW3cTypePrefix(hint) && nextHint != null && isW3cTypeHint(nextHint)) {
-                hint = nextHint;
-                i++;
-                logd("Hint is a W3C type prefix; using %s instead", hint);
-            }
-            if (isW3cAddressType(hint) && nextHint != null) {
-                hint = nextHint;
-                i++;
-                logd("Hint is a W3C address prefix; using %s instead", hint);
-            }
-            // Then check if the "actual" hint is supported.
-            if (AutofillHints.isValidHint(hint)) {
-                // Only add the field if the hint is supported by the type.
-                if (textValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_TEXT),
-                            "Text is invalid type for hint '%s'", hint);
-                }
-                if (autofillOptions != null && listIndex != null &&
-                        autofillOptions.length > listIndex) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_LIST),
-                            "List is invalid type for hint '%s'", hint);
-                    textValue = autofillOptions[listIndex].toString();
-                }
-                if (dateValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_DATE),
-                            "Date is invalid type for hint '%s'", hint);
-                }
-                if (toggleValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_TOGGLE),
-                            "Toggle is invalid type for hint '%s'", hint);
-                }
-                fields.add(new FilledAutofillField(datasetId, filteredHints[i], textValue,
-                        dateValue, toggleValue));
-            } else {
-                loge("Invalid hint: %s", hint);
-            }
-        }
-        return fields;
     }
 
     @NonNull

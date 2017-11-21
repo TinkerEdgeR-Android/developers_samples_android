@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.datasource;
+
+package com.example.android.autofill.service.data.source;
 
 import com.example.android.autofill.service.model.DalCheck;
-import com.example.android.autofill.service.model.DalInfo;
 
-/**
- * Helper format
- * <a href="https://developers.google.com/digital-asset-links/">Digital Asset Links</a> needs.
- */
-public interface DigitalAssetLinksDataSource {
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
-    /**
-     * Checks if the association between a web domain and a package is valid.
-     */
-    void checkValid(DalInfo dalInfo, DataCallback<DalCheck> dalCheckCallback);
-
-    /**
-     * Clears all cached data.
-     */
-    void clear();
+public interface DalService {
+    @GET("/v1/assetlinks:check")
+    Call<DalCheck> check(@Query("source.web.site") String webDomain,
+            @Query("relation") String permission,
+            @Query("target.android_app.package_name") String packageName,
+            @Query("target.android_app.certificate.sha256_fingerprint") String fingerprint);
 }

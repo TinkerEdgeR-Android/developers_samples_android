@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.android.autofill.service.datasource.local.db;
+package com.example.android.autofill.service.data.source.local.db;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-import com.example.android.autofill.service.datasource.local.dao.AutofillDao;
+import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
 import com.example.android.autofill.service.model.AutofillDataset;
 import com.example.android.autofill.service.model.FilledAutofillField;
 

@@ -35,11 +35,13 @@ public class AutofillDataset {
         mDatasetName = datasetName;
     }
 
-    @NonNull public String getId() {
+    @NonNull
+    public String getId() {
         return mId;
     }
 
-    @NonNull public String getDatasetName() {
+    @NonNull
+    public String getDatasetName() {
         return mDatasetName;
     }
 

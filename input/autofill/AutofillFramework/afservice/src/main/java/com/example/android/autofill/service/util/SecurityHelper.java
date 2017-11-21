@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service;
+package com.example.android.autofill.service.util;
 
-import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -35,7 +34,7 @@ import java.security.cert.X509Certificate;
 public final class SecurityHelper {
 
     private SecurityHelper() {
-        throw new UnsupportedOperationException("provides static methods only");
+        throw new UnsupportedOperationException("Provides static methods only.");
     }
 
     /**
