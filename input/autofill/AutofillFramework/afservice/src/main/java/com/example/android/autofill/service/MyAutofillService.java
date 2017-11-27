@@ -61,6 +61,7 @@ import static com.example.android.autofill.service.util.Util.dumpStructure;
 import static com.example.android.autofill.service.util.Util.findNodeByFilter;
 import static com.example.android.autofill.service.util.Util.logVerboseEnabled;
 import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.loge;
 import static com.example.android.autofill.service.util.Util.logv;
 import static com.example.android.autofill.service.util.Util.logw;
 
@@ -152,7 +153,7 @@ public class MyAutofillService extends AutofillService {
         mClientViewMetadata = new ClientViewMetadata(parser);
         String packageName = structure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
-            callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
+            callback.onFailure(getString(R.string.invalid_package_signature));
             return;
         }
         Bundle clientState = request.getClientState();
@@ -205,7 +206,7 @@ public class MyAutofillService extends AutofillService {
             webDomain = mClientViewMetadata.buildWebDomain();
         } catch (SecurityException e) {
             logw(e.getMessage());
-            callback.onFailure(e.getMessage());
+            callback.onFailure(getString(R.string.security_exception));
             return;
         }
         if (webDomain != null && webDomain.length() > 0) {
@@ -217,16 +218,16 @@ public class MyAutofillService extends AutofillService {
                                 logd("Domain %s is valid for %s", webDomain, packageName);
                                 buildAndSaveAutofillData();
                             } else {
-                                callback.onFailure(String.format(
-                                        "Could not associate web domain %s with app %s", webDomain,
-                                        packageName));
+                                loge("Could not associate web domain %s with app %s",
+                                        webDomain, packageName);
+                                callback.onFailure(getString(R.string.dal_exception));
                             }
                         }
 
                         @Override
                         public void onDataNotAvailable(String msg, Object... params) {
                             logw(msg, params);
-                            callback.onFailure(String.format(msg, params));
+                            callback.onFailure(getString(R.string.dal_exception));
                         }
                     });
         } else {

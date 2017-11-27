@@ -1,5 +1,7 @@
 <resources>
     <string name="invalid_package_signature">Invalid package signature</string>
+    <string name="security_exception">Web domain security exception.</string>
+    <string name="dal_exception">DAL verification failure.</string>
     <string name="autofill_sign_in_prompt">Tap to sign in.</string>
     <string name="authentication_name">Autofill Authentication</string>
     <string name="settings_name">Autofill Settings</string>
