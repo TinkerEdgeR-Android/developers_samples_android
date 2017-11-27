@@ -51,7 +51,7 @@ import com.example.android.autofill.service.model.DatasetWithFilledAutofillField
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
-
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
 import java.util.List;
 
 import static com.example.android.autofill.service.data.adapter.ResponseAdapter.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
@@ -210,7 +210,8 @@ public class MyAutofillService extends AutofillService {
             return;
         }
         if (webDomain != null && webDomain.length() > 0) {
-            mDalRepository.checkValid(new DalInfo(webDomain, packageName),
+            DalCheckRequirement req = MyPreferences.getInstance(this).getDalCheckRequirement();
+            mDalRepository.checkValid(req, new DalInfo(webDomain, packageName),
                     new DataCallback<DalCheck>() {
                         @Override
                         public void onLoaded(DalCheck dalCheck) {

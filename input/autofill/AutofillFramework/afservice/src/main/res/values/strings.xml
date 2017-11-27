@@ -7,7 +7,7 @@
     <string name="settings_name">Autofill Settings</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_save">Save</string>
-    <string name="settings_authenticate_responses">Authenticate responses</string>
+    <string name="settings_authenticate_responses">Authenticate Responses</string>
     <string name="settings_authenticate_datasets">Authenticate Datasets</string>
     <string name="settings_add_data_label">Add fake Autofill data</string>
     <string name="settings_add_data_title">Add Autofill Datasets</string>
@@ -27,6 +27,12 @@
     <string name="settings_logging_off">Off</string>
     <string name="settings_logging_debug">Debug</string>
     <string name="settings_logging_verbose">Verbose</string>
+
+    <string name="settings_dal_header">DAL Check Requirement</string>
+    <string name="settings_dal_disabled">Disabled</string>
+    <string name="settings_dal_login_only">Login Credentials Only</string>
+    <string name="settings_dal_all_urls">Handle All URLs</string>
+
     <string name="settings_enable_header">Enable/Disable</string>
     <string name="settings_set_service">Set default Autofill service</string>
     <string name="settings_disable_service">Disable Autofill services</string>

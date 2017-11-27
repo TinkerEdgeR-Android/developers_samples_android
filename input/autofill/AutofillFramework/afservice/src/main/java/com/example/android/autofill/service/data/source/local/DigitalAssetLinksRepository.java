@@ -19,12 +19,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
-import com.example.android.autofill.service.util.SecurityHelper;
-import com.example.android.autofill.service.data.source.DalService;
 import com.example.android.autofill.service.data.DataCallback;
+import com.example.android.autofill.service.data.source.DalService;
 import com.example.android.autofill.service.data.source.DigitalAssetLinksDataSource;
 import com.example.android.autofill.service.model.DalCheck;
 import com.example.android.autofill.service.model.DalInfo;
+import com.example.android.autofill.service.util.SecurityHelper;
 import com.google.common.net.InternetDomainName;
 
 import java.util.HashMap;
@@ -34,6 +34,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement.AllUrls;
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement.Disabled;
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement.LoginOnly;
 import static com.example.android.autofill.service.util.Util.logd;
 
 
@@ -41,7 +45,6 @@ import static com.example.android.autofill.service.util.Util.logd;
  * Singleton repository that caches the result of Digital Asset Links checks.
  */
 public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource {
-
     private static final String DAL_BASE_URL = "https://digitalassetlinks.googleapis.com";
     private static final String PERMISSION_GET_LOGIN_CREDS = "common.get_login_creds";
     private static final String PERMISSION_HANDLE_ALL_URLS = "common.handle_all_urls";
@@ -80,7 +83,15 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
         mCache.clear();
     }
 
-    public void checkValid(DalInfo dalInfo, DataCallback<DalCheck> dalCheckDataCallback) {
+    public void checkValid(DalCheckRequirement dalCheckRequirement, DalInfo dalInfo,
+            DataCallback<DalCheck> dalCheckDataCallback) {
+        if (dalCheckRequirement.equals(Disabled)) {
+            DalCheck dalCheck = new DalCheck();
+            dalCheck.linked = true;
+            dalCheckDataCallback.onLoaded(dalCheck);
+            return;
+        }
+
         DalCheck dalCheck = mCache.get(dalInfo);
         if (dalCheck != null) {
             dalCheckDataCallback.onLoaded(dalCheck);
@@ -109,22 +120,27 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
                         DalCheck dalCheck = response.body();
                         if (dalCheck == null || !dalCheck.linked) {
                             // get_login_creds check failed, so try handle_all_urls check
-                            mDalService.check(webDomain, PERMISSION_HANDLE_ALL_URLS, packageName,
-                                    fingerprint).enqueue(new Callback<DalCheck>() {
-                                @Override
-                                public void onResponse(@NonNull Call<DalCheck> call,
-                                        @NonNull Response<DalCheck> response) {
-                                    DalCheck dalCheck = response.body();
-                                    mCache.put(dalInfo, dalCheck);
-                                    dalCheckDataCallback.onLoaded(dalCheck);
-                                }
+                            if (dalCheckRequirement.equals(LoginOnly)) {
+                                dalCheckDataCallback.onDataNotAvailable(
+                                        "DAL: Login creds check failed.");
+                            } else if (dalCheckRequirement.equals(AllUrls)) {
+                                mDalService.check(webDomain, PERMISSION_HANDLE_ALL_URLS,
+                                        packageName, fingerprint).enqueue(new Callback<DalCheck>() {
+                                    @Override
+                                    public void onResponse(@NonNull Call<DalCheck> call,
+                                            @NonNull Response<DalCheck> response) {
+                                        DalCheck dalCheck = response.body();
+                                        mCache.put(dalInfo, dalCheck);
+                                        dalCheckDataCallback.onLoaded(dalCheck);
+                                    }
 
-                                @Override
-                                public void onFailure(@NonNull Call<DalCheck> call,
-                                        @NonNull Throwable t) {
-                                    dalCheckDataCallback.onDataNotAvailable(t.getMessage());
-                                }
-                            });
+                                    @Override
+                                    public void onFailure(@NonNull Call<DalCheck> call,
+                                            @NonNull Throwable t) {
+                                        dalCheckDataCallback.onDataNotAvailable(t.getMessage());
+                                    }
+                                });
+                            }
                         } else {
                             // get_login_creds check succeeded, so we're finished.
                             mCache.put(dalInfo, dalCheck);
