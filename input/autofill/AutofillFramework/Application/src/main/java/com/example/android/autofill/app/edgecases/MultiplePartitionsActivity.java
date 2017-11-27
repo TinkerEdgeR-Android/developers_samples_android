@@ -102,13 +102,15 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
         mCcPartition.addLine("ccSecurityCode", View.AUTOFILL_TYPE_TEXT,
                 getString(R.string.credit_card_security_code_label),
                 "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE);
-
-        findViewById(R.id.clear).setOnClickListener((view) -> {
-            resetFields();
-            mCustomVirtualView.resetPositions();
-            mAutofillManager.cancel();
-        });
         mAutofillManager = getSystemService(AutofillManager.class);
+        findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetFields();
+                mCustomVirtualView.resetPositions();
+                mAutofillManager.cancel();
+            }
+        });
     }
 
     private void resetFields() {
