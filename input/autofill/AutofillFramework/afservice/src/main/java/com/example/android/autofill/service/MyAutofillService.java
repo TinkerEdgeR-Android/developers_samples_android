@@ -33,12 +33,12 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
-import com.example.android.autofill.service.data.DataCallback;
-import com.example.android.autofill.service.data.adapter.DatasetAdapter;
-import com.example.android.autofill.service.data.adapter.ResponseAdapter;
 import com.example.android.autofill.service.data.AutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientAutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientViewMetadata;
+import com.example.android.autofill.service.data.DataCallback;
+import com.example.android.autofill.service.data.adapter.DatasetAdapter;
+import com.example.android.autofill.service.data.adapter.ResponseAdapter;
 import com.example.android.autofill.service.data.source.PackageVerificationDataSource;
 import com.example.android.autofill.service.data.source.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
@@ -203,7 +203,7 @@ public class MyAutofillService extends AutofillService {
         String webDomain;
         try {
             webDomain = mClientViewMetadata.buildWebDomain();
-        } catch(SecurityException e) {
+        } catch (SecurityException e) {
             logw(e.getMessage());
             callback.onFailure(e.getMessage());
             return;

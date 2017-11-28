@@ -75,7 +75,7 @@ public class LocalAutofillDataSource implements AutofillDataSource {
                 AutofillHints.convertToStoredHintNames(allAutofillHints);
         mAppExecutors.diskIO().execute(() -> {
             List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields = mAutofillDao
-                    .getFilledAutofillFields(storedAllAutofillHints);
+                    .getDatasets(storedAllAutofillHints);
             mAppExecutors.mainThread().execute(() ->
                     datasetsCallback.onLoaded(datasetsWithFilledAutofillFields)
             );
@@ -88,7 +88,7 @@ public class LocalAutofillDataSource implements AutofillDataSource {
         mAppExecutors.diskIO().execute(() -> {
             // Room does not support TypeConverters for collections.
             List<DatasetWithFilledAutofillFields> autofillDatasetFields =
-                    mAutofillDao.getFilledAutofillFieldsWithName(allAutofillHints, datasetName);
+                    mAutofillDao.getDatasetsWithName(allAutofillHints, datasetName);
             if (autofillDatasetFields != null && !autofillDatasetFields.isEmpty()) {
                 if (autofillDatasetFields.size() > 1) {
                     logw("More than 1 dataset with name %s", datasetName);

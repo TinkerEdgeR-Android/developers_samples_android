@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,7 +72,9 @@ public class AutofillDaoTest {
                 new DatasetWithFilledAutofillFields();
         datasetWithFilledAutofillFields.autofillDataset = mDataset;
         datasetWithFilledAutofillFields.filledAutofillFields =
-                ImmutableList.of(mUsernameField, mPasswordField);
+                Arrays.asList(mUsernameField, mPasswordField);
+        datasetWithFilledAutofillFields.filledAutofillFields
+                .sort(Comparator.comparing(FilledAutofillField::getHint));
 
         // When inserting a page's autofill fields.
         mDatabase.autofillDao().saveAutofillDataset(mDataset);
@@ -81,7 +85,9 @@ public class AutofillDaoTest {
         List<String> allHints = ImmutableList.of(View.AUTOFILL_HINT_USERNAME,
                 View.AUTOFILL_HINT_PASSWORD);
         List<DatasetWithFilledAutofillFields> loadedDatasets = mDatabase.autofillDao()
-                .getFilledAutofillFields(allHints);
+                .getDatasets(allHints);
+        loadedDatasets.get(0).filledAutofillFields.sort(
+                Comparator.comparing(FilledAutofillField::getHint));
         assertThat(loadedDatasets, contains(datasetWithFilledAutofillFields));
         assertThat(loadedDatasets, hasSize(1));
     }

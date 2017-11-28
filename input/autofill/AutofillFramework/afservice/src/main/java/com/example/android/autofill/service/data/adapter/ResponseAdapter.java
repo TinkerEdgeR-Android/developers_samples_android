@@ -106,8 +106,13 @@ public class ResponseAdapter {
                 && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
                 || autofillIds.length != 1 || allHints.size() != 1) {
             logd("Unsupported activity for partial info; returning full");
-            responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
-            return responseBuilder.build();
+            SaveInfo saveInfo = mClientViewMetadata.getSaveInfo();
+            if (saveInfo != null) {
+                responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
+                return responseBuilder.build();
+            } else {
+                return null;
+            }
         }
         int previousSaveType;
         String previousHint;

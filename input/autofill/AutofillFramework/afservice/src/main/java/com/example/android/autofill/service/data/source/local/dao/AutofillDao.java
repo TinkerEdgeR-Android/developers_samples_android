@@ -39,7 +39,7 @@ public interface AutofillDao {
     @Query("SELECT DISTINCT id, datasetName FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +
             " AND FilledAutofillField.hint IN (:allAutofillHints)")
-    List<DatasetWithFilledAutofillFields> getFilledAutofillFields(List<String> allAutofillHints);
+    List<DatasetWithFilledAutofillFields> getDatasets(List<String> allAutofillHints);
 
     /**
      * Fetches a list of datasets associated to autofill fields. It should only return a dataset
@@ -50,11 +50,11 @@ public interface AutofillDao {
      *                             all of the views on the page.
      * @param datasetName          Filtering parameter; only return datasets with this name.
      */
-    @Query("SELECT id, datasetname FROM FilledAutofillField, AutofillDataset" +
+    @Query("SELECT DISTINCT id, datasetname FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +
             " AND AutofillDataset.datasetName = (:datasetName)" +
             " AND FilledAutofillField.hint IN (:allAutofillHints)")
-    List<DatasetWithFilledAutofillFields> getFilledAutofillFieldsWithName(
+    List<DatasetWithFilledAutofillFields> getDatasetsWithName(
             List<String> allAutofillHints, String datasetName);
 
     /**

@@ -71,6 +71,7 @@ public class AuthActivity extends AppCompatActivity {
     private ClientViewMetadata mClientViewMetadata;
     private String mPackageName;
     private Intent mReplyIntent;
+    private MyPreferences mPreferences;
 
     public static IntentSender getAuthIntentSenderForResponse(Context context) {
         final Intent intent = new Intent(context, AuthActivity.class);
@@ -99,6 +100,7 @@ public class AuthActivity extends AppCompatActivity {
         mDalRepository = DigitalAssetLinksRepository.getInstance(getPackageManager());
         mMasterPassword = findViewById(R.id.master_password);
         mPackageName = getPackageName();
+        mPreferences = MyPreferences.getInstance(this);
         findViewById(R.id.login).setOnClickListener((view) -> login());
         findViewById(R.id.cancel).setOnClickListener((view) -> {
             onFailure();
@@ -115,7 +117,6 @@ public class AuthActivity extends AppCompatActivity {
             Toast.makeText(this, "Password incorrect", Toast.LENGTH_SHORT).show();
             onFailure();
         }
-        finish();
     }
 
     @Override
@@ -161,11 +162,13 @@ public class AuthActivity extends AppCompatActivity {
                         RemoteViews remoteViews = RemoteViewsHelper.viewsWithNoAuth(
                                 mPackageName, datasetName);
                         setDatasetIntent(mDatasetAdapter.buildDataset(dataset, remoteViews));
+                        finish();
                     }
 
                     @Override
                     public void onDataNotAvailable(String msg, Object... params) {
                         logw(msg, params);
+                        finish();
                     }
                 });
     }
@@ -175,13 +178,17 @@ public class AuthActivity extends AppCompatActivity {
                 new DataCallback<List<DatasetWithFilledAutofillFields>>() {
                     @Override
                     public void onLoaded(List<DatasetWithFilledAutofillFields> datasets) {
-                        FillResponse fillResponse = mResponseAdapter.buildResponse(datasets, false);
+                        boolean datasetAuth = mPreferences.isDatasetAuth();
+                        FillResponse fillResponse = mResponseAdapter.buildResponse(datasets,
+                                datasetAuth);
                         setResponseIntent(fillResponse);
+                        finish();
                     }
 
                     @Override
                     public void onDataNotAvailable(String msg, Object... params) {
                         logw(msg, params);
+                        finish();
                     }
                 });
     }

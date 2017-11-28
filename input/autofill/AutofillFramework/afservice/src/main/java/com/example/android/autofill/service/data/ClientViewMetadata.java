@@ -78,6 +78,9 @@ public class ClientViewMetadata {
         if (mCachedSaveInfo == null) {
             int saveType = getSaveType();
             AutofillId[] autofillIdsArray = getAutofillIdsArray();
+            if (autofillIdsArray == null || autofillIdsArray.length == 0) {
+                return null;
+            }
             // TODO: on MR1, creates a new SaveType without required ids
             mCachedSaveInfo = new SaveInfo.Builder(saveType, autofillIdsArray).build();
         }
