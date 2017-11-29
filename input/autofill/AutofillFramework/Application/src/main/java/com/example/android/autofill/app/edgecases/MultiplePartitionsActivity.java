@@ -47,19 +47,14 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
 
     private ScrollableCustomVirtualView mCustomVirtualView;
     private AutofillManager mAutofillManager;
-
     private CustomVirtualView.Partition mCredentialsPartition;
     private CustomVirtualView.Partition mCcPartition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.multiple_partitions_activity);
-
         mCustomVirtualView = findViewById(R.id.custom_view);
-
-
         mCredentialsPartition =
                 mCustomVirtualView.addPartition(getString(R.string.partition_credentials));
         mCredentialsPartition.addLine("username", View.AUTOFILL_TYPE_TEXT,
@@ -68,7 +63,6 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
         mCredentialsPartition.addLine("password", View.AUTOFILL_TYPE_TEXT,
                 getString(R.string.password_label),
                 "         ", true, View.AUTOFILL_HINT_PASSWORD);
-
         int ccExpirationType = View.AUTOFILL_TYPE_DATE;
         // TODO: add a checkbox to switch between text / date instead
         Intent intent = getIntent();
@@ -82,7 +76,6 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), typeMessage, Toast.LENGTH_LONG).show();
             }
         }
-
         mCcPartition = mCustomVirtualView.addPartition(getString(R.string.partition_credit_card));
         mCcPartition.addLine("ccNumber", View.AUTOFILL_TYPE_TEXT,
                 getString(R.string.credit_card_number_label),

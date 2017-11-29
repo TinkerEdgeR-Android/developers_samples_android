@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.service.autofill.Dataset;
 import android.service.autofill.FillResponse;
 import android.service.autofill.SaveInfo;
-import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
@@ -31,24 +30,21 @@ import com.example.android.autofill.service.RemoteViewsHelper;
 import com.example.android.autofill.service.data.ClientViewMetadata;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.android.autofill.service.util.Util.bundleToString;
-import static com.example.android.autofill.service.util.Util.getSaveTypeAsString;
-import static com.example.android.autofill.service.util.Util.logDebugEnabled;
 import static com.example.android.autofill.service.util.Util.logd;
 
 public class ResponseAdapter {
     public static final String CLIENT_STATE_PARTIAL_ID_TEMPLATE = "partial-%s";
     // TODO: move to settings activity and document it
     private static final boolean SUPPORT_MULTIPLE_STEPS = true;
-
+    static int pageno = 0;
     private final Context mContext;
     private final DatasetAdapter mDatasetAdapter;
     private final String mPackageName;
     private final ClientViewMetadata mClientViewMetadata;
-    private final Bundle mPreviousClientState;
+    private final List<ClientViewMetadata> mPreviousClientViewMetadatas;
 
     public ResponseAdapter(Context context, ClientViewMetadata clientViewMetadata,
             String packageName, DatasetAdapter datasetAdapter, Bundle clientState) {
@@ -56,7 +52,15 @@ public class ResponseAdapter {
         mClientViewMetadata = clientViewMetadata;
         mDatasetAdapter = datasetAdapter;
         mPackageName = packageName;
-        mPreviousClientState = clientState;
+        mPreviousClientViewMetadatas = new ArrayList<>();
+        if (clientState != null) {
+            clientState.setClassLoader(getClass().getClassLoader());
+            for (int i = pageno - 1; i >= 0; i--) {
+                ClientViewMetadata previousPage = clientState.getParcelable("client-" + (pageno - 1));
+                mPreviousClientViewMetadatas.add(previousPage);
+            }
+            logd("previous client state == " + mPreviousClientViewMetadatas);
+        }
     }
 
     /**
@@ -91,74 +95,77 @@ public class ResponseAdapter {
                 }
             }
         }
-
+        Bundle clientState = new Bundle();
+        clientState.putParcelable("client-" + (pageno++), mClientViewMetadata);
         int saveType = mClientViewMetadata.getSaveType();
-        AutofillId[] autofillIds = mClientViewMetadata.getAutofillIdsArray();
-        List<String> allHints = mClientViewMetadata.getAllHints();
-        if (logDebugEnabled()) {
-            logd("setPartialSaveInfo() for type %s: allHints=%s, ids=%s, clientState=%s",
-                    getSaveTypeAsString(saveType), allHints, Arrays.toString(autofillIds),
-                    bundleToString(mPreviousClientState));
-        }
-        // TODO: this should be more generic, but for now it's hardcode to support just activities
-        // that have an username and a password in separate steps (like MultipleStepsSigninActivity)
-        if ((saveType != SaveInfo.SAVE_DATA_TYPE_USERNAME
-                && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
-                || autofillIds.length != 1 || allHints.size() != 1) {
-            logd("Unsupported activity for partial info; returning full");
-            SaveInfo saveInfo = mClientViewMetadata.getSaveInfo();
-            if (saveInfo != null) {
-                responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
-                return responseBuilder.build();
-            } else {
-                return null;
-            }
-        }
-        int previousSaveType;
-        String previousHint;
-        if (saveType == SaveInfo.SAVE_DATA_TYPE_PASSWORD) {
-            previousHint = View.AUTOFILL_HINT_USERNAME;
-            previousSaveType = SaveInfo.SAVE_DATA_TYPE_USERNAME;
-        } else {
-            previousHint = View.AUTOFILL_HINT_PASSWORD;
-            previousSaveType = SaveInfo.SAVE_DATA_TYPE_PASSWORD;
-        }
-        String previousKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, previousHint);
-
-        AutofillId previousValue = mPreviousClientState == null ? null : mPreviousClientState
-                .getParcelable(previousKey);
-        logd("previous: %s=%s", previousKey, previousValue);
-
-        Bundle newClientState = new Bundle();
-        String key = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, allHints.get(0));
-        AutofillId value = autofillIds[0];
-        logd("New client state: %s = %s", key, value);
-        newClientState.putParcelable(key, value);
-
-        if (previousValue != null) {
-            AutofillId[] newIds = new AutofillId[]{previousValue, value};
-            int newSaveType = saveType | previousSaveType;
-            logd("new values: type=%s, ids=%s",
-                    getSaveTypeAsString(newSaveType), Arrays.toString(newIds));
-            newClientState.putAll(mPreviousClientState);
-            responseBuilder.setSaveInfo(new SaveInfo.Builder(newSaveType, newIds)
-                    .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE)
-                    .build())
-                    .setClientState(newClientState);
-
-            return responseBuilder.build();
-        }
-        responseBuilder.setClientState(newClientState);
-        responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
+        AutofillId[] autofillIds = mClientViewMetadata.getAutofillIds();
+        SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
+        responseBuilder.setSaveInfo(saveInfo);
+        responseBuilder.setClientState(clientState);
         return responseBuilder.build();
+//        int saveType = mClientViewMetadata.getSaveType();
+//        AutofillId[] autofillIds = mClientViewMetadata.getAutofillIds();
+//        List<String> allHints = mClientViewMetadata.getAllHints();
+//        if (logDebugEnabled()) {
+//            logd("setPartialSaveInfo() for type %s: allHints=%s, ids=%s, clientState=%s",
+//                    getSaveTypeAsString(saveType), allHints, Arrays.toString(autofillIds),
+//                    bundleToString(mPreviousClientState));
+//        }
+//        // TODO: this should be more generic, but for now it's hardcode to support just activities
+//        // that have an username and a password in separate steps (like MultipleStepsSigninActivity)
+//        if ((saveType != SaveInfo.SAVE_DATA_TYPE_USERNAME
+//                && saveType != SaveInfo.SAVE_DATA_TYPE_PASSWORD)
+//                || autofillIds.length != 1 || allHints.size() != 1) {
+//            logd("Unsupported activity for partial info; returning full");
+//            responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
+//            return responseBuilder.build();
+//        }
+//        int previousSaveType;
+//        String previousHint;
+//        if (saveType == SaveInfo.SAVE_DATA_TYPE_PASSWORD) {
+//            previousHint = View.AUTOFILL_HINT_USERNAME;
+//            previousSaveType = SaveInfo.SAVE_DATA_TYPE_USERNAME;
+//        } else {
+//            previousHint = View.AUTOFILL_HINT_PASSWORD;
+//            previousSaveType = SaveInfo.SAVE_DATA_TYPE_PASSWORD;
+//        }
+//        String previousKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, previousHint);
+//
+//        AutofillId previousValue = mPreviousClientState == null ? null : mPreviousClientState
+//                .getParcelable(previousKey);
+//        logd("previous: %s=%s", previousKey, previousValue);
+//
+//        Bundle newClientState = new Bundle();
+//        String key = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, allHints.get(0));
+//        AutofillId value = autofillIds[0];
+//        logd("New client state: %s = %s", key, value);
+//        newClientState.putParcelable(key, value);
+//
+//        if (previousValue != null) {
+//            AutofillId[] newIds = new AutofillId[]{previousValue, value};
+//            int newSaveType = saveType | previousSaveType;
+//            logd("new values: type=%s, ids=%s",
+//                    getSaveTypeAsString(newSaveType), Arrays.toString(newIds));
+//            newClientState.putAll(mPreviousClientState);
+//            responseBuilder.setSaveInfo(new SaveInfo.Builder(newSaveType, newIds)
+//                    .setFlags(SaveInfo.FLAG_SAVE_ON_ALL_VIEWS_INVISIBLE)
+//                    .build())
+//                    .setClientState(newClientState);
+//
+//            return responseBuilder.build();
+//        }
+//        responseBuilder.setClientState(newClientState);
+//        responseBuilder.setSaveInfo(mClientViewMetadata.getSaveInfo());
+//        return responseBuilder.build();
     }
 
     public FillResponse buildResponse(IntentSender sender, RemoteViews remoteViews) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
-        AutofillId[] autofillIds = mClientViewMetadata.getAutofillIdsArray();
-        SaveInfo saveInfo = mClientViewMetadata.getSaveInfo();
-        responseBuilder.setAuthentication(autofillIds, sender, remoteViews);
+        int saveType = mClientViewMetadata.getSaveType();
+        AutofillId[] autofillIds = mClientViewMetadata.getAutofillIds();
+        SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
         responseBuilder.setSaveInfo(saveInfo);
+        responseBuilder.setAuthentication(autofillIds, sender, remoteViews);
         return responseBuilder.build();
     }
 }

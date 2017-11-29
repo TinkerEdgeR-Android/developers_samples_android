@@ -36,6 +36,7 @@ import android.widget.RemoteViews;
 import com.example.android.autofill.service.data.AutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientAutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientViewMetadata;
+import com.example.android.autofill.service.data.ClientViewMetadataBuilder;
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.adapter.DatasetAdapter;
 import com.example.android.autofill.service.data.adapter.ResponseAdapter;
@@ -95,7 +96,8 @@ public class MyAutofillService extends AutofillService {
                 .get(request.getFillContexts().size() - 1).getStructure();
         StructureParser parser = new StructureParser(structure);
         mDatasetAdapter = new DatasetAdapter(parser);
-        mClientViewMetadata = new ClientViewMetadata(parser);
+        ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
+        mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
         mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata,
                 getPackageName(), mDatasetAdapter, request.getClientState());
         String packageName = structure.getActivityComponent().getPackageName();
@@ -150,7 +152,8 @@ public class MyAutofillService extends AutofillService {
         AssistStructure structure = fillContexts.get(size - 1).getStructure();
         StructureParser parser = new StructureParser(structure);
         mAutofillDataBuilder = new ClientAutofillDataBuilder(parser);
-        mClientViewMetadata = new ClientViewMetadata(parser);
+        ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
+        mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
         String packageName = structure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(getString(R.string.invalid_package_signature));
@@ -203,8 +206,8 @@ public class MyAutofillService extends AutofillService {
     private void checkWebDomainAndBuildAutofillData(String packageName, SaveCallback callback) {
         String webDomain;
         try {
-            webDomain = mClientViewMetadata.buildWebDomain();
-        } catch (SecurityException e) {
+            webDomain = mClientViewMetadata.getWebDomain();
+        } catch(SecurityException e) {
             logw(e.getMessage());
             callback.onFailure(getString(R.string.security_exception));
             return;

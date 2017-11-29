@@ -16,143 +16,96 @@
 
 package com.example.android.autofill.service.data;
 
-import android.app.assist.AssistStructure;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.service.autofill.SaveInfo;
 import android.view.autofill.AutofillId;
 
-import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.StructureParser;
-
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-import static com.example.android.autofill.service.util.Util.logd;
-
 /**
- * In this simple implementation, the only view data we parse from the client are autofill hints
- * of the views in the view hierarchy, the hints of views that are focused, the corresponding
- * autofill IDs, and the {@link SaveInfo} based on the hints.
- * <p>
- * Note: this class is not thread safe.
+ * In this simple implementation, the only view data we collect from the client are autofill hints
+ * of the views in the view hierarchy, the corresponding autofill IDs, and the {@link SaveInfo}
+ * based on the hints.
  */
-public class ClientViewMetadata {
-    private final StructureParser mStructureParser;
+public class ClientViewMetadata implements Parcelable {
 
-    private List<String> mCachedAllHints;
-    private Integer mCachedSaveType;
-    private SaveInfo mCachedSaveInfo;
-    private List<AutofillId> mCachedAutofillIds;
+    public static final Creator<ClientViewMetadata> CREATOR = new Creator<ClientViewMetadata>() {
+        @Override
+        public ClientViewMetadata createFromParcel(Parcel parcel) {
+            return new ClientViewMetadata(parcel);
+        }
 
-    public ClientViewMetadata(StructureParser parser) {
-        mStructureParser = parser;
+        @Override
+        public ClientViewMetadata[] newArray(int size) {
+            return new ClientViewMetadata[size];
+        }
+    };
+
+    private final List<String> mAllHints;
+    private final int mSaveType;
+    private final AutofillId[] mAutofillIds;
+    private final String mWebDomain;
+
+    public ClientViewMetadata(List<String> allHints, int saveType, AutofillId[] autofillIds,
+            String webDomain) {
+        mAllHints = allHints;
+        mSaveType = saveType;
+        mAutofillIds = autofillIds;
+        mWebDomain = webDomain;
+    }
+
+    private ClientViewMetadata(Parcel parcel) {
+        mAllHints = new ArrayList<>();
+        parcel.readList(mAllHints, String.class.getClassLoader());
+        mSaveType = parcel.readInt();
+        Parcelable[] ids = parcel.readParcelableArray(AutofillId.class.getClassLoader());
+        if (ids != null && ids.length > 0) {
+            mAutofillIds = Arrays.copyOf(ids, ids.length, AutofillId[].class);
+        } else {
+            mAutofillIds = null;
+        }
+        mWebDomain = parcel.readString();
     }
 
     public List<String> getAllHints() {
-        if (mCachedAllHints == null) {
-            parseHints();
-        }
-        return mCachedAllHints;
+        return mAllHints;
     }
 
-    private List<AutofillId> getAutofillIds() {
-        if (mCachedAutofillIds == null) {
-            AutofillSaveType autofillSaveType = new AutofillSaveType();
-            List<AutofillId> autofillIds = new ArrayList<>();
-            mStructureParser.parse((node) -> parseSaveTypeAndIds(node, autofillSaveType, autofillIds));
-            mCachedSaveType = autofillSaveType.saveType;
-            mCachedAutofillIds = autofillIds;
-        }
-        return mCachedAutofillIds;
-    }
-
-    public AutofillId[] getAutofillIdsArray() {
-        List<AutofillId> autofillIds = getAutofillIds();
-        if (autofillIds == null || autofillIds.isEmpty()) {
-            return null;
-        }
-        return autofillIds.toArray(new AutofillId[autofillIds.size()]);
-    }
-
-    public SaveInfo getSaveInfo() {
-        if (mCachedSaveInfo == null) {
-            int saveType = getSaveType();
-            AutofillId[] autofillIdsArray = getAutofillIdsArray();
-            if (autofillIdsArray == null || autofillIdsArray.length == 0) {
-                return null;
-            }
-            // TODO: on MR1, creates a new SaveType without required ids
-            mCachedSaveInfo = new SaveInfo.Builder(saveType, autofillIdsArray).build();
-        }
-        return mCachedSaveInfo;
+    public AutofillId[] getAutofillIds() {
+        return mAutofillIds;
     }
 
     public int getSaveType() {
-        if (mCachedSaveType == null) {
-            AutofillSaveType autofillSaveType = new AutofillSaveType();
-            List<AutofillId> autofillIds = new ArrayList<>();
-            mStructureParser.parse((node) -> parseSaveTypeAndIds(node, autofillSaveType, autofillIds));
-            mCachedSaveType = autofillSaveType.saveType;
-            mCachedAutofillIds = autofillIds;
-        }
-        return mCachedSaveType;
+        return mSaveType;
     }
 
-    public String buildWebDomain() {
-        StringBuilder webDomainBuilder = new StringBuilder();
-        mStructureParser.parse((node) -> parseWebDomain(node, webDomainBuilder));
-        return webDomainBuilder.toString();
+    public String getWebDomain() {
+        return mWebDomain;
     }
 
-    private void parseWebDomain(AssistStructure.ViewNode viewNode, StringBuilder validWebDomain) {
-        String webDomain = viewNode.getWebDomain();
-        if (webDomain != null) {
-            logd("child web domain: %s", webDomain);
-            if (validWebDomain.length() > 0) {
-                if (!webDomain.equals(validWebDomain.toString())) {
-                    throw new SecurityException("Found multiple web domains: valid= "
-                            + validWebDomain + ", child=" + webDomain);
-                }
-            } else {
-                validWebDomain.append(webDomain);
-            }
-        }
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeList(mAllHints);
+        parcel.writeInt(mSaveType);
+        parcel.writeParcelableArray(mAutofillIds, 0);
+        parcel.writeString(mWebDomain);
     }
 
-    private void parseSaveTypeAndIds(AssistStructure.ViewNode root,
-            AutofillSaveType autofillSaveType, List<AutofillId> autofillIds) {
-        String[] hints = root.getAutofillHints();
-        if (hints != null) {
-            for (String hint : hints) {
-                if (AutofillHints.isValidHint(hint)) {
-                    autofillSaveType.saveType |= AutofillHints.getSaveTypeForHint(hint);
-                    autofillIds.add(root.getAutofillId());
-                }
-            }
-        }
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    private void parseHints() {
-        List<String> allHints = new ArrayList<>();
-        mStructureParser.parse((node) -> getHints(node, allHints));
-        mCachedAllHints = allHints;
-    }
-
-    private void getHints(AssistStructure.ViewNode node, List<String> allHints) {
-        if (node.getAutofillHints() != null) {
-            String[] hints = node.getAutofillHints();
-            Collections.addAll(allHints, hints);
-        }
-    }
-
-    public void clearCache() {
-        mCachedAllHints = null;
-        mCachedSaveType = null;
-        mCachedSaveInfo = null;
-        mCachedAutofillIds = null;
-    }
-
-    private class AutofillSaveType {
-        int saveType;
+    @Override
+    public String toString() {
+        return "ClientViewMetadata{" +
+                "mAllHints=" + mAllHints +
+                ", mSaveType=" + mSaveType +
+                ", mAutofillIds=" + Arrays.toString(mAutofillIds) +
+                ", mWebDomain='" + mWebDomain + '\'' +
+                '}';
     }
 }

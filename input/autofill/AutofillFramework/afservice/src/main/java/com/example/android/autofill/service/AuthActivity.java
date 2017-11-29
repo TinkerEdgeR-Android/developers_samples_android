@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.example.android.autofill.service.data.ClientViewMetadataBuilder;
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.adapter.DatasetAdapter;
 import com.example.android.autofill.service.data.adapter.ResponseAdapter;
@@ -140,7 +141,8 @@ public class AuthActivity extends AppCompatActivity {
         Bundle clientState = intent.getBundleExtra(AutofillManager.EXTRA_CLIENT_STATE);
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         StructureParser structureParser = new StructureParser(structure);
-        mClientViewMetadata = new ClientViewMetadata(structureParser);
+        ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(structureParser);
+        mClientViewMetadata = builder.buildClientViewMetadata();
         mDatasetAdapter = new DatasetAdapter(structureParser);
         mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata, mPackageName,
                 mDatasetAdapter, clientState);
