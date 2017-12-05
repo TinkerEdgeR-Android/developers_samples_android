@@ -279,6 +279,23 @@ public final class Util {
         sLoggingLevel = level;
     }
 
+    /**
+     * Helper method for getting the index of a CharSequence object in an array.
+     */
+    public static int indexOf(@NonNull CharSequence[] array, CharSequence charSequence) {
+        int index = -1;
+        if (charSequence == null) {
+            return index;
+        }
+        for (int i = 0; i < array.length; i++) {
+            if (charSequence.equals(array[i])) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
     public enum LogLevel {Off, Debug, Verbose}
 
     public enum DalCheckRequirement {Disabled, LoginOnly, AllUrls}

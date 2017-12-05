@@ -20,18 +20,25 @@ import android.app.assist.AssistStructure;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 import static android.app.assist.AssistStructure.ViewNode;
 
 /**
  * Wrapper for {@link AssistStructure} to make it easy to parse.
  */
-public final class StructureParser {
-    private final AssistStructure mStructure;
+public final class ClientParser {
+    private final List<AssistStructure> mStructures;
 
-    public StructureParser(@NonNull AssistStructure structure) {
-        Preconditions.checkNotNull(structure);
-        mStructure = structure;
+    public ClientParser(@NonNull List<AssistStructure> structures) {
+        Preconditions.checkNotNull(structures);
+        mStructures = structures;
+    }
+
+    public ClientParser(@NonNull AssistStructure structure) {
+        this(ImmutableList.of(structure));
     }
 
     /**
@@ -40,10 +47,12 @@ public final class StructureParser {
      * @param processor contains action to be performed on each {@link ViewNode}.
      */
     public void parse(NodeProcessor processor) {
-        int nodes = mStructure.getWindowNodeCount();
-        for (int i = 0; i < nodes; i++) {
-            AssistStructure.ViewNode viewNode = mStructure.getWindowNodeAt(i).getRootViewNode();
-            traverseRoot(viewNode, processor);
+        for (AssistStructure structure : mStructures) {
+            int nodes = structure.getWindowNodeCount();
+            for (int i = 0; i < nodes; i++) {
+                AssistStructure.ViewNode viewNode = structure.getWindowNodeAt(i).getRootViewNode();
+                traverseRoot(viewNode, processor);
+            }
         }
     }
 

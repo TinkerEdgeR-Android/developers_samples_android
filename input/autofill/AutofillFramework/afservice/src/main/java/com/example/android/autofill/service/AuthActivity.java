@@ -27,16 +27,15 @@ import android.service.autofill.FillResponse;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
-import android.view.autofill.AutofillManager;
 import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.example.android.autofill.service.data.ClientViewMetadata;
 import com.example.android.autofill.service.data.ClientViewMetadataBuilder;
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.adapter.DatasetAdapter;
 import com.example.android.autofill.service.data.adapter.ResponseAdapter;
-import com.example.android.autofill.service.data.ClientViewMetadata;
 import com.example.android.autofill.service.data.source.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
 import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
@@ -138,14 +137,13 @@ public class AuthActivity extends AppCompatActivity {
     private void onSuccess() {
         Intent intent = getIntent();
         boolean forResponse = intent.getBooleanExtra(EXTRA_FOR_RESPONSE, true);
-        Bundle clientState = intent.getBundleExtra(AutofillManager.EXTRA_CLIENT_STATE);
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
-        StructureParser structureParser = new StructureParser(structure);
-        ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(structureParser);
+        ClientParser clientParser = new ClientParser(structure);
+        ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(clientParser);
         mClientViewMetadata = builder.buildClientViewMetadata();
-        mDatasetAdapter = new DatasetAdapter(structureParser);
+        mDatasetAdapter = new DatasetAdapter(clientParser);
         mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata, mPackageName,
-                mDatasetAdapter, clientState);
+                mDatasetAdapter);
         mReplyIntent = new Intent();
         if (forResponse) {
             fetchAllDatasetsAndSetIntent();

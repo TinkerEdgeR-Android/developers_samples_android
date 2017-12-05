@@ -29,8 +29,6 @@ import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
 import android.support.annotation.NonNull;
-import android.view.View;
-import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.data.AutofillDataBuilder;
@@ -52,19 +50,18 @@ import com.example.android.autofill.service.model.DatasetWithFilledAutofillField
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
-import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
+
 import java.util.List;
 
-import static com.example.android.autofill.service.data.adapter.ResponseAdapter.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
-import static com.example.android.autofill.service.util.Util.AUTOFILL_ID_FILTER;
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
 import static com.example.android.autofill.service.util.Util.bundleToString;
 import static com.example.android.autofill.service.util.Util.dumpStructure;
-import static com.example.android.autofill.service.util.Util.findNodeByFilter;
 import static com.example.android.autofill.service.util.Util.logVerboseEnabled;
 import static com.example.android.autofill.service.util.Util.logd;
 import static com.example.android.autofill.service.util.Util.loge;
 import static com.example.android.autofill.service.util.Util.logv;
 import static com.example.android.autofill.service.util.Util.logw;
+import static java.util.stream.Collectors.toList;
 
 public class MyAutofillService extends AutofillService {
 
@@ -72,14 +69,15 @@ public class MyAutofillService extends AutofillService {
     private DigitalAssetLinksRepository mDalRepository;
     private PackageVerificationDataSource mPackageVerificationRepository;
     private AutofillDataBuilder mAutofillDataBuilder;
-    private DatasetAdapter mDatasetAdapter;
     private ResponseAdapter mResponseAdapter;
     private ClientViewMetadata mClientViewMetadata;
+    private MyPreferences mPreferences;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
+        mPreferences = MyPreferences.getInstance(this);
+        Util.setLoggingLevel(mPreferences.getLoggingLevel());
         SharedPreferences localAfDataSourceSharedPrefs =
                 getSharedPreferences(LocalAutofillDataSource.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         AutofillDao autofillDao = AutofillDatabase.getInstance(this).autofillDao();
@@ -92,29 +90,31 @@ public class MyAutofillService extends AutofillService {
     @Override
     public void onFillRequest(@NonNull FillRequest request,
             @NonNull CancellationSignal cancellationSignal, @NonNull FillCallback callback) {
-        AssistStructure structure = request.getFillContexts()
-                .get(request.getFillContexts().size() - 1).getStructure();
-        StructureParser parser = new StructureParser(structure);
-        mDatasetAdapter = new DatasetAdapter(parser);
+        List<FillContext> fillContexts = request.getFillContexts();
+        List<AssistStructure> structures =
+                fillContexts.stream().map(FillContext::getStructure).collect(toList());
+        AssistStructure latestStructure = fillContexts.get(fillContexts.size() - 1).getStructure();
+        ClientParser parser = new ClientParser(structures);
+        DatasetAdapter datasetAdapter = new DatasetAdapter(parser);
         ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
         mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
         mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata,
-                getPackageName(), mDatasetAdapter, request.getClientState());
-        String packageName = structure.getActivityComponent().getPackageName();
+                getPackageName(), datasetAdapter);
+        String packageName = latestStructure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(getString(R.string.invalid_package_signature));
             return;
         }
-        final Bundle clientState = request.getClientState();
         if (logVerboseEnabled()) {
-            logv("onFillRequest(): clientState=%s", bundleToString(clientState));
-            dumpStructure(structure);
+            logv("onFillRequest(): clientState=%s",
+                    bundleToString(request.getClientState()));
+            dumpStructure(latestStructure);
         }
         cancellationSignal.setOnCancelListener(() ->
                 logw("Cancel autofill not implemented in this sample.")
         );
         // Check user's settings for authenticating Responses and Datasets.
-        boolean responseAuth = MyPreferences.getInstance(this).isResponseAuth();
+        boolean responseAuth = mPreferences.isResponseAuth();
         if (responseAuth) {
             // If the entire Autofill Response is authenticated, AuthActivity is used
             // to generate Response.
@@ -126,7 +126,7 @@ public class MyAutofillService extends AutofillService {
                 callback.onSuccess(response);
             }
         } else {
-            boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
+            boolean datasetAuth = mPreferences.isDatasetAuth();
             mLocalAutofillDataSource.getAutofillDatasets(mClientViewMetadata.getAllHints(),
                     new DataCallback<List<DatasetWithFilledAutofillFields>>() {
                         @Override
@@ -148,58 +148,23 @@ public class MyAutofillService extends AutofillService {
     @Override
     public void onSaveRequest(@NonNull SaveRequest request, @NonNull SaveCallback callback) {
         List<FillContext> fillContexts = request.getFillContexts();
-        int size = fillContexts.size();
-        AssistStructure structure = fillContexts.get(size - 1).getStructure();
-        StructureParser parser = new StructureParser(structure);
-        mAutofillDataBuilder = new ClientAutofillDataBuilder(parser);
+        List<AssistStructure> structures =
+                fillContexts.stream().map(FillContext::getStructure).collect(toList());
+        AssistStructure latestStructure = fillContexts.get(fillContexts.size() - 1).getStructure();
+        ClientParser parser = new ClientParser(structures);
+        Bundle clientState = request.getClientState();
+        mAutofillDataBuilder = new ClientAutofillDataBuilder(parser, clientState);
         ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
         mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
-        String packageName = structure.getActivityComponent().getPackageName();
+        String packageName = latestStructure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(getString(R.string.invalid_package_signature));
             return;
         }
-        Bundle clientState = request.getClientState();
         if (logVerboseEnabled()) {
             logv("onSaveRequest(): clientState=%s", bundleToString(clientState));
         }
-        dumpStructure(structure);
-
-        // TODO: hardcode check for partial username
-        if (clientState != null) {
-            String usernameKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE,
-                    View.AUTOFILL_HINT_USERNAME);
-            AutofillId usernameId = clientState.getParcelable(usernameKey);
-            logd("client state for %s: %s", usernameKey, usernameId);
-            if (usernameId != null) {
-                String passwordKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE,
-                        View.AUTOFILL_HINT_PASSWORD);
-                AutofillId passwordId = clientState.getParcelable(passwordKey);
-
-                logd("Scanning %d contexts for username ID %s and password ID %s.", size,
-                        usernameId, passwordId);
-                AssistStructure.ViewNode usernameNode =
-                        findNodeByFilter(fillContexts, usernameId, AUTOFILL_ID_FILTER);
-                AssistStructure.ViewNode passwordNode =
-                        findNodeByFilter(fillContexts, passwordId, AUTOFILL_ID_FILTER);
-                String username = null, password = null;
-                if (usernameNode != null) {
-                    username = usernameNode.getAutofillValue().getTextValue().toString();
-                }
-                if (passwordNode != null) {
-                    password = passwordNode.getAutofillValue().getTextValue().toString();
-                }
-
-                if (username != null && password != null) {
-                    logd("user: %s, pass: %s", username, password);
-                    // TODO: save it
-                    callback.onFailure("TODO: save " + username + "/" + password);
-                    return;
-                } else {
-                    logw(" missing user (%s) or pass (%s)", username, password);
-                }
-            }
-        }
+        dumpStructure(latestStructure);
         checkWebDomainAndBuildAutofillData(packageName, callback);
     }
 
@@ -207,13 +172,13 @@ public class MyAutofillService extends AutofillService {
         String webDomain;
         try {
             webDomain = mClientViewMetadata.getWebDomain();
-        } catch(SecurityException e) {
+        } catch (SecurityException e) {
             logw(e.getMessage());
             callback.onFailure(getString(R.string.security_exception));
             return;
         }
         if (webDomain != null && webDomain.length() > 0) {
-            DalCheckRequirement req = MyPreferences.getInstance(this).getDalCheckRequirement();
+            DalCheckRequirement req = mPreferences.getDalCheckRequirement();
             mDalRepository.checkValid(req, new DalInfo(webDomain, packageName),
                     new DataCallback<DalCheck>() {
                         @Override

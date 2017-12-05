@@ -20,8 +20,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
-import com.example.android.autofill.service.util.SecurityHelper;
 import com.example.android.autofill.service.data.source.PackageVerificationDataSource;
+import com.example.android.autofill.service.util.SecurityHelper;
 
 import static com.example.android.autofill.service.util.Util.logd;
 import static com.example.android.autofill.service.util.Util.logw;

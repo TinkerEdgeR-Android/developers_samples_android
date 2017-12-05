@@ -19,7 +19,6 @@ package com.example.android.autofill.service.data.adapter;
 import android.app.assist.AssistStructure;
 import android.content.IntentSender;
 import android.service.autofill.Dataset;
-import android.support.annotation.NonNull;
 import android.util.MutableBoolean;
 import android.view.View;
 import android.view.autofill.AutofillId;
@@ -27,7 +26,7 @@ import android.view.autofill.AutofillValue;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.StructureParser;
+import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.model.FilledAutofillField;
 
@@ -36,32 +35,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.example.android.autofill.service.util.Util.indexOf;
 import static com.example.android.autofill.service.util.Util.logv;
 import static com.example.android.autofill.service.util.Util.logw;
 import static java.util.stream.Collectors.toMap;
 
 public class DatasetAdapter {
-    private final StructureParser mStructureParser;
+    private final ClientParser mClientParser;
 
-    public DatasetAdapter(StructureParser structureParser) {
-        mStructureParser = structureParser;
-    }
-
-    /**
-     * Helper method for getting the index of a CharSequence object in an array.
-     */
-    private static int indexOf(@NonNull CharSequence[] array, CharSequence charSequence) {
-        int index = -1;
-        if (charSequence == null) {
-            return index;
-        }
-        for (int i = 0; i < array.length; i++) {
-            if (charSequence.equals(array[i])) {
-                index = i;
-                break;
-            }
-        }
-        return index;
+    public DatasetAdapter(ClientParser clientParser) {
+        mClientParser = clientParser;
     }
 
     /**
@@ -97,7 +80,7 @@ public class DatasetAdapter {
         MutableBoolean setValueAtLeastOnce = new MutableBoolean(false);
         Map<String, FilledAutofillField> map = datasetWithFilledAutofillFields.filledAutofillFields
                 .stream().collect(toMap(FilledAutofillField::getHint, Function.identity()));
-        mStructureParser.parse((node) ->
+        mClientParser.parse((node) ->
                 parseAutofillFields(node, map, datasetBuilder, setValueAtLeastOnce)
         );
         return setValueAtLeastOnce.value;

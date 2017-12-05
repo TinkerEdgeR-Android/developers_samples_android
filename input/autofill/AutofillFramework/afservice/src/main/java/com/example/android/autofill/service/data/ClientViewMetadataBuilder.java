@@ -22,7 +22,7 @@ import android.util.MutableInt;
 import android.view.autofill.AutofillId;
 
 import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.StructureParser;
+import com.example.android.autofill.service.ClientParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +30,10 @@ import java.util.List;
 import static com.example.android.autofill.service.util.Util.logd;
 
 public class ClientViewMetadataBuilder {
-    private StructureParser mStructureParser;
+    private ClientParser mClientParser;
 
-    public ClientViewMetadataBuilder(StructureParser parser) {
-        mStructureParser = parser;
+    public ClientViewMetadataBuilder(ClientParser parser) {
+        mClientParser = parser;
     }
 
     public ClientViewMetadata buildClientViewMetadata() {
@@ -41,8 +41,8 @@ public class ClientViewMetadataBuilder {
         MutableInt saveType = new MutableInt(0);
         List<AutofillId> autofillIds = new ArrayList<>();
         StringBuilder webDomainBuilder = new StringBuilder();
-        mStructureParser.parse((node) -> parseNode(node, allHints, saveType, autofillIds));
-        mStructureParser.parse((node) -> parseWebDomain(node, webDomainBuilder));
+        mClientParser.parse((node) -> parseNode(node, allHints, saveType, autofillIds));
+        mClientParser.parse((node) -> parseWebDomain(node, webDomainBuilder));
         String webDomain = webDomainBuilder.toString();
         AutofillId[] autofillIdsArray = autofillIds.toArray(new AutofillId[autofillIds.size()]);
         return new ClientViewMetadata(allHints, saveType.value, autofillIdsArray, webDomain);

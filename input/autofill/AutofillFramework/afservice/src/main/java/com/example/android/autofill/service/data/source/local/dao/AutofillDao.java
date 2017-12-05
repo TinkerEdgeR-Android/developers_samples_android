@@ -33,8 +33,8 @@ public interface AutofillDao {
     /**
      * Fetches a list of datasets associated to autofill fields on the page.
      *
-     * @param allAutofillHints     Filtering parameter; represents all of the hints associated with
-     *                             all of the views on the page.
+     * @param allAutofillHints Filtering parameter; represents all of the hints associated with
+     *                         all of the views on the page.
      */
     @Query("SELECT DISTINCT id, datasetName FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +
@@ -46,9 +46,9 @@ public interface AutofillDao {
      * if that dataset has an autofill field associate with the view the user is focused on, and
      * if that dataset's name matches the name passed in.
      *
-     * @param allAutofillHints     Filtering parameter; represents all of the hints associated with
-     *                             all of the views on the page.
-     * @param datasetName          Filtering parameter; only return datasets with this name.
+     * @param allAutofillHints Filtering parameter; represents all of the hints associated with
+     *                         all of the views on the page.
+     * @param datasetName      Filtering parameter; only return datasets with this name.
      */
     @Query("SELECT DISTINCT id, datasetname FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +

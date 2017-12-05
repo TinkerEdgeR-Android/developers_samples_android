@@ -17,12 +17,13 @@
 package com.example.android.autofill.service.data;
 
 import android.app.assist.AssistStructure;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.autofill.AutofillValue;
 
 import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.StructureParser;
+import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.AutofillDataset;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.model.FilledAutofillField;
@@ -39,16 +40,60 @@ import static com.example.android.autofill.service.AutofillHints.convertToStored
 import static com.example.android.autofill.service.util.Util.loge;
 
 public class ClientAutofillDataBuilder implements AutofillDataBuilder {
-    private final StructureParser mStructureParser;
+    private final ClientParser mClientParser;
+    private final Bundle mClientState;
 
-    public ClientAutofillDataBuilder(StructureParser structureParser) {
-        mStructureParser = structureParser;
+    private AssistStructure.ViewNode usernameNode;
+    private AssistStructure.ViewNode passwordNode;
+
+    public ClientAutofillDataBuilder(ClientParser clientParser, Bundle clientState) {
+        mClientParser = clientParser;
+        mClientState = clientState;
     }
 
     @Override
     public List<DatasetWithFilledAutofillFields> buildDatasetsByPartition(int datasetNumber) {
         ImmutableList.Builder<DatasetWithFilledAutofillFields> listBuilder =
                 new ImmutableList.Builder<>();
+//        if (mClientState != null) {
+//            mClientState.setClassLoader(ClientViewMetadata.class.getClassLoader());
+//            ArrayList<ClientViewMetadata> clientViewMetadataList = mClientState.getParcelableArrayList(
+//                    ResponseAdapter.CLIENT_STATES_KEY);
+//            if (clientViewMetadataList != null && clientViewMetadataList.size() == 2) {
+//                ClientViewMetadata usernameMetadata = clientViewMetadataList.get(0);
+//                ClientViewMetadata passwordMetadata = clientViewMetadataList.get(1);
+//                boolean possibleMultiPage =
+//                        usernameMetadata.getMultiPageMetadata().isPartOfMultiPage() &&
+//                                passwordMetadata.getMultiPageMetadata().isPartOfMultiPage();
+//                AutofillId usernameId = usernameMetadata.getMultiPageMetadata().getUsernameId();
+//                AutofillId passwordId = passwordMetadata.getMultiPageMetadata().getPasswordId();
+//                if (possibleMultiPage && usernameId != null && passwordId != null) {
+//                    mClientParser.parse((node) -> {
+//                        if (usernameId.equals(node.getAutofillId())) {
+//                            usernameNode = node;
+//                        } else if (passwordId.equals(node.getAutofillId())) {
+//                            passwordNode = node;
+//                        }
+//                    });
+//                    String username = null, password = null;
+//                    if (usernameNode != null && usernameNode.getAutofillValue() != null) {
+//                        username = usernameNode.getAutofillValue().getTextValue().toString();
+//                    }
+//                    if (passwordNode != null && passwordNode.getAutofillValue() != null) {
+//                        password = passwordNode.getAutofillValue().getTextValue().toString();
+//                    }
+//
+//                    if (username != null && password != null) {
+//                        logd("user: %s, pass: %s", username, password);
+//                        // TODO: save it
+//                    } else {
+//                        logw(" missing user (%s) or pass (%s)", username, password);
+//                    }
+//                }
+//            }
+//        }
+
+
         for (int partition : AutofillHints.PARTITIONS) {
             AutofillDataset autofillDataset = new AutofillDataset(UUID.randomUUID().toString(),
                     "dataset-" + datasetNumber + "." + partition);
@@ -70,7 +115,7 @@ public class ClientAutofillDataBuilder implements AutofillDataBuilder {
         DatasetWithFilledAutofillFields datasetWithFilledAutofillFields =
                 new DatasetWithFilledAutofillFields();
         datasetWithFilledAutofillFields.autofillDataset = dataset;
-        mStructureParser.parse((node) ->
+        mClientParser.parse((node) ->
                 parseAutofillFields(node, datasetWithFilledAutofillFields, partition)
         );
         if (datasetWithFilledAutofillFields.filledAutofillFields == null) {

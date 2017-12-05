@@ -16,12 +16,9 @@
 
 package com.example.android.autofill.service.data;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.service.autofill.SaveInfo;
 import android.view.autofill.AutofillId;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,20 +27,7 @@ import java.util.List;
  * of the views in the view hierarchy, the corresponding autofill IDs, and the {@link SaveInfo}
  * based on the hints.
  */
-public class ClientViewMetadata implements Parcelable {
-
-    public static final Creator<ClientViewMetadata> CREATOR = new Creator<ClientViewMetadata>() {
-        @Override
-        public ClientViewMetadata createFromParcel(Parcel parcel) {
-            return new ClientViewMetadata(parcel);
-        }
-
-        @Override
-        public ClientViewMetadata[] newArray(int size) {
-            return new ClientViewMetadata[size];
-        }
-    };
-
+public class ClientViewMetadata {
     private final List<String> mAllHints;
     private final int mSaveType;
     private final AutofillId[] mAutofillIds;
@@ -55,19 +39,6 @@ public class ClientViewMetadata implements Parcelable {
         mSaveType = saveType;
         mAutofillIds = autofillIds;
         mWebDomain = webDomain;
-    }
-
-    private ClientViewMetadata(Parcel parcel) {
-        mAllHints = new ArrayList<>();
-        parcel.readList(mAllHints, String.class.getClassLoader());
-        mSaveType = parcel.readInt();
-        Parcelable[] ids = parcel.readParcelableArray(AutofillId.class.getClassLoader());
-        if (ids != null && ids.length > 0) {
-            mAutofillIds = Arrays.copyOf(ids, ids.length, AutofillId[].class);
-        } else {
-            mAutofillIds = null;
-        }
-        mWebDomain = parcel.readString();
     }
 
     public List<String> getAllHints() {
@@ -84,19 +55,6 @@ public class ClientViewMetadata implements Parcelable {
 
     public String getWebDomain() {
         return mWebDomain;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeList(mAllHints);
-        parcel.writeInt(mSaveType);
-        parcel.writeParcelableArray(mAutofillIds, 0);
-        parcel.writeString(mWebDomain);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     @Override
