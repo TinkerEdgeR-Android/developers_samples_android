@@ -15,15 +15,19 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.wearable.activity.WearableActivity;
+import android.support.wear.ambient.AmbientMode;
 
-public class ControlsActivity extends WearableActivity {
+public class ControlsActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AmbientMode.attachAmbientSupport(this);
+
         // Display the fragment as the main content.
         getFragmentManager()
                 .beginTransaction()
@@ -40,4 +44,11 @@ public class ControlsActivity extends WearableActivity {
             addPreferencesFromResource(R.xml.prefs_controls);
         }
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

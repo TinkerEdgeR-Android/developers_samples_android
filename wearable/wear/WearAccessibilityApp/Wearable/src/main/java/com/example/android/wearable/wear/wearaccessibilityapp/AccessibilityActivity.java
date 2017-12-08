@@ -15,20 +15,23 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.wearable.activity.WearableActivity;
+import android.support.wear.ambient.AmbientMode;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class AccessibilityActivity extends WearableActivity {
+public class AccessibilityActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accessibility);
+
+        AmbientMode.attachAmbientSupport(this);
 
         ImageView accessibilityImage = findViewById(R.id.icon_image_view);
         accessibilityImage.setImageDrawable(getDrawable(R.drawable.settings_circle));
@@ -46,4 +49,11 @@ public class AccessibilityActivity extends WearableActivity {
                             }
                         });
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

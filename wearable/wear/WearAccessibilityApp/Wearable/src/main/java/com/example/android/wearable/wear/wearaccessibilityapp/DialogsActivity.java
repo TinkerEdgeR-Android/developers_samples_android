@@ -15,12 +15,13 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
+import android.support.wear.ambient.AmbientMode;
 import android.support.wearable.view.AcceptDenyDialog;
 import android.support.wearable.view.WearableDialogHelper.DialogBuilder;
 import android.view.LayoutInflater;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class DialogsActivity extends WearableActivity {
+public class DialogsActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     private List<DialogsItem> mItems;
     public View mView;
@@ -42,6 +43,8 @@ public class DialogsActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialogs);
+
+        AmbientMode.attachAmbientSupport(this);
 
         // Supplier objects
         Supplier<Dialog> twoActionDialog =
@@ -178,4 +181,11 @@ public class DialogsActivity extends WearableActivity {
                     }
                 });
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }
