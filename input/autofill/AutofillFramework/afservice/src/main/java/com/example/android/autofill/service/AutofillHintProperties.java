@@ -85,4 +85,8 @@ public final class AutofillHintProperties {
     public boolean isValidType(int type) {
         return mValidTypes.contains(type);
     }
+
+    public Set<Integer> getTypes() {
+        return mValidTypes;
+    }
 }

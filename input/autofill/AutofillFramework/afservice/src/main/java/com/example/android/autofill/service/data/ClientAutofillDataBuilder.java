@@ -17,7 +17,6 @@
 package com.example.android.autofill.service.data;
 
 import android.app.assist.AssistStructure;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.autofill.AutofillValue;
@@ -25,82 +24,42 @@ import android.view.autofill.AutofillValue;
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.AutofillDataset;
+import com.example.android.autofill.service.model.AutofillHint;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.example.android.autofill.service.model.FilledAutofillField;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import static com.example.android.autofill.service.AutofillHints.convertToStoredHintNames;
 import static com.example.android.autofill.service.util.Util.loge;
 
 public class ClientAutofillDataBuilder implements AutofillDataBuilder {
     private final ClientParser mClientParser;
-    private final Bundle mClientState;
+    private final HashMap<String, FieldTypeWithHints> mFieldTypesByAutofillHint;
 
-    private AssistStructure.ViewNode usernameNode;
-    private AssistStructure.ViewNode passwordNode;
-
-    public ClientAutofillDataBuilder(ClientParser clientParser, Bundle clientState) {
+    public ClientAutofillDataBuilder(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            ClientParser clientParser) {
         mClientParser = clientParser;
-        mClientState = clientState;
+        mFieldTypesByAutofillHint = fieldTypesByAutofillHint;
     }
 
     @Override
     public List<DatasetWithFilledAutofillFields> buildDatasetsByPartition(int datasetNumber) {
         ImmutableList.Builder<DatasetWithFilledAutofillFields> listBuilder =
                 new ImmutableList.Builder<>();
-//        if (mClientState != null) {
-//            mClientState.setClassLoader(ClientViewMetadata.class.getClassLoader());
-//            ArrayList<ClientViewMetadata> clientViewMetadataList = mClientState.getParcelableArrayList(
-//                    ResponseAdapter.CLIENT_STATES_KEY);
-//            if (clientViewMetadataList != null && clientViewMetadataList.size() == 2) {
-//                ClientViewMetadata usernameMetadata = clientViewMetadataList.get(0);
-//                ClientViewMetadata passwordMetadata = clientViewMetadataList.get(1);
-//                boolean possibleMultiPage =
-//                        usernameMetadata.getMultiPageMetadata().isPartOfMultiPage() &&
-//                                passwordMetadata.getMultiPageMetadata().isPartOfMultiPage();
-//                AutofillId usernameId = usernameMetadata.getMultiPageMetadata().getUsernameId();
-//                AutofillId passwordId = passwordMetadata.getMultiPageMetadata().getPasswordId();
-//                if (possibleMultiPage && usernameId != null && passwordId != null) {
-//                    mClientParser.parse((node) -> {
-//                        if (usernameId.equals(node.getAutofillId())) {
-//                            usernameNode = node;
-//                        } else if (passwordId.equals(node.getAutofillId())) {
-//                            passwordNode = node;
-//                        }
-//                    });
-//                    String username = null, password = null;
-//                    if (usernameNode != null && usernameNode.getAutofillValue() != null) {
-//                        username = usernameNode.getAutofillValue().getTextValue().toString();
-//                    }
-//                    if (passwordNode != null && passwordNode.getAutofillValue() != null) {
-//                        password = passwordNode.getAutofillValue().getTextValue().toString();
-//                    }
-//
-//                    if (username != null && password != null) {
-//                        logd("user: %s, pass: %s", username, password);
-//                        // TODO: save it
-//                    } else {
-//                        logw(" missing user (%s) or pass (%s)", username, password);
-//                    }
-//                }
-//            }
-//        }
-
-
         for (int partition : AutofillHints.PARTITIONS) {
             AutofillDataset autofillDataset = new AutofillDataset(UUID.randomUUID().toString(),
                     "dataset-" + datasetNumber + "." + partition);
-            DatasetWithFilledAutofillFields datasetWithFilledAutofillFields =
+            DatasetWithFilledAutofillFields dataset =
                     buildDatasetForPartition(autofillDataset, partition);
-            if (datasetWithFilledAutofillFields != null) {
-                listBuilder.add(datasetWithFilledAutofillFields);
+            if (dataset != null && dataset.filledAutofillFields != null) {
+                listBuilder.add(dataset);
             }
         }
         return listBuilder.build();
@@ -118,21 +77,14 @@ public class ClientAutofillDataBuilder implements AutofillDataBuilder {
         mClientParser.parse((node) ->
                 parseAutofillFields(node, datasetWithFilledAutofillFields, partition)
         );
-        if (datasetWithFilledAutofillFields.filledAutofillFields == null) {
-            return null;
-        } else {
-            return datasetWithFilledAutofillFields;
-        }
+        return datasetWithFilledAutofillFields;
+
     }
 
     private void parseAutofillFields(AssistStructure.ViewNode viewNode,
             DatasetWithFilledAutofillFields datasetWithFilledAutofillFields, int partition) {
         String[] hints = viewNode.getAutofillHints();
-        if (hints == null) {
-            return;
-        }
-        List<String> filteredHints = convertToStoredHintNames(Arrays.asList(hints), partition);
-        if (filteredHints == null || filteredHints.size() == 0) {
+        if (hints == null || hints.length == 0) {
             return;
         }
         AutofillValue autofillValue = viewNode.getAutofillValue();
@@ -156,44 +108,49 @@ public class ClientAutofillDataBuilder implements AutofillDataBuilder {
             }
         }
         appendViewMetadata(datasetWithFilledAutofillFields,
-                filteredHints, textValue, dateValue, toggleValue,
+                hints, partition, textValue, dateValue, toggleValue,
                 autofillOptions, listIndex);
     }
 
     private void appendViewMetadata(@NonNull DatasetWithFilledAutofillFields
-            datasetWithFilledAutofillFields, @NonNull List<String> hints,
+            datasetWithFilledAutofillFields, @NonNull String[] hints, int partition,
             @Nullable String textValue, @Nullable Long dateValue, @Nullable Boolean toggleValue,
             @Nullable CharSequence[] autofillOptions, @Nullable Integer listIndex) {
-        for (int i = 0; i < hints.size(); i++) {
-            String hint = hints.get(i);
+        for (int i = 0; i < hints.length; i++) {
+            String hint = hints[i];
             // Then check if the "actual" hint is supported.
-            if (AutofillHints.isValidHint(hint)) {
-                // Only add the field if the hint is supported by the type.
-                if (textValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_TEXT),
-                            "Text is invalid type for hint '%s'", hint);
+            FieldTypeWithHints fieldTypeWithHints = mFieldTypesByAutofillHint.get(hint);
+            if (fieldTypeWithHints != null) {
+                FieldType fieldType = fieldTypeWithHints.fieldType;
+                if (!AutofillHints.matchesPartition(fieldType.getPartition(), partition)) {
+                    continue;
                 }
+                    // Only add the field if the hint is supported by the type.
+                if (textValue != null) {
+                        if (!fieldType.getAutofillTypes().ints.contains(View.AUTOFILL_TYPE_TEXT)) {
+                            loge("Text is invalid type for hint '%s'", hint);
+                        }
+                    }
                 if (autofillOptions != null && listIndex != null &&
                         autofillOptions.length > listIndex) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_LIST),
-                            "List is invalid type for hint '%s'", hint);
+                    if (!fieldType.getAutofillTypes().ints.contains(View.AUTOFILL_TYPE_LIST)) {
+                        loge("List is invalid type for hint '%s'", hint);
+                    }
                     textValue = autofillOptions[listIndex].toString();
                 }
                 if (dateValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_DATE),
-                            "Date is invalid type for hint '%s'", hint);
+                    if (!fieldType.getAutofillTypes().ints.contains(View.AUTOFILL_TYPE_DATE)) {
+                        loge("Date is invalid type for hint '%s'", hint);
+                    }
                 }
                 if (toggleValue != null) {
-                    Preconditions.checkArgument(AutofillHints.isValidTypeForHints(hint,
-                            View.AUTOFILL_TYPE_TOGGLE),
-                            "Toggle is invalid type for hint '%s'", hint);
+                    if (!fieldType.getAutofillTypes().ints.contains(View.AUTOFILL_TYPE_TOGGLE)) {
+                        loge("Toggle is invalid type for hint '%s'", hint);
+                    }
                 }
                 String datasetId = datasetWithFilledAutofillFields.autofillDataset.getId();
                 datasetWithFilledAutofillFields.add(new FilledAutofillField(datasetId,
-                        hint, textValue, dateValue, toggleValue));
+                        fieldType.getTypeName(), textValue, dateValue, toggleValue));
             } else {
                 loge("Invalid hint: %s", hint);
             }

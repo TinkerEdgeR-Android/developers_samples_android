@@ -36,14 +36,19 @@ import com.example.android.autofill.service.data.ClientViewMetadataBuilder;
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.adapter.DatasetAdapter;
 import com.example.android.autofill.service.data.adapter.ResponseAdapter;
+import com.example.android.autofill.service.data.source.DefaultFieldTypesSource;
+import com.example.android.autofill.service.data.source.local.DefaultFieldTypesLocalJsonSource;
 import com.example.android.autofill.service.data.source.local.DigitalAssetLinksRepository;
 import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
 import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
 import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
+import com.google.gson.GsonBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static android.view.autofill.AutofillManager.EXTRA_ASSIST_STRUCTURE;
@@ -94,7 +99,11 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.multidataset_service_auth_activity);
         SharedPreferences sharedPreferences =
                 getSharedPreferences(LocalAutofillDataSource.SHARED_PREF_KEY, Context.MODE_PRIVATE);
-        AutofillDao autofillDao = AutofillDatabase.getInstance(this).autofillDao();
+        DefaultFieldTypesSource defaultFieldTypesSource =
+                DefaultFieldTypesLocalJsonSource.getInstance(getResources(),
+                        new GsonBuilder().create());
+        AutofillDao autofillDao = AutofillDatabase.getInstance(this,
+                defaultFieldTypesSource, new AppExecutors()).autofillDao();
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(sharedPreferences,
                 autofillDao, new AppExecutors());
         mDalRepository = DigitalAssetLinksRepository.getInstance(getPackageManager());
@@ -139,21 +148,33 @@ public class AuthActivity extends AppCompatActivity {
         boolean forResponse = intent.getBooleanExtra(EXTRA_FOR_RESPONSE, true);
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         ClientParser clientParser = new ClientParser(structure);
-        ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(clientParser);
-        mClientViewMetadata = builder.buildClientViewMetadata();
-        mDatasetAdapter = new DatasetAdapter(clientParser);
-        mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata, mPackageName,
-                mDatasetAdapter);
         mReplyIntent = new Intent();
-        if (forResponse) {
-            fetchAllDatasetsAndSetIntent();
-        } else {
-            String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
-            fetchDatasetAndSetIntent(datasetName);
-        }
+        mLocalAutofillDataSource.getFieldTypeByAutofillHints(new DataCallback<HashMap<String, FieldTypeWithHints>>() {
+            @Override
+            public void onLoaded(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
+                ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(clientParser,
+                        fieldTypesByAutofillHint);
+                mClientViewMetadata = builder.buildClientViewMetadata();
+                mDatasetAdapter = new DatasetAdapter(clientParser);
+                mResponseAdapter = new ResponseAdapter(AuthActivity.this,
+                        mClientViewMetadata, mPackageName, mDatasetAdapter);
+                if (forResponse) {
+                    fetchAllDatasetsAndSetIntent(fieldTypesByAutofillHint);
+                } else {
+                    String datasetName = intent.getStringExtra(EXTRA_DATASET_NAME);
+                    fetchDatasetAndSetIntent(fieldTypesByAutofillHint, datasetName);
+                }
+            }
+
+            @Override
+            public void onDataNotAvailable(String msg, Object... params) {
+
+            }
+        });
     }
 
-    private void fetchDatasetAndSetIntent(String datasetName) {
+    private void fetchDatasetAndSetIntent(
+            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint, String datasetName) {
         mLocalAutofillDataSource.getAutofillDataset(mClientViewMetadata.getAllHints(),
                 datasetName, new DataCallback<DatasetWithFilledAutofillFields>() {
                     @Override
@@ -161,7 +182,8 @@ public class AuthActivity extends AppCompatActivity {
                         String datasetName = dataset.autofillDataset.getDatasetName();
                         RemoteViews remoteViews = RemoteViewsHelper.viewsWithNoAuth(
                                 mPackageName, datasetName);
-                        setDatasetIntent(mDatasetAdapter.buildDataset(dataset, remoteViews));
+                        setDatasetIntent(mDatasetAdapter.buildDataset(fieldTypesByAutofillHint,
+                                dataset, remoteViews));
                         finish();
                     }
 
@@ -173,14 +195,15 @@ public class AuthActivity extends AppCompatActivity {
                 });
     }
 
-    private void fetchAllDatasetsAndSetIntent() {
+    private void fetchAllDatasetsAndSetIntent(
+            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
         mLocalAutofillDataSource.getAutofillDatasets(mClientViewMetadata.getAllHints(),
                 new DataCallback<List<DatasetWithFilledAutofillFields>>() {
                     @Override
                     public void onLoaded(List<DatasetWithFilledAutofillFields> datasets) {
                         boolean datasetAuth = mPreferences.isDatasetAuth();
-                        FillResponse fillResponse = mResponseAdapter.buildResponse(datasets,
-                                datasetAuth);
+                        FillResponse fillResponse = mResponseAdapter.buildResponse(
+                                fieldTypesByAutofillHint, datasets, datasetAuth);
                         setResponseIntent(fillResponse);
                         finish();
                     }

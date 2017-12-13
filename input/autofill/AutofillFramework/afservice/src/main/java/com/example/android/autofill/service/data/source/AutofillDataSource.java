@@ -17,7 +17,9 @@ package com.example.android.autofill.service.data.source;
 
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface AutofillDataSource {
@@ -42,6 +44,14 @@ public interface AutofillDataSource {
      */
     void saveAutofillDatasets(List<DatasetWithFilledAutofillFields>
             datasetsWithFilledAutofillFields);
+
+    /**
+     * Gets all autofill field types.
+     */
+    void getFieldTypes(DataCallback<List<FieldTypeWithHints>> fieldTypesCallback);
+
+    void getFieldTypeByAutofillHints(
+            DataCallback<HashMap<String, FieldTypeWithHints>> fieldTypeMapCallback);
 
     /**
      * Clears all data.

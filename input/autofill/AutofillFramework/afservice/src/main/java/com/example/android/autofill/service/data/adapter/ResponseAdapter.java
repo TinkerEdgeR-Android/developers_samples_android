@@ -28,7 +28,9 @@ import com.example.android.autofill.service.AuthActivity;
 import com.example.android.autofill.service.RemoteViewsHelper;
 import com.example.android.autofill.service.data.ClientViewMetadata;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ResponseAdapter {
@@ -49,8 +51,8 @@ public class ResponseAdapter {
      * Wraps autofill data in a Response object (essentially a series of Datasets) which can then
      * be sent back to the client View.
      */
-    public FillResponse buildResponse(List<DatasetWithFilledAutofillFields> datasets,
-            boolean datasetAuth) {
+    public FillResponse buildResponse(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            List<DatasetWithFilledAutofillFields> datasets, boolean datasetAuth) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
         if (datasets != null) {
             for (DatasetWithFilledAutofillFields datasetWithFilledAutofillFields : datasets) {
@@ -63,13 +65,13 @@ public class ResponseAdapter {
                                 mContext, datasetName);
                         RemoteViews remoteViews = RemoteViewsHelper.viewsWithAuth(
                                 mPackageName, datasetName);
-                        dataset = mDatasetAdapter.buildDataset(datasetWithFilledAutofillFields,
-                                remoteViews, intentSender);
+                        dataset = mDatasetAdapter.buildDataset(fieldTypesByAutofillHint,
+                                datasetWithFilledAutofillFields, remoteViews, intentSender);
                     } else {
                         RemoteViews remoteViews = RemoteViewsHelper.viewsWithNoAuth(
                                 mPackageName, datasetName);
-                        dataset = mDatasetAdapter.buildDataset(datasetWithFilledAutofillFields,
-                                remoteViews);
+                        dataset = mDatasetAdapter.buildDataset(fieldTypesByAutofillHint,
+                                datasetWithFilledAutofillFields, remoteViews);
                     }
                     if (dataset != null) {
                         responseBuilder.addDataset(dataset);

@@ -23,17 +23,23 @@ import android.view.autofill.AutofillId;
 
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.ClientParser;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.example.android.autofill.service.util.Util.logd;
 
 public class ClientViewMetadataBuilder {
     private ClientParser mClientParser;
+    private HashMap<String, FieldTypeWithHints> mFieldTypesByAutofillHint;
 
-    public ClientViewMetadataBuilder(ClientParser parser) {
+    public ClientViewMetadataBuilder(ClientParser parser,
+            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
         mClientParser = parser;
+        mFieldTypesByAutofillHint = fieldTypesByAutofillHint;
     }
 
     public ClientViewMetadata buildClientViewMetadata() {
@@ -68,9 +74,10 @@ public class ClientViewMetadataBuilder {
         String[] hints = root.getAutofillHints();
         if (hints != null) {
             for (String hint : hints) {
-                if (AutofillHints.isValidHint(hint)) {
+                FieldTypeWithHints fieldTypeWithHints = mFieldTypesByAutofillHint.get(hint);
+                if (fieldTypeWithHints != null && fieldTypeWithHints.fieldType != null) {
                     allHints.add(hint);
-                    autofillSaveType.value |= AutofillHints.getSaveTypeForHint(hint);
+                    autofillSaveType.value |= fieldTypeWithHints.fieldType.getSaveInfo();
                     autofillIds.add(root.getAutofillId());
                 }
             }

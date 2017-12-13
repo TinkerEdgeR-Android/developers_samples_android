@@ -22,7 +22,10 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.example.android.autofill.service.model.AutofillDataset;
+import com.example.android.autofill.service.model.AutofillHint;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.example.android.autofill.service.model.FilledAutofillField;
 
 import java.util.Collection;
@@ -38,7 +41,7 @@ public interface AutofillDao {
      */
     @Query("SELECT DISTINCT id, datasetName FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +
-            " AND FilledAutofillField.hint IN (:allAutofillHints)")
+            " AND FilledAutofillField.fieldTypeName IN (:allAutofillHints)")
     List<DatasetWithFilledAutofillFields> getDatasets(List<String> allAutofillHints);
 
     /**
@@ -50,12 +53,21 @@ public interface AutofillDao {
      *                         all of the views on the page.
      * @param datasetName      Filtering parameter; only return datasets with this name.
      */
-    @Query("SELECT DISTINCT id, datasetname FROM FilledAutofillField, AutofillDataset" +
+    @Query("SELECT DISTINCT id, datasetName FROM FilledAutofillField, AutofillDataset" +
             " WHERE AutofillDataset.id = FilledAutofillField.datasetId" +
             " AND AutofillDataset.datasetName = (:datasetName)" +
-            " AND FilledAutofillField.hint IN (:allAutofillHints)")
+            " AND FilledAutofillField.fieldTypeName IN (:allAutofillHints)")
     List<DatasetWithFilledAutofillFields> getDatasetsWithName(
             List<String> allAutofillHints, String datasetName);
+
+    @Query("SELECT DISTINCT typeName, autofillTypes, saveInfo, partition, strictExampleSet, textTemplate, dateTemplate FROM FieldType, AutofillHint WHERE " +
+            "FieldType.typeName = AutofillHint.fieldTypeName")
+    List<FieldTypeWithHints> getFieldTypesWithHints();
+
+    @Query("SELECT DISTINCT typeName, autofillTypes, saveInfo, partition, strictExampleSet, textTemplate, dateTemplate FROM FieldType, AutofillHint WHERE " +
+            "FieldType.typeName = AutofillHint.fieldTypeName " +
+            "AND AutofillHint.autofillHint IN (:autofillHints)")
+    List<FieldTypeWithHints> getFieldTypesForAutofillHints(List<String> autofillHints);
 
     /**
      * @param autofillFields Collection of autofill fields to be saved to the db.
@@ -65,6 +77,12 @@ public interface AutofillDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveAutofillDataset(AutofillDataset datasets);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAutofillHints(List<AutofillHint> autofillHints);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertFieldTypes(List<FieldType> fieldTypes);
 
     @Query("DELETE FROM AutofillDataset")
     void clearAll();

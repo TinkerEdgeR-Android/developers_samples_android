@@ -24,11 +24,16 @@ import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.source.AutofillDataSource;
 import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
 import com.example.android.autofill.service.model.AutofillDataset;
+import com.example.android.autofill.service.model.AutofillHint;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.example.android.autofill.service.util.AppExecutors;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.android.autofill.service.util.Util.logw;
 
@@ -71,11 +76,14 @@ public class LocalAutofillDataSource implements AutofillDataSource {
     @Override
     public void getAutofillDatasets(List<String> allAutofillHints,
             DataCallback<List<DatasetWithFilledAutofillFields>> datasetsCallback) {
-        final List<String> storedAllAutofillHints =
-                AutofillHints.convertToStoredHintNames(allAutofillHints);
         mAppExecutors.diskIO().execute(() -> {
-            List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields = mAutofillDao
-                    .getDatasets(storedAllAutofillHints);
+            final List<String> typeNames = getFieldTypesForAutofillHints(allAutofillHints)
+                    .stream()
+                    .map(FieldTypeWithHints::getFieldType)
+                    .map(FieldType::getTypeName)
+                    .collect(Collectors.toList());
+            List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields =
+                    mAutofillDao.getDatasets(typeNames);
             mAppExecutors.mainThread().execute(() ->
                     datasetsCallback.onLoaded(datasetsWithFilledAutofillFields)
             );
@@ -119,6 +127,51 @@ public class LocalAutofillDataSource implements AutofillDataSource {
             }
         });
         incrementDatasetNumber();
+    }
+
+    @Override
+    public void getFieldTypes(DataCallback<List<FieldTypeWithHints>> fieldTypesCallback) {
+        mAppExecutors.diskIO().execute(() -> {
+            List<FieldTypeWithHints> fieldTypeWithHints = mAutofillDao.getFieldTypesWithHints();
+            if (fieldTypeWithHints != null) {
+                fieldTypesCallback.onLoaded(fieldTypeWithHints);
+            } else {
+                fieldTypesCallback.onDataNotAvailable("Field Types not found.");
+            }
+        });
+    }
+
+    @Override
+    public void getFieldTypeByAutofillHints(
+            DataCallback<HashMap<String, FieldTypeWithHints>> fieldTypeMapCallback) {
+        mAppExecutors.diskIO().execute(() -> {
+            HashMap<String, FieldTypeWithHints> hintMap = getFieldTypeByAutofillHints();
+            if (hintMap != null) {
+                fieldTypeMapCallback.onLoaded(hintMap);
+            } else {
+                fieldTypeMapCallback.onDataNotAvailable("FieldTypes not found");
+            }
+        });
+    }
+
+    private HashMap<String, FieldTypeWithHints> getFieldTypeByAutofillHints() {
+        HashMap<String, FieldTypeWithHints> hintMap = new HashMap<>();
+        List<FieldTypeWithHints> fieldTypeWithHints =
+                mAutofillDao.getFieldTypesWithHints();
+        if (fieldTypeWithHints != null) {
+            for (FieldTypeWithHints fieldType : fieldTypeWithHints) {
+                for (AutofillHint hint : fieldType.autofillHints) {
+                    hintMap.put(hint.mAutofillHint, fieldType);
+                }
+            }
+            return hintMap;
+        } else {
+            return null;
+        }
+    }
+
+    private List<FieldTypeWithHints> getFieldTypesForAutofillHints(List<String> autofillHints) {
+        return mAutofillDao.getFieldTypesForAutofillHints(autofillHints);
     }
 
     @Override

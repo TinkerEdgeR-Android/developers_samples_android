@@ -23,9 +23,12 @@ import android.support.annotation.NonNull;
 
 import javax.annotation.Nullable;
 
-@Entity(primaryKeys = {"datasetId", "hint"}, foreignKeys = @ForeignKey(
-        entity = AutofillDataset.class, parentColumns = "id", childColumns = "datasetId",
-        onDelete = ForeignKey.CASCADE))
+@Entity(primaryKeys = {"datasetId", "fieldTypeName"}, foreignKeys = {
+        @ForeignKey(entity = AutofillDataset.class, parentColumns = "id",
+                childColumns = "datasetId", onDelete = ForeignKey.CASCADE),
+        @ForeignKey(entity = FieldType.class, parentColumns = "typeName",
+                childColumns = "fieldTypeName", onDelete = ForeignKey.CASCADE)
+})
 public class FilledAutofillField {
 
     @NonNull
@@ -45,13 +48,13 @@ public class FilledAutofillField {
     private final Boolean mToggleValue;
 
     @NonNull
-    @ColumnInfo(name = "hint")
-    private final String mHint;
+    @ColumnInfo(name = "fieldTypeName")
+    private final String mFieldTypeName;
 
-    public FilledAutofillField(@NonNull String datasetId, @NonNull String hint,
+    public FilledAutofillField(@NonNull String datasetId, @NonNull String fieldTypeName,
             @Nullable String textValue, @Nullable Long dateValue, @Nullable Boolean toggleValue) {
         mDatasetId = datasetId;
-        mHint = hint;
+        mFieldTypeName = fieldTypeName;
         mTextValue = textValue;
         mDateValue = dateValue;
         mToggleValue = toggleValue;
@@ -107,8 +110,8 @@ public class FilledAutofillField {
     }
 
     @NonNull
-    public String getHint() {
-        return mHint;
+    public String getFieldTypeName() {
+        return mFieldTypeName;
     }
 
     public boolean isNull() {

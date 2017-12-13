@@ -74,7 +74,7 @@ public class AutofillDaoTest {
         datasetWithFilledAutofillFields.filledAutofillFields =
                 Arrays.asList(mUsernameField, mPasswordField);
         datasetWithFilledAutofillFields.filledAutofillFields
-                .sort(Comparator.comparing(FilledAutofillField::getHint));
+                .sort(Comparator.comparing(FilledAutofillField::getFieldType));
 
         // When inserting a page's autofill fields.
         mDatabase.autofillDao().saveAutofillDataset(mDataset);
@@ -87,7 +87,7 @@ public class AutofillDaoTest {
         List<DatasetWithFilledAutofillFields> loadedDatasets = mDatabase.autofillDao()
                 .getDatasets(allHints);
         loadedDatasets.get(0).filledAutofillFields.sort(
-                Comparator.comparing(FilledAutofillField::getHint));
+                Comparator.comparing(FilledAutofillField::getFieldType));
         assertThat(loadedDatasets, contains(datasetWithFilledAutofillFields));
         assertThat(loadedDatasets, hasSize(1));
     }

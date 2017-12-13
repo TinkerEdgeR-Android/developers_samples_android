@@ -28,9 +28,12 @@ import android.widget.RemoteViews;
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.example.android.autofill.service.model.FilledAutofillField;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -50,22 +53,26 @@ public class DatasetAdapter {
     /**
      * Wraps autofill data in a {@link Dataset} object which can then be sent back to the client.
      */
-    public Dataset buildDataset(DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
+    public Dataset buildDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             RemoteViews remoteViews) {
-        return buildDataset(datasetWithFilledAutofillFields, remoteViews, null);
+        return buildDataset(fieldTypesByAutofillHint, datasetWithFilledAutofillFields, remoteViews,
+                null);
     }
 
     /**
      * Wraps autofill data in a {@link Dataset} object with an IntentSender, which can then be
      * sent back to the client.
      */
-    public Dataset buildDataset(DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
+    public Dataset buildDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             RemoteViews remoteViews, IntentSender intentSender) {
         Dataset.Builder datasetBuilder = new Dataset.Builder(remoteViews);
         if (intentSender != null) {
             datasetBuilder.setAuthentication(intentSender);
         }
-        boolean setAtLeastOneValue = bindDataset(datasetWithFilledAutofillFields, datasetBuilder);
+        boolean setAtLeastOneValue = bindDataset(fieldTypesByAutofillHint,
+                datasetWithFilledAutofillFields, datasetBuilder);
         if (!setAtLeastOneValue) {
             return null;
         }
@@ -75,30 +82,35 @@ public class DatasetAdapter {
     /**
      * Build an autofill {@link Dataset} using saved data and the client's AssistStructure.
      */
-    private boolean bindDataset(DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
+    private boolean bindDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             Dataset.Builder datasetBuilder) {
         MutableBoolean setValueAtLeastOnce = new MutableBoolean(false);
-        Map<String, FilledAutofillField> map = datasetWithFilledAutofillFields.filledAutofillFields
-                .stream().collect(toMap(FilledAutofillField::getHint, Function.identity()));
+        Map<String, FilledAutofillField> filledAutofillFieldsByTypeName =
+                datasetWithFilledAutofillFields.filledAutofillFields.stream()
+                        .collect(toMap(FilledAutofillField::getFieldTypeName, Function.identity()));
         mClientParser.parse((node) ->
-                parseAutofillFields(node, map, datasetBuilder, setValueAtLeastOnce)
+                parseAutofillFields(node, fieldTypesByAutofillHint, filledAutofillFieldsByTypeName,
+                        datasetBuilder, setValueAtLeastOnce)
         );
         return setValueAtLeastOnce.value;
     }
 
     private void parseAutofillFields(AssistStructure.ViewNode viewNode,
-            Map<String, FilledAutofillField> map, Dataset.Builder builder,
-            MutableBoolean setValueAtLeastOnce) {
+            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            Map<String, FilledAutofillField> filledAutofillFieldsByTypeName,
+            Dataset.Builder builder, MutableBoolean setValueAtLeastOnce) {
         String[] rawHints = viewNode.getAutofillHints();
         if (rawHints == null || rawHints.length == 0) {
             logv("No af hints at ViewNode - %s", viewNode.getIdEntry());
             return;
         }
-        List<String> hints = AutofillHints.convertToStoredHintNames(Arrays.asList(rawHints));
-        // For simplicity, even if the viewNode has multiple autofill hints, only look at the first
-        // one.
-        String autofillHint = hints.get(0);
-        FilledAutofillField field = map.get(autofillHint);
+        String fieldTypeName = AutofillHints.getFieldTypeNameFromAutofillHints(
+                fieldTypesByAutofillHint, Arrays.asList(rawHints));
+        if (fieldTypeName == null) {
+            return;
+        }
+        FilledAutofillField field = filledAutofillFieldsByTypeName.get(fieldTypeName);
         if (field == null) {
             return;
         }
