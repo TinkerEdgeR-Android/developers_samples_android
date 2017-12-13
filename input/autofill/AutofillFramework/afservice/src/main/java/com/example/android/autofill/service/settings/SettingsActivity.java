@@ -15,8 +15,10 @@
  */
 package com.example.android.autofill.service.settings;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -35,14 +37,19 @@ import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.R;
-import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
+import com.example.android.autofill.service.data.AutofillDataBuilder;
+import com.example.android.autofill.service.data.FakeAutofillDataBuilder;
+import com.example.android.autofill.service.data.source.PackageVerificationDataSource;
+import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
+import com.example.android.autofill.service.data.source.local.SharedPrefsPackageVerificationRepository;
+import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
+import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
+import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
-import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
-import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
-import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
+
+import java.util.List;
 
 import static com.example.android.autofill.service.util.Util.logd;
 import static com.example.android.autofill.service.util.Util.logw;
@@ -58,8 +65,11 @@ public class SettingsActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multidataset_service_settings_activity);
-        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this,
-                new AppExecutors());
+        SharedPreferences localAfDataSourceSharedPrefs =
+                getSharedPreferences(LocalAutofillDataSource.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        AutofillDao autofillDao = AutofillDatabase.getInstance(this).autofillDao();
+        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(localAfDataSourceSharedPrefs,
+                autofillDao, new AppExecutors());
         mAutofillManager = getSystemService(AutofillManager.class);
         mPackageVerificationDataSource = SharedPrefsPackageVerificationRepository.getInstance(this);
 
@@ -155,7 +165,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .setView(numberOfDatasetsPicker)
                 .setPositiveButton(R.string.settings_ok, (dialog, which) -> {
                     int numOfDatasets = numberOfDatasetsPicker.getValue();
-                    boolean success = buildAndSaveMockedAutofillFieldCollection(numOfDatasets);
+                    boolean success = buildAndSaveMockedAutofillFieldCollections(numOfDatasets);
                     dialog.dismiss();
                     if (success) {
                         Snackbar.make(SettingsActivity.this.findViewById(R.id.settings_layout),
@@ -168,21 +178,18 @@ public class SettingsActivity extends AppCompatActivity {
                 .create();
     }
 
-    /**
-     * Builds mock autofill data and saves it to repository.
-     */
-    private boolean buildAndSaveMockedAutofillFieldCollection(int numOfDatasets) {
+    public boolean buildAndSaveMockedAutofillFieldCollections(int numOfDatasets) {
         if (numOfDatasets < 0 || numOfDatasets > 10) {
             logw("Number of Datasets (%d) out of range.", numOfDatasets);
             return false;
         }
         for (int i = 0; i < numOfDatasets; i++) {
-            for (int partition : AutofillHints.PARTITIONS) {
-                FilledAutofillFieldCollection filledAutofillFieldCollection =
-                        AutofillHints.getFakeFieldCollection(partition, i * 2);
-                mLocalAutofillDataSource.saveFilledAutofillFieldCollection(
-                        filledAutofillFieldCollection);
-            }
+            int datasetNumber = mLocalAutofillDataSource.getDatasetNumber();
+            AutofillDataBuilder autofillDataBuilder = new FakeAutofillDataBuilder(datasetNumber);
+            List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields =
+                    autofillDataBuilder.buildDatasetsByPartition(datasetNumber);
+            // Save datasets to database.
+            mLocalAutofillDataSource.saveAutofillDatasets(datasetsWithFilledAutofillFields);
         }
         return true;
     }
@@ -286,12 +293,12 @@ public class SettingsActivity extends AppCompatActivity {
         logd(TAG, "onActivityResult(): req=%s", requestCode);
         switch (requestCode) {
             case REQUEST_CODE_SET_DEFAULT:
-                defaultServiceSet(resultCode);
+                onDefaultServiceSet(resultCode);
                 break;
         }
     }
 
-    private void defaultServiceSet(int resultCode) {
+    private void onDefaultServiceSet(int resultCode) {
         logd(TAG, "resultCode=%d", resultCode);
         switch (resultCode) {
             case RESULT_OK:

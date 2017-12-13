@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.android.autofill.service.datasource;
+package com.example.android.autofill.service.data;
 
-import com.example.android.autofill.service.model.DalCheck;
+import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
+import java.util.List;
 
-
-public interface DalService {
-    @GET("/v1/assetlinks:check")
-    Call<DalCheck> check(@Query("source.web.site") String webDomain,
-            @Query("relation") String permission,
-            @Query("target.android_app.package_name") String packageName,
-            @Query("target.android_app.certificate.sha256_fingerprint") String fingerprint);
+public interface AutofillDataBuilder {
+    List<DatasetWithFilledAutofillFields> buildDatasetsByPartition(int datasetNumber);
 }

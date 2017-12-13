@@ -16,7 +16,9 @@
 package com.example.android.autofill.service;
 
 import android.app.assist.AssistStructure;
+import android.content.Context;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.service.autofill.AutofillService;
@@ -31,21 +33,28 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.widget.RemoteViews;
 
-import com.example.android.autofill.service.datasource.DataCallback;
-import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
-import com.example.android.autofill.service.datasource.local.LocalAutofillDataSource;
-import com.example.android.autofill.service.datasource.local.DigitalAssetLinksRepository;
-import com.example.android.autofill.service.datasource.local.SharedPrefsPackageVerificationRepository;
-import com.example.android.autofill.service.model.FilledAutofillFieldCollection;
+import com.example.android.autofill.service.data.AutofillDataBuilder;
+import com.example.android.autofill.service.data.ClientAutofillDataBuilder;
+import com.example.android.autofill.service.data.ClientViewMetadata;
+import com.example.android.autofill.service.data.DataCallback;
+import com.example.android.autofill.service.data.adapter.DatasetAdapter;
+import com.example.android.autofill.service.data.adapter.ResponseAdapter;
+import com.example.android.autofill.service.data.source.PackageVerificationDataSource;
+import com.example.android.autofill.service.data.source.local.DigitalAssetLinksRepository;
+import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
+import com.example.android.autofill.service.data.source.local.SharedPrefsPackageVerificationRepository;
+import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
+import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
+import com.example.android.autofill.service.model.DalCheck;
+import com.example.android.autofill.service.model.DalInfo;
+import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
-import static com.example.android.autofill.service.AutofillHelper.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
+import static com.example.android.autofill.service.data.adapter.ResponseAdapter.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
 import static com.example.android.autofill.service.util.Util.AUTOFILL_ID_FILTER;
 import static com.example.android.autofill.service.util.Util.bundleToString;
 import static com.example.android.autofill.service.util.Util.dumpStructure;
@@ -60,82 +69,74 @@ public class MyAutofillService extends AutofillService {
     private LocalAutofillDataSource mLocalAutofillDataSource;
     private DigitalAssetLinksRepository mDalRepository;
     private PackageVerificationDataSource mPackageVerificationRepository;
+    private AutofillDataBuilder mAutofillDataBuilder;
+    private DatasetAdapter mDatasetAdapter;
+    private ResponseAdapter mResponseAdapter;
+    private ClientViewMetadata mClientViewMetadata;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Util.setLoggingLevel(MyPreferences.getInstance(this).getLoggingLevel());
-        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(this, new AppExecutors());
-        mDalRepository = DigitalAssetLinksRepository.getInstance(this);
+        SharedPreferences localAfDataSourceSharedPrefs =
+                getSharedPreferences(LocalAutofillDataSource.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        AutofillDao autofillDao = AutofillDatabase.getInstance(this).autofillDao();
+        mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(localAfDataSourceSharedPrefs,
+                autofillDao, new AppExecutors());
+        mDalRepository = DigitalAssetLinksRepository.getInstance(getPackageManager());
         mPackageVerificationRepository = SharedPrefsPackageVerificationRepository.getInstance(this);
     }
 
     @Override
     public void onFillRequest(@NonNull FillRequest request,
-            @NonNull CancellationSignal cancellationSignal,
-            @NonNull FillCallback callback) {
+            @NonNull CancellationSignal cancellationSignal, @NonNull FillCallback callback) {
         AssistStructure structure = request.getFillContexts()
                 .get(request.getFillContexts().size() - 1).getStructure();
+        StructureParser parser = new StructureParser(structure);
+        mDatasetAdapter = new DatasetAdapter(parser);
+        mClientViewMetadata = new ClientViewMetadata(parser);
+        mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata,
+                getPackageName(), mDatasetAdapter, request.getClientState());
         String packageName = structure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
-            callback.onFailure(
-                    getApplicationContext().getString(R.string.invalid_package_signature));
+            callback.onFailure(getString(R.string.invalid_package_signature));
             return;
         }
         final Bundle clientState = request.getClientState();
         if (logVerboseEnabled()) {
             logv("onFillRequest(): clientState=%s", bundleToString(clientState));
+            dumpStructure(structure);
         }
-        dumpStructure(structure);
-
         cancellationSignal.setOnCancelListener(() ->
                 logw("Cancel autofill not implemented in this sample.")
         );
-        // Parse AutoFill data in Activity
-        StructureParser parser = new StructureParser(getApplicationContext(), structure,
-                mLocalAutofillDataSource, mDalRepository);
-        // TODO: try / catch on other places (onSave, auth activity, etc...)
-        try {
-            parser.parseForFill();
-        } catch (SecurityException e) {
-            // TODO: handle cases where DAL didn't pass by showing a custom UI asking the user
-            // to confirm the mapping. Might require subclassing SecurityException.
-            logw(e, "Security exception handling %s", request);
-            callback.onFailure(e.getMessage());
-            return;
-        }
-        AutofillFieldMetadataCollection autofillFields = parser.getAutofillFields();
-        FillResponse.Builder responseBuilder = new FillResponse.Builder();
         // Check user's settings for authenticating Responses and Datasets.
         boolean responseAuth = MyPreferences.getInstance(this).isResponseAuth();
-        AutofillId[] autofillIds = autofillFields.getAutofillIds();
-        if (responseAuth && !Arrays.asList(autofillIds).isEmpty()) {
+        if (responseAuth) {
             // If the entire Autofill Response is authenticated, AuthActivity is used
             // to generate Response.
             IntentSender sender = AuthActivity.getAuthIntentSenderForResponse(this);
-            RemoteViews presentation = AutofillHelper
-                    .newRemoteViews(getPackageName(), getString(R.string.autofill_sign_in_prompt),
-                            R.drawable.ic_lock_black_24dp);
-            responseBuilder
-                    .setAuthentication(autofillIds, sender, presentation);
-            callback.onSuccess(responseBuilder.build());
+            RemoteViews remoteViews = RemoteViewsHelper.viewsWithAuth(getPackageName(),
+                    getString(R.string.autofill_sign_in_prompt));
+            FillResponse response = mResponseAdapter.buildResponse(sender, remoteViews);
+            if (response != null) {
+                callback.onSuccess(response);
+            }
         } else {
             boolean datasetAuth = MyPreferences.getInstance(this).isDatasetAuth();
-            mLocalAutofillDataSource.getFilledAutofillFieldCollection(
-                    autofillFields.getFocusedHints(), autofillFields.getAllHints(),
-                    new DataCallback<HashMap<String, FilledAutofillFieldCollection>>() {
+            mLocalAutofillDataSource.getAutofillDatasets(mClientViewMetadata.getAllHints(),
+                    new DataCallback<List<DatasetWithFilledAutofillFields>>() {
                         @Override
-                        public void onLoaded(HashMap<String, FilledAutofillFieldCollection>
-                                clientFormDataMap) {
-                            FillResponse response = AutofillHelper.newResponse
-                                    (MyAutofillService.this, clientState, datasetAuth,
-                                            autofillFields, clientFormDataMap);
+                        public void onLoaded(List<DatasetWithFilledAutofillFields> datasets) {
+                            FillResponse response = mResponseAdapter.buildResponse(datasets,
+                                    datasetAuth);
                             callback.onSuccess(response);
                         }
 
                         @Override
                         public void onDataNotAvailable(String msg, Object... params) {
                             logw(msg, params);
+                            callback.onFailure(String.format(msg, params));
                         }
                     });
         }
@@ -146,6 +147,9 @@ public class MyAutofillService extends AutofillService {
         List<FillContext> fillContexts = request.getFillContexts();
         int size = fillContexts.size();
         AssistStructure structure = fillContexts.get(size - 1).getStructure();
+        StructureParser parser = new StructureParser(structure);
+        mAutofillDataBuilder = new ClientAutofillDataBuilder(parser);
+        mClientViewMetadata = new ClientViewMetadata(parser);
         String packageName = structure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
             callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
@@ -159,13 +163,13 @@ public class MyAutofillService extends AutofillService {
 
         // TODO: hardcode check for partial username
         if (clientState != null) {
-            String usernameKey =
-                    String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_USERNAME);
+            String usernameKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE,
+                    View.AUTOFILL_HINT_USERNAME);
             AutofillId usernameId = clientState.getParcelable(usernameKey);
             logd("client state for %s: %s", usernameKey, usernameId);
             if (usernameId != null) {
-                String passwordKey =
-                        String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE, View.AUTOFILL_HINT_PASSWORD);
+                String passwordKey = String.format(CLIENT_STATE_PARTIAL_ID_TEMPLATE,
+                        View.AUTOFILL_HINT_PASSWORD);
                 AutofillId passwordId = clientState.getParcelable(passwordKey);
 
                 logd("Scanning %d contexts for username ID %s and password ID %s.", size,
@@ -192,12 +196,50 @@ public class MyAutofillService extends AutofillService {
                 }
             }
         }
+        checkWebDomainAndBuildAutofillData(packageName, callback);
+    }
 
-        StructureParser parser = new StructureParser(getApplicationContext(), structure,
-                mLocalAutofillDataSource, mDalRepository);
-        parser.parseForSave();
-        FilledAutofillFieldCollection filledAutofillFieldCollection = parser.getClientFormData();
-        mLocalAutofillDataSource.saveFilledAutofillFieldCollection(filledAutofillFieldCollection);
+    private void checkWebDomainAndBuildAutofillData(String packageName, SaveCallback callback) {
+        String webDomain;
+        try {
+            webDomain = mClientViewMetadata.buildWebDomain();
+        } catch (SecurityException e) {
+            logw(e.getMessage());
+            callback.onFailure(e.getMessage());
+            return;
+        }
+        if (webDomain != null && webDomain.length() > 0) {
+            mDalRepository.checkValid(new DalInfo(webDomain, packageName),
+                    new DataCallback<DalCheck>() {
+                        @Override
+                        public void onLoaded(DalCheck dalCheck) {
+                            if (dalCheck.linked) {
+                                logd("Domain %s is valid for %s", webDomain, packageName);
+                                buildAndSaveAutofillData();
+                            } else {
+                                callback.onFailure(String.format(
+                                        "Could not associate web domain %s with app %s", webDomain,
+                                        packageName));
+                            }
+                        }
+
+                        @Override
+                        public void onDataNotAvailable(String msg, Object... params) {
+                            logw(msg, params);
+                            callback.onFailure(String.format(msg, params));
+                        }
+                    });
+        } else {
+            logd("no web domain");
+            buildAndSaveAutofillData();
+        }
+    }
+
+    private void buildAndSaveAutofillData() {
+        int datasetNumber = mLocalAutofillDataSource.getDatasetNumber();
+        List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields =
+                mAutofillDataBuilder.buildDatasetsByPartition(datasetNumber);
+        mLocalAutofillDataSource.saveAutofillDatasets(datasetsWithFilledAutofillFields);
     }
 
     @Override

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.datasource.local;
+package com.example.android.autofill.service.data.source.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
-import com.example.android.autofill.service.SecurityHelper;
-import com.example.android.autofill.service.datasource.PackageVerificationDataSource;
+import com.example.android.autofill.service.util.SecurityHelper;
+import com.example.android.autofill.service.data.source.PackageVerificationDataSource;
 
 import static com.example.android.autofill.service.util.Util.logd;
 import static com.example.android.autofill.service.util.Util.logw;

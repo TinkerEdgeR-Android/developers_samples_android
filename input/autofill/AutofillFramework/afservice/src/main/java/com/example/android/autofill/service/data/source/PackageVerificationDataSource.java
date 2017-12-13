@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.datasource;
+package com.example.android.autofill.service.data.source;
 
 public interface PackageVerificationDataSource {
 

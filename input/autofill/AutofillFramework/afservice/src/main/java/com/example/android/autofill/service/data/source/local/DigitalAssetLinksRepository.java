@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.datasource.local;
+package com.example.android.autofill.service.data.source.local;
 
-import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 
-import com.example.android.autofill.service.SecurityHelper;
-import com.example.android.autofill.service.datasource.DalService;
-import com.example.android.autofill.service.datasource.DataCallback;
-import com.example.android.autofill.service.datasource.DigitalAssetLinksDataSource;
+import com.example.android.autofill.service.util.SecurityHelper;
+import com.example.android.autofill.service.data.source.DalService;
+import com.example.android.autofill.service.data.DataCallback;
+import com.example.android.autofill.service.data.source.DigitalAssetLinksDataSource;
 import com.example.android.autofill.service.model.DalCheck;
 import com.example.android.autofill.service.model.DalInfo;
 import com.google.common.net.InternetDomainName;
@@ -47,12 +46,13 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
     private static final String PERMISSION_GET_LOGIN_CREDS = "common.get_login_creds";
     private static final String PERMISSION_HANDLE_ALL_URLS = "common.handle_all_urls";
     private static DigitalAssetLinksRepository sInstance;
-    private final Context mContext;
+
+    private final PackageManager mPackageManager;
     private final DalService mDalService;
     private final HashMap<DalInfo, DalCheck> mCache;
 
-    private DigitalAssetLinksRepository(Context context) {
-        mContext = context;
+    private DigitalAssetLinksRepository(PackageManager packageManager) {
+        mPackageManager = packageManager;
         mCache = new HashMap<>();
         mDalService = new Retrofit.Builder()
                 .baseUrl(DAL_BASE_URL)
@@ -60,9 +60,9 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
                 .create(DalService.class);
     }
 
-    public static DigitalAssetLinksRepository getInstance(Context context) {
+    public static DigitalAssetLinksRepository getInstance(PackageManager packageManager) {
         if (sInstance == null) {
-            sInstance = new DigitalAssetLinksRepository(context.getApplicationContext());
+            sInstance = new DigitalAssetLinksRepository(packageManager);
         }
         return sInstance;
     }
@@ -80,8 +80,7 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
         mCache.clear();
     }
 
-    public void checkValid(DalInfo dalInfo,
-            DataCallback<DalCheck> dalCheckDataCallback) {
+    public void checkValid(DalInfo dalInfo, DataCallback<DalCheck> dalCheckDataCallback) {
         DalCheck dalCheck = mCache.get(dalInfo);
         if (dalCheck != null) {
             dalCheckDataCallback.onLoaded(dalCheck);
@@ -92,8 +91,8 @@ public class DigitalAssetLinksRepository implements DigitalAssetLinksDataSource 
 
         final String fingerprint;
         try {
-            PackageManager pm = mContext.getPackageManager();
-            PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            PackageInfo packageInfo = mPackageManager.getPackageInfo(packageName,
+                    PackageManager.GET_SIGNATURES);
             fingerprint = SecurityHelper.getFingerprint(packageInfo, packageName);
         } catch (Exception e) {
             dalCheckDataCallback.onDataNotAvailable("Error getting fingerprint for %s",

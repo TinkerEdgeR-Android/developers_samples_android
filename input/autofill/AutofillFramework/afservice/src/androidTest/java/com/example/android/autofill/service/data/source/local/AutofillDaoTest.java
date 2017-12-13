@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.example.android.autofill.service.datasource.local;
+package com.example.android.autofill.service.data.source.local;
 
 import android.arch.persistence.room.Room;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
-import com.example.android.autofill.service.datasource.local.dao.AutofillDao;
-import com.example.android.autofill.service.datasource.local.db.AutofillDatabase;
+import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
 import com.example.android.autofill.service.model.AutofillDataset;
+import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.google.common.collect.ImmutableList;
 
@@ -32,13 +32,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 
 @RunWith(AndroidJUnit4.class)
 public class AutofillDaoTest {
@@ -49,15 +50,10 @@ public class AutofillDaoTest {
     private final FilledAutofillField mPasswordField =
             new FilledAutofillField(mDataset.getId(), View.AUTOFILL_HINT_PASSWORD, "password");
 
-    private List<FilledAutofillField> mAutofillFields;
     private AutofillDatabase mDatabase;
 
     @Before
     public void setup() {
-        mAutofillFields = new ArrayList<>();
-        mAutofillFields.add(mUsernameField);
-        mAutofillFields.add(mPasswordField);
-
         // using an in-memory database because the information stored here disappears when the
         // process is killed
         mDatabase = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
@@ -72,50 +68,27 @@ public class AutofillDaoTest {
 
     @Test
     public void insertFilledAutofillFieldAndGet() {
+        DatasetWithFilledAutofillFields datasetWithFilledAutofillFields =
+                new DatasetWithFilledAutofillFields();
+        datasetWithFilledAutofillFields.autofillDataset = mDataset;
+        datasetWithFilledAutofillFields.filledAutofillFields =
+                Arrays.asList(mUsernameField, mPasswordField);
+        datasetWithFilledAutofillFields.filledAutofillFields
+                .sort(Comparator.comparing(FilledAutofillField::getHint));
+
         // When inserting a page's autofill fields.
         mDatabase.autofillDao().saveAutofillDataset(mDataset);
-        mDatabase.autofillDao().saveFilledAutofillFields(mAutofillFields);
+        mDatabase.autofillDao().saveFilledAutofillFields(
+                datasetWithFilledAutofillFields.filledAutofillFields);
 
         // Represents all hints of all fields on page.
         List<String> allHints = ImmutableList.of(View.AUTOFILL_HINT_USERNAME,
                 View.AUTOFILL_HINT_PASSWORD);
-
-        // When loading the autofill fields we just saved, while focused on 'username'.
-        List<String> usernameFocusedHints = ImmutableList.of(View.AUTOFILL_HINT_USERNAME);
-        List<AutofillDao.AutofillDatasetField> loadedOnUsername = mDatabase.autofillDao()
-                .getFilledAutofillFields(usernameFocusedHints, allHints);
-
-        // When loading the autofill fields, while focused on 'password'.
-        List<String> passwordFocusedHints = ImmutableList.of(View.AUTOFILL_HINT_PASSWORD);
-
-                List<AutofillDao.AutofillDatasetField> loadedOnPassword = mDatabase.autofillDao()
-                .getFilledAutofillFields(passwordFocusedHints, allHints);
-
-        AutofillDatasetFieldComparator comparator = new AutofillDatasetFieldComparator();
-        loadedOnPassword.sort(comparator);
-        loadedOnUsername.sort(comparator);
-        assertThat(loadedOnUsername, is(loadedOnPassword));
-    }
-
-    private class AutofillDatasetFieldComparator implements
-            Comparator<AutofillDao.AutofillDatasetField> {
-        @Override
-        public int compare(AutofillDao.AutofillDatasetField o1,
-                AutofillDao.AutofillDatasetField o2) {
-            if (o1 == null) {
-                return -1;
-            } else if (o2 == null) {
-                return 1;
-            }
-
-            int first = o1.filledAutofillField.getHint().compareTo(
-                    o2.filledAutofillField.getHint());
-            if (first == 0) {
-                return o1.filledAutofillField.getDatasetId().compareTo(
-                        o2.filledAutofillField.getDatasetId());
-            } else {
-                return first;
-            }
-        }
+        List<DatasetWithFilledAutofillFields> loadedDatasets = mDatabase.autofillDao()
+                .getDatasets(allHints);
+        loadedDatasets.get(0).filledAutofillFields.sort(
+                Comparator.comparing(FilledAutofillField::getHint));
+        assertThat(loadedDatasets, contains(datasetWithFilledAutofillFields));
+        assertThat(loadedDatasets, hasSize(1));
     }
 }

@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.android.autofill.service.datasource;
+package com.example.android.autofill.service.util;
 
-public interface DataCallback<T> {
-    void onLoaded(T object);
+import java.util.concurrent.Executor;
 
-    void onDataNotAvailable(String msg, Object... params);
+/**
+ * Allow instant execution of tasks.
+ */
+public final class SingleExecutors extends AppExecutors {
+    private static Executor sInstance = Runnable::run;
+
+    public SingleExecutors() {
+        super(sInstance, sInstance, sInstance);
+    }
 }

@@ -15,7 +15,6 @@
  */
 package com.example.android.autofill.app.edgecases;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -104,13 +103,10 @@ public class MultiplePartitionsActivity extends AppCompatActivity {
                 getString(R.string.credit_card_security_code_label),
                 "         ", true, View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE);
 
-        findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resetFields();
-                mCustomVirtualView.resetPositions();
-                mAutofillManager.cancel();
-            }
+        findViewById(R.id.clear).setOnClickListener((view) -> {
+            resetFields();
+            mCustomVirtualView.resetPositions();
+            mAutofillManager.cancel();
         });
         mAutofillManager = getSystemService(AutofillManager.class);
     }
