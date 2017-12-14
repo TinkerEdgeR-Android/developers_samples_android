@@ -30,6 +30,17 @@
             android:name=".AuthActivity"
             android:taskAffinity=".AuthActivity"
             android:label="@string/authentication_name" />
+
+        <activity
+            android:name=".ManualActivity"
+            android:taskAffinity=".ManualActivity"
+            android:label="@string/manual_name" />
+
+        <activity
+            android:name=".ManualFieldPickerActivity"
+            android:taskAffinity=".ManualActivity"
+            android:label="@string/manual_field_picker_name" />
+
         <!-- Including launcher icon for Autofill Settings to convenience. Not necessary for a
         real service. -->
         <activity

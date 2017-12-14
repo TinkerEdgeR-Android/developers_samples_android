@@ -24,10 +24,9 @@ import android.view.autofill.AutofillValue;
 import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.AutofillDataset;
-import com.example.android.autofill.service.model.AutofillHint;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.model.FieldType;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.google.common.collect.ImmutableList;
 
@@ -41,12 +40,14 @@ import static com.example.android.autofill.service.util.Util.loge;
 
 public class ClientAutofillDataBuilder implements AutofillDataBuilder {
     private final ClientParser mClientParser;
-    private final HashMap<String, FieldTypeWithHints> mFieldTypesByAutofillHint;
+    private final HashMap<String, FieldTypeWithHeuristics> mFieldTypesByAutofillHint;
+    private final String mPackageName;
 
-    public ClientAutofillDataBuilder(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
-            ClientParser clientParser) {
+    public ClientAutofillDataBuilder(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
+            String packageName, ClientParser clientParser) {
         mClientParser = clientParser;
         mFieldTypesByAutofillHint = fieldTypesByAutofillHint;
+        mPackageName = packageName;
     }
 
     @Override
@@ -119,9 +120,9 @@ public class ClientAutofillDataBuilder implements AutofillDataBuilder {
         for (int i = 0; i < hints.length; i++) {
             String hint = hints[i];
             // Then check if the "actual" hint is supported.
-            FieldTypeWithHints fieldTypeWithHints = mFieldTypesByAutofillHint.get(hint);
-            if (fieldTypeWithHints != null) {
-                FieldType fieldType = fieldTypeWithHints.fieldType;
+            FieldTypeWithHeuristics fieldTypeWithHeuristics = mFieldTypesByAutofillHint.get(hint);
+            if (fieldTypeWithHeuristics != null) {
+                FieldType fieldType = fieldTypeWithHeuristics.fieldType;
                 if (!AutofillHints.matchesPartition(fieldType.getPartition(), partition)) {
                     continue;
                 }
@@ -150,7 +151,7 @@ public class ClientAutofillDataBuilder implements AutofillDataBuilder {
                 }
                 String datasetId = datasetWithFilledAutofillFields.autofillDataset.getId();
                 datasetWithFilledAutofillFields.add(new FilledAutofillField(datasetId,
-                        fieldType.getTypeName(), textValue, dateValue, toggleValue));
+                        mPackageName, fieldType.getTypeName(), textValue, dateValue, toggleValue));
             } else {
                 loge("Invalid hint: %s", hint);
             }

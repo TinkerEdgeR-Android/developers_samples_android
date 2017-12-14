@@ -28,6 +28,7 @@ import android.service.autofill.FillResponse;
 import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveRequest;
 import android.support.annotation.NonNull;
+import android.view.autofill.AutofillManager;
 import android.widget.RemoteViews;
 
 import com.example.android.autofill.service.data.AutofillDataBuilder;
@@ -48,7 +49,7 @@ import com.example.android.autofill.service.data.source.local.db.AutofillDatabas
 import com.example.android.autofill.service.model.DalCheck;
 import com.example.android.autofill.service.model.DalInfo;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
@@ -56,6 +57,7 @@ import com.google.gson.GsonBuilder;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
 import static com.example.android.autofill.service.util.Util.bundleToString;
@@ -104,14 +106,14 @@ public class MyAutofillService extends AutofillService {
         AssistStructure latestStructure = fillContexts.get(fillContexts.size() - 1).getStructure();
         ClientParser parser = new ClientParser(structures);
 
-
         // Check user's settings for authenticating Responses and Datasets.
         boolean responseAuth = mPreferences.isResponseAuth();
         boolean datasetAuth = mPreferences.isDatasetAuth();
+        boolean manual = (request.getFlags() & FillRequest.FLAG_MANUAL_REQUEST) != 0;
         mLocalAutofillDataSource.getFieldTypeByAutofillHints(
-                new DataCallback<HashMap<String, FieldTypeWithHints>>() {
+                new DataCallback<HashMap<String, FieldTypeWithHeuristics>>() {
                     @Override
-                    public void onLoaded(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
+                    public void onLoaded(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint) {
                         DatasetAdapter datasetAdapter = new DatasetAdapter(parser);
                         ClientViewMetadataBuilder clientViewMetadataBuilder =
                                 new ClientViewMetadataBuilder(parser, fieldTypesByAutofillHint);
@@ -132,7 +134,7 @@ public class MyAutofillService extends AutofillService {
                                 logw("Cancel autofill not implemented in this sample.")
                         );
                         fetchDataAndGenerateResponse(fieldTypesByAutofillHint, responseAuth,
-                                datasetAuth, callback);
+                                datasetAuth, manual, callback);
                     }
 
                     @Override
@@ -143,9 +145,17 @@ public class MyAutofillService extends AutofillService {
     }
 
     private void fetchDataAndGenerateResponse(
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint, boolean responseAuth,
-            boolean datasetAuth, FillCallback callback) {
-        if (responseAuth) {
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint, boolean responseAuth,
+            boolean datasetAuth, boolean manual, FillCallback callback) {
+        if (manual) {
+            IntentSender sender = ManualActivity.getManualIntentSenderForResponse(this);
+            RemoteViews remoteViews = RemoteViewsHelper.viewsWithNoAuth(getPackageName(),
+                    getString(R.string.autofill_manual_prompt));
+            FillResponse response = mResponseAdapter.buildManualResponse(sender, remoteViews);
+            if (response != null) {
+                callback.onSuccess(response);
+            }
+        } else if (responseAuth) {
             // If the entire Autofill Response is authenticated, AuthActivity is used
             // to generate Response.
             IntentSender sender = AuthActivity.getAuthIntentSenderForResponse(this);
@@ -182,10 +192,12 @@ public class MyAutofillService extends AutofillService {
         AssistStructure latestStructure = fillContexts.get(fillContexts.size() - 1).getStructure();
         ClientParser parser = new ClientParser(structures);
         mLocalAutofillDataSource.getFieldTypeByAutofillHints(
-                new DataCallback<HashMap<String, FieldTypeWithHints>>() {
+                new DataCallback<HashMap<String, FieldTypeWithHeuristics>>() {
                     @Override
-                    public void onLoaded(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
-                        mAutofillDataBuilder = new ClientAutofillDataBuilder(fieldTypesByAutofillHint, parser);
+                    public void onLoaded(
+                            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint) {
+                        mAutofillDataBuilder = new ClientAutofillDataBuilder(
+                                fieldTypesByAutofillHint, getPackageName(), parser);
                         ClientViewMetadataBuilder clientViewMetadataBuilder =
                                 new ClientViewMetadataBuilder(parser, fieldTypesByAutofillHint);
                         mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();

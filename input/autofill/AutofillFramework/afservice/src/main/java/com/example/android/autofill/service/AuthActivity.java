@@ -43,7 +43,7 @@ import com.example.android.autofill.service.data.source.local.LocalAutofillDataS
 import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
 import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.google.gson.GsonBuilder;
@@ -149,9 +149,10 @@ public class AuthActivity extends AppCompatActivity {
         AssistStructure structure = intent.getParcelableExtra(EXTRA_ASSIST_STRUCTURE);
         ClientParser clientParser = new ClientParser(structure);
         mReplyIntent = new Intent();
-        mLocalAutofillDataSource.getFieldTypeByAutofillHints(new DataCallback<HashMap<String, FieldTypeWithHints>>() {
+        mLocalAutofillDataSource.getFieldTypeByAutofillHints(
+                new DataCallback<HashMap<String, FieldTypeWithHeuristics>>() {
             @Override
-            public void onLoaded(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
+            public void onLoaded(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint) {
                 ClientViewMetadataBuilder builder = new ClientViewMetadataBuilder(clientParser,
                         fieldTypesByAutofillHint);
                 mClientViewMetadata = builder.buildClientViewMetadata();
@@ -174,7 +175,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void fetchDatasetAndSetIntent(
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint, String datasetName) {
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint, String datasetName) {
         mLocalAutofillDataSource.getAutofillDataset(mClientViewMetadata.getAllHints(),
                 datasetName, new DataCallback<DatasetWithFilledAutofillFields>() {
                     @Override
@@ -196,7 +197,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void fetchAllDatasetsAndSetIntent(
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint) {
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint) {
         mLocalAutofillDataSource.getAutofillDatasets(mClientViewMetadata.getAllHints(),
                 new DataCallback<List<DatasetWithFilledAutofillFields>>() {
                     @Override

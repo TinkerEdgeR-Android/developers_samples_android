@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 
 import com.example.android.autofill.service.model.FakeData;
 import com.example.android.autofill.service.model.FieldType;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.model.FilledAutofillField;
 
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import static com.example.android.autofill.service.util.Util.logd;
 import static com.example.android.autofill.service.util.Util.logw;
@@ -46,10 +45,11 @@ public final class AutofillHints {
     private AutofillHints() {
     }
 
-    public static FilledAutofillField generateFakeField(FieldTypeWithHints fieldTypeWithHints,
-            int seed, String datasetId) {
-        FakeData fakeData = fieldTypeWithHints.fieldType.getFakeData();
-        String fieldTypeName = fieldTypeWithHints.fieldType.getTypeName();
+    public static FilledAutofillField generateFakeField(
+            FieldTypeWithHeuristics fieldTypeWithHeuristics, String packageName, int seed,
+            String datasetId) {
+        FakeData fakeData = fieldTypeWithHeuristics.fieldType.getFakeData();
+        String fieldTypeName = fieldTypeWithHeuristics.fieldType.getTypeName();
         String text = null;
         Long date = null;
         Boolean toggle = null;
@@ -66,20 +66,19 @@ public final class AutofillHints {
                 date = Calendar.getInstance().getTimeInMillis();
             }
         }
-        FilledAutofillField filledAutofillField = new FilledAutofillField(datasetId, fieldTypeName,
-                text, date, toggle);
-        boolean isNull = filledAutofillField.isNull();
+        FilledAutofillField filledAutofillField = new FilledAutofillField(datasetId,
+                packageName, fieldTypeName, text, date, toggle);
         return filledAutofillField;
     }
 
     public static String getFieldTypeNameFromAutofillHints(
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             @NonNull List<String> hints) {
         return getFieldTypeNameFromAutofillHints(fieldTypesByAutofillHint, hints, PARTITION_ALL);
     }
 
     public static String getFieldTypeNameFromAutofillHints(
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             @NonNull List<String> hints, int partition) {
         List<String> fieldTypeNames = removePrefixes(hints)
                 .stream()
@@ -88,7 +87,7 @@ public final class AutofillHints {
                 .filter(Objects::nonNull)
                 .filter((fieldTypeWithHints) ->
                         matchesPartition(fieldTypeWithHints.fieldType.getPartition(), partition))
-                .map(FieldTypeWithHints::getFieldType).map(FieldType::getTypeName)
+                .map(FieldTypeWithHeuristics::getFieldType).map(FieldType::getTypeName)
                 .collect(toList());
         if (fieldTypeNames != null && fieldTypeNames.size() > 0) {
             return fieldTypeNames.get(0);

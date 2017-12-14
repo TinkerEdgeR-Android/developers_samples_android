@@ -32,6 +32,7 @@ import com.example.android.autofill.service.model.DefaultFieldTypeWithHints;
 import com.example.android.autofill.service.model.FakeData;
 import com.example.android.autofill.service.model.FieldType;
 import com.example.android.autofill.service.model.FilledAutofillField;
+import com.example.android.autofill.service.model.ResourceIdHeuristic;
 import com.example.android.autofill.service.util.AppExecutors;
 
 import java.util.ArrayList;
@@ -44,7 +45,8 @@ import static java.util.stream.Collectors.toList;
         FilledAutofillField.class,
         AutofillDataset.class,
         FieldType.class,
-        AutofillHint.class
+        AutofillHint.class,
+        ResourceIdHeuristic.class
 }, version = 1)
 @TypeConverters({Converters.class})
 public abstract class AutofillDatabase extends RoomDatabase {

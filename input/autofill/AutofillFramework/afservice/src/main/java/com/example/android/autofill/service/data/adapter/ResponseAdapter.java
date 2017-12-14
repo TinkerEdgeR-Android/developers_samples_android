@@ -28,7 +28,9 @@ import com.example.android.autofill.service.AuthActivity;
 import com.example.android.autofill.service.RemoteViewsHelper;
 import com.example.android.autofill.service.data.ClientViewMetadata;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldType;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
+import com.example.android.autofill.service.model.FilledAutofillField;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,11 +49,25 @@ public class ResponseAdapter {
         mPackageName = packageName;
     }
 
+    public FillResponse buildResponseForFocusedNode(String datasetName, FilledAutofillField field,
+            FieldType fieldType) {
+        FillResponse.Builder responseBuilder = new FillResponse.Builder();
+        RemoteViews remoteViews = RemoteViewsHelper.viewsWithNoAuth(
+                mPackageName, datasetName);
+        Dataset dataset = mDatasetAdapter.buildDatasetForFocusedNode(field, fieldType, remoteViews);
+        if (dataset != null) {
+            responseBuilder.addDataset(dataset);
+            return responseBuilder.build();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Wraps autofill data in a Response object (essentially a series of Datasets) which can then
      * be sent back to the client View.
      */
-    public FillResponse buildResponse(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+    public FillResponse buildResponse(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             List<DatasetWithFilledAutofillFields> datasets, boolean datasetAuth) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
         if (datasets != null) {
@@ -81,18 +97,40 @@ public class ResponseAdapter {
         }
         int saveType = 0;
         AutofillId[] autofillIds = mClientViewMetadata.getAutofillIds();
-        SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
-        responseBuilder.setSaveInfo(saveInfo);
-        return responseBuilder.build();
+        if (autofillIds != null && autofillIds.length > 0) {
+            SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
+            responseBuilder.setSaveInfo(saveInfo);
+            return responseBuilder.build();
+        } else {
+            return null;
+        }
     }
 
     public FillResponse buildResponse(IntentSender sender, RemoteViews remoteViews) {
         FillResponse.Builder responseBuilder = new FillResponse.Builder();
         int saveType = mClientViewMetadata.getSaveType();
         AutofillId[] autofillIds = mClientViewMetadata.getAutofillIds();
-        SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
-        responseBuilder.setSaveInfo(saveInfo);
-        responseBuilder.setAuthentication(autofillIds, sender, remoteViews);
-        return responseBuilder.build();
+        if (autofillIds != null && autofillIds.length > 0) {
+            SaveInfo saveInfo = new SaveInfo.Builder(saveType, autofillIds).build();
+            responseBuilder.setSaveInfo(saveInfo);
+            responseBuilder.setAuthentication(autofillIds, sender, remoteViews);
+            return responseBuilder.build();
+        } else {
+            return null;
+        }
+    }
+
+    public FillResponse buildManualResponse(IntentSender sender, RemoteViews remoteViews) {
+        FillResponse.Builder responseBuilder = new FillResponse.Builder();
+        int saveType = mClientViewMetadata.getSaveType();
+        AutofillId[] focusedIds = mClientViewMetadata.getFocusedIds();
+        if (focusedIds != null && focusedIds.length > 0) {
+            SaveInfo saveInfo = new SaveInfo.Builder(saveType, focusedIds).build();
+            return responseBuilder.setSaveInfo(saveInfo)
+                    .setAuthentication(focusedIds, sender, remoteViews)
+                    .build();
+        } else {
+            return null;
+        }
     }
 }

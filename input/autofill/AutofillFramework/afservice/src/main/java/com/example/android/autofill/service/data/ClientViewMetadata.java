@@ -32,13 +32,15 @@ public class ClientViewMetadata {
     private final int mSaveType;
     private final AutofillId[] mAutofillIds;
     private final String mWebDomain;
+    private final AutofillId[] mFocusedIds;
 
     public ClientViewMetadata(List<String> allHints, int saveType, AutofillId[] autofillIds,
-            String webDomain) {
+            AutofillId[] focusedIds, String webDomain) {
         mAllHints = allHints;
         mSaveType = saveType;
         mAutofillIds = autofillIds;
         mWebDomain = webDomain;
+        mFocusedIds = focusedIds;
     }
 
     public List<String> getAllHints() {
@@ -49,6 +51,10 @@ public class ClientViewMetadata {
         return mAutofillIds;
     }
 
+    public AutofillId[] getFocusedIds() {
+        return mFocusedIds;
+    }
+
     public int getSaveType() {
         return mSaveType;
     }
@@ -57,13 +63,13 @@ public class ClientViewMetadata {
         return mWebDomain;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "ClientViewMetadata{" +
                 "mAllHints=" + mAllHints +
                 ", mSaveType=" + mSaveType +
                 ", mAutofillIds=" + Arrays.toString(mAutofillIds) +
                 ", mWebDomain='" + mWebDomain + '\'' +
+                ", mFocusedIds=" + Arrays.toString(mFocusedIds) +
                 '}';
     }
 }

@@ -21,8 +21,6 @@ import android.content.res.Resources;
 import com.example.android.autofill.service.R;
 import com.example.android.autofill.service.data.source.DefaultFieldTypesSource;
 import com.example.android.autofill.service.model.DefaultFieldTypeWithHints;
-import com.example.android.autofill.service.model.FieldType;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

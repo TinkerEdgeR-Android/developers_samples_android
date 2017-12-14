@@ -29,12 +29,11 @@ import com.example.android.autofill.service.AutofillHints;
 import com.example.android.autofill.service.ClientParser;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
 import com.example.android.autofill.service.model.FieldType;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.model.FilledAutofillField;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -53,18 +52,29 @@ public class DatasetAdapter {
     /**
      * Wraps autofill data in a {@link Dataset} object which can then be sent back to the client.
      */
-    public Dataset buildDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+    public Dataset buildDataset(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             RemoteViews remoteViews) {
         return buildDataset(fieldTypesByAutofillHint, datasetWithFilledAutofillFields, remoteViews,
                 null);
     }
 
+    public Dataset buildDatasetForFocusedNode(FilledAutofillField filledAutofillField,
+            FieldType fieldType, RemoteViews remoteViews) {
+        Dataset.Builder datasetBuilder = new Dataset.Builder(remoteViews);
+        boolean setAtLeastOneValue = bindDatasetToFocusedNode(filledAutofillField,
+                fieldType, datasetBuilder);
+        if (!setAtLeastOneValue) {
+            return null;
+        }
+        return datasetBuilder.build();
+    }
+
     /**
      * Wraps autofill data in a {@link Dataset} object with an IntentSender, which can then be
      * sent back to the client.
      */
-    public Dataset buildDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+    public Dataset buildDataset(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             RemoteViews remoteViews, IntentSender intentSender) {
         Dataset.Builder datasetBuilder = new Dataset.Builder(remoteViews);
@@ -82,7 +92,7 @@ public class DatasetAdapter {
     /**
      * Build an autofill {@link Dataset} using saved data and the client's AssistStructure.
      */
-    private boolean bindDataset(HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+    private boolean bindDataset(HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             DatasetWithFilledAutofillFields datasetWithFilledAutofillFields,
             Dataset.Builder datasetBuilder) {
         MutableBoolean setValueAtLeastOnce = new MutableBoolean(false);
@@ -96,8 +106,19 @@ public class DatasetAdapter {
         return setValueAtLeastOnce.value;
     }
 
+    private boolean bindDatasetToFocusedNode(FilledAutofillField field,
+            FieldType fieldType, Dataset.Builder builder) {
+        MutableBoolean setValueAtLeastOnce = new MutableBoolean(false);
+        mClientParser.parse((node) -> {
+            if (node.isFocused() && node.getAutofillId() != null) {
+                bindValueToNode(node, field, builder, setValueAtLeastOnce);
+            }
+        });
+        return setValueAtLeastOnce.value;
+    }
+
     private void parseAutofillFields(AssistStructure.ViewNode viewNode,
-            HashMap<String, FieldTypeWithHints> fieldTypesByAutofillHint,
+            HashMap<String, FieldTypeWithHeuristics> fieldTypesByAutofillHint,
             Map<String, FilledAutofillField> filledAutofillFieldsByTypeName,
             Dataset.Builder builder, MutableBoolean setValueAtLeastOnce) {
         String[] rawHints = viewNode.getAutofillHints();
@@ -114,6 +135,12 @@ public class DatasetAdapter {
         if (field == null) {
             return;
         }
+        bindValueToNode(viewNode, field, builder, setValueAtLeastOnce);
+    }
+
+    void bindValueToNode(AssistStructure.ViewNode viewNode,
+            FilledAutofillField field, Dataset.Builder builder,
+            MutableBoolean setValueAtLeastOnce) {
         AutofillId autofillId = viewNode.getAutofillId();
         if (autofillId == null) {
             logw("Autofill ID null for %s", viewNode.toString());

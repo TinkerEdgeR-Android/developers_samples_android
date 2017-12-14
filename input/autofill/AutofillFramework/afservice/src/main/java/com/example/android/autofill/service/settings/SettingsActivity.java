@@ -49,7 +49,7 @@ import com.example.android.autofill.service.data.source.local.SharedPrefsPackage
 import com.example.android.autofill.service.data.source.local.dao.AutofillDao;
 import com.example.android.autofill.service.data.source.local.db.AutofillDatabase;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
 import com.google.gson.GsonBuilder;
@@ -69,6 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
     private LocalAutofillDataSource mLocalAutofillDataSource;
     private PackageVerificationDataSource mPackageVerificationDataSource;
     private MyPreferences mPreferences;
+    private String mPackageName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
                         new GsonBuilder().create());
         AutofillDao autofillDao = AutofillDatabase.getInstance(
                 this, defaultFieldTypesSource, new AppExecutors()).autofillDao();
+        mPackageName = getPackageName();
         mLocalAutofillDataSource = LocalAutofillDataSource.getInstance(localAfDataSourceSharedPrefs,
                 autofillDao, new AppExecutors());
         mAutofillManager = getSystemService(AutofillManager.class);
@@ -204,9 +206,9 @@ public class SettingsActivity extends AppCompatActivity {
                 .setView(numberOfDatasetsPicker)
                 .setPositiveButton(R.string.settings_ok, (dialog, which) -> {
                     int numOfDatasets = numberOfDatasetsPicker.getValue();
-                    mLocalAutofillDataSource.getFieldTypes(new DataCallback<List<FieldTypeWithHints>>() {
+                    mLocalAutofillDataSource.getFieldTypes(new DataCallback<List<FieldTypeWithHeuristics>>() {
                         @Override
-                        public void onLoaded(List<FieldTypeWithHints> fieldTypes) {
+                        public void onLoaded(List<FieldTypeWithHeuristics> fieldTypes) {
                             boolean saved = buildAndSaveMockedAutofillFieldCollections(
                                     fieldTypes, numOfDatasets);
                             dialog.dismiss();
@@ -228,7 +230,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .create();
     }
 
-    public boolean buildAndSaveMockedAutofillFieldCollections(List<FieldTypeWithHints> fieldTypes,
+    public boolean buildAndSaveMockedAutofillFieldCollections(List<FieldTypeWithHeuristics> fieldTypes,
             int numOfDatasets) {
         if (numOfDatasets < 0 || numOfDatasets > 10) {
             logw("Number of Datasets (%d) out of range.", numOfDatasets);
@@ -236,7 +238,7 @@ public class SettingsActivity extends AppCompatActivity {
         for (int i = 0; i < numOfDatasets; i++) {
             int datasetNumber = mLocalAutofillDataSource.getDatasetNumber();
             AutofillDataBuilder autofillDataBuilder =
-                    new FakeAutofillDataBuilder(fieldTypes, datasetNumber);
+                    new FakeAutofillDataBuilder(fieldTypes, mPackageName, datasetNumber);
             List<DatasetWithFilledAutofillFields> datasetsWithFilledAutofillFields =
                     autofillDataBuilder.buildDatasetsByPartition(datasetNumber);
             // Save datasets to database.

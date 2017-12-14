@@ -17,10 +17,9 @@
 package com.example.android.autofill.service.data;
 
 import com.example.android.autofill.service.AutofillHints;
-import com.example.android.autofill.service.data.source.local.LocalAutofillDataSource;
 import com.example.android.autofill.service.model.AutofillDataset;
 import com.example.android.autofill.service.model.DatasetWithFilledAutofillFields;
-import com.example.android.autofill.service.model.FieldTypeWithHints;
+import com.example.android.autofill.service.model.FieldTypeWithHeuristics;
 import com.example.android.autofill.service.model.FilledAutofillField;
 import com.google.common.collect.ImmutableList;
 
@@ -28,12 +27,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class FakeAutofillDataBuilder implements AutofillDataBuilder {
-    private final List<FieldTypeWithHints> mFieldTypesWithHints;
+    private final List<FieldTypeWithHeuristics> mFieldTypesWithHints;
+    private final String mPackageName;
     private final int mSeed;
 
-    public FakeAutofillDataBuilder(List<FieldTypeWithHints> fieldTypesWithHints, int seed) {
+    public FakeAutofillDataBuilder(List<FieldTypeWithHeuristics> fieldTypesWithHints,
+            String packageName, int seed) {
         mFieldTypesWithHints = fieldTypesWithHints;
         mSeed = seed;
+        mPackageName = packageName;
     }
 
     @Override
@@ -59,11 +61,12 @@ public class FakeAutofillDataBuilder implements AutofillDataBuilder {
         DatasetWithFilledAutofillFields datasetWithFilledAutofillFields =
                 new DatasetWithFilledAutofillFields();
         datasetWithFilledAutofillFields.autofillDataset = dataset;
-        for (FieldTypeWithHints fieldTypeWithHints: mFieldTypesWithHints) {
-            if (AutofillHints.matchesPartition(fieldTypeWithHints.getFieldType().getPartition(),
-                    partition)) {
+        for (FieldTypeWithHeuristics fieldTypeWithHeuristics : mFieldTypesWithHints) {
+            if (AutofillHints.matchesPartition(
+                    fieldTypeWithHeuristics.getFieldType().getPartition(), partition)) {
                 FilledAutofillField fakeField =
-                        AutofillHints.generateFakeField(fieldTypeWithHints, mSeed, dataset.getId());
+                        AutofillHints.generateFakeField(fieldTypeWithHeuristics, mPackageName,
+                                mSeed, dataset.getId());
                 datasetWithFilledAutofillFields.add(fakeField);
             }
         }

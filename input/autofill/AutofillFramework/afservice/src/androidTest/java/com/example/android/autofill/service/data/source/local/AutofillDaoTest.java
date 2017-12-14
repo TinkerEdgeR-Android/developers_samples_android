@@ -77,8 +77,8 @@ public class AutofillDaoTest {
                 .sort(Comparator.comparing(FilledAutofillField::getFieldType));
 
         // When inserting a page's autofill fields.
-        mDatabase.autofillDao().saveAutofillDataset(mDataset);
-        mDatabase.autofillDao().saveFilledAutofillFields(
+        mDatabase.autofillDao().insertAutofillDataset(mDataset);
+        mDatabase.autofillDao().insertFilledAutofillFields(
                 datasetWithFilledAutofillFields.filledAutofillFields);
 
         // Represents all hints of all fields on page.
