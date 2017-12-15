@@ -17,9 +17,9 @@
 <vector
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:name="oobe_swipe_left_long_g"
-    android:width="190dp"
+    android:width="95dp"
     android:viewportWidth="190"
-    android:height="78dp"
+    android:height="39dp"
     android:viewportHeight="78" >
     <group
         android:name="swipeuptrace_2"
