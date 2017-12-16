@@ -15,14 +15,25 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
+import android.support.wear.ambient.AmbientMode;
 
-public class FullScreenActivity extends WearableActivity {
+public class FullScreenActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AmbientMode.attachAmbientSupport(this);
+
         setContentView(R.layout.activity_fullscreen_progress);
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

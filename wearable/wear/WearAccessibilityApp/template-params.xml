@@ -20,7 +20,7 @@
     <group>Wearable</group>
     <package>com.example.android.wearable.wear.wearaccessibilityapp</package>
 
-    <minSdkVersionWear>23</minSdkVersionWear>
+    <minSdkVersionWear>24</minSdkVersionWear>
     <compileSdkVersionWear>26</compileSdkVersionWear>
     <targetSdkVersionWear>26</targetSdkVersionWear>
 
@@ -34,8 +34,7 @@
     <strings>
         <intro>
             <![CDATA[
-            Introductory text that explains what the sample is intended to demonstrate. Edit
-            in template-params.xml.
+            Sample demostrates best practices for accessibility (a11y support).
             ]]>
         </intro>
     </strings>
@@ -45,7 +44,7 @@
 
     <metadata>
         <!-- Values: {DRAFT | PUBLISHED | INTERNAL | DEPRECATED | SUPERCEDED} -->
-        <status>DRAFT</status>
+        <status>PUBLISHED</status>
         <!-- See http://go/sample-categories for details on the next 4 fields. -->
         <!-- Most samples just need to udpate the Categories field. This is a comma-
              seperated list of topic tags. Unlike the old category system, samples
@@ -73,8 +72,9 @@
         <icon>screenshots/icon-web.png</icon>
         <!-- Path to screenshots. Use <img> tags for each. -->
         <screenshots>
-            <img>screenshots/1-main.png</img>
-            <img>screenshots/2-settings.png</img>
+            <img>screenshots/main_screen.png</img>
+            <img>screenshots/progress_screen.png</img>
+            <img>screenshots/controls_screen.png</img>
         </screenshots>
         <!-- List of APIs that this sample should be cross-referenced under. Use <android>
         for fully-qualified Framework class names ("android:" namespace).
@@ -82,7 +82,9 @@
         Use <ext> for custom namespaces, if needed. See "Samples Index API" documentation
         for more details. -->
         <api_refs>
-            <android>android.app.ActionBar</android>
+            <android>android.support.wear.widget.WearableRecyclerView</android>
+            <android>android.preference.Preference</android>
+            <android>android.support.v4.app.NotificationCompat</android>
         </api_refs>
 
         <!-- 1-3 line description of the sample here.
@@ -90,22 +92,24 @@
             Avoid simply rearranging the sample's title. What does this sample actually
             accomplish, and how does it do it? -->
         <description>
-            Sample demonstrating how to instantiate an ActionBar on Android, define
-            action items, and set an "up" navigation link. Uses the Support Library
-            for compatibility with pre-3.0 devices.
+            Sample demonstrates how to include accessibility support for your wearable app.
         </description>
 
         <!-- Multi-paragraph introduction to sample, from an educational point-of-view.
         Makrdown formatting allowed. This will be used to generate a mini-article for the
         sample on DAC. -->
         <intro>
-            Long intro here.
+            Accessibility is an important part of any app (especially wearable apps). By
+            integrating accessible components and services, you can improve your app's usability,
+            particularly for users with disabilities.
 
-            Multi-paragraph introduction to sample, from an educational point-of-view.
-            *Makrdown* formatting allowed. See [Markdown Documentation][1]
-            for details.
+            This sample demonstrates common UX patterns in wearable apps along with accessibility
+            support of those patterns. Be sure to review the [Accessibility Developer Checklist][1]
+            for your own app. For additional information please see our
+            [Best Practices for User Interface][2] page.
 
-            [1]: http://daringfireball.net/projects/markdown/syntax
+            [1]: https://developer.android.com/guide/topics/ui/accessibility/checklist.html
+            [2]: https://developer.android.com/training/accessibility/index.html
         </intro>
     </metadata>
 </sample>

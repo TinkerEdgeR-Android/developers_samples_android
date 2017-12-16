@@ -19,17 +19,20 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.wear.ambient.AmbientMode;
 
 /**
  * Template class meant to include functionality for your Messaging App. (This project's main focus
  * is on Notification Styles.)
  */
-public class MessagingMainActivity extends Activity {
+public class MessagingMainActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messaging_main);
+
+        AmbientMode.attachAmbientSupport(this);
 
         // Cancel Notification
         NotificationManager notificationManager =
@@ -37,4 +40,11 @@ public class MessagingMainActivity extends Activity {
 
         notificationManager.cancel(NotificationsActivity.NOTIFICATION_ID);
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }
