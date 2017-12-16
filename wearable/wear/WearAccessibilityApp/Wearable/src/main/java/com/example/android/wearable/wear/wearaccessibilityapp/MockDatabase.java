@@ -15,6 +15,8 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.NotificationManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.MessagingStyle;
 
 import java.util.ArrayList;
@@ -32,17 +34,26 @@ public final class MockDatabase {
         private static MessagingStyleCommsAppData sInstance = null;
 
         // Standard notification values
-        private String mContentTitle;
-        private String mContentText;
+        protected String mContentTitle;
+        protected String mContentText;
+        protected int mPriority;
 
         // Style notification values
-        private ArrayList<MessagingStyle.Message> mMessages;
+        protected ArrayList<MessagingStyle.Message> mMessages;
         // Basically, String of all mMessages
-        private String mFullConversation;
+        protected String mFullConversation;
         // Name preferred when replying to chat
-        private String mReplayName;
-        private int mNumberOfNewMessages;
-        private ArrayList<String> mParticipants;
+        protected String mReplayName;
+        protected int mNumberOfNewMessages;
+        protected ArrayList<String> mParticipants;
+
+        // Notification channel values (O and above):
+        protected String mChannelId;
+        protected CharSequence mChannelName;
+        protected String mChannelDescription;
+        protected int mChannelImportance;
+        protected boolean mChannelEnableVibrate;
+        protected int mChannelLockscreenVisibility;
 
         public static MessagingStyleCommsAppData getInstance() {
             if (sInstance == null) {
@@ -64,6 +75,7 @@ public final class MockDatabase {
             // Content for API <24 (M and below) devices
             mContentTitle = "2 Messages w/ Famous McFamously";
             mContentText = "Dude! ... You know I am a Pesce-pescetarian. :P";
+            mPriority = NotificationCompat.PRIORITY_HIGH;
 
             // Style notification values
 
@@ -80,7 +92,7 @@ public final class MockDatabase {
             mMessages.add(new MessagingStyle.Message("Sounds good.", currentTime - 2000, "Famous"));
             mMessages.add(new MessagingStyle.Message("How about BBQ?", currentTime - 1000, null));
             // Last two are the newest message (2) from friend
-            mMessages.add(new MessagingStyle.Message("Dude!", currentTime, "Famous"));
+            mMessages.add(new MessagingStyle.Message("Hey!", currentTime, "Famous"));
             mMessages.add(
                     new MessagingStyle.Message(
                             "You know I am a Pesce-pescetarian. :P", currentTime, "Famous"));
@@ -91,7 +103,7 @@ public final class MockDatabase {
                             + "Me: I don't know, dinner maybe?\n\n"
                             + "Famous: Sounds good.\n\n"
                             + "Me: How about BBQ?\n\n"
-                            + "Famous: Dude!\n\n"
+                            + "Famous: Hey!\n\n"
                             + "Famous: You know I am a Pesce-pescetarian. :P\n\n";
 
             mNumberOfNewMessages = 2;
@@ -103,6 +115,16 @@ public final class MockDatabase {
             // the user(s) is starred as a favorite.
             mParticipants = new ArrayList<>();
             mParticipants.add("Famous McFamously");
+
+            // Notification channel values (for devices targeting 26 and above):
+            mChannelId = "channel_messaging_1";
+            // The user-visible name of the channel.
+            mChannelName = "Sample Messaging";
+            // The user-visible description of the channel.
+            mChannelDescription = "Sample Messaging Notifications";
+            mChannelImportance = NotificationManager.IMPORTANCE_MAX;
+            mChannelEnableVibrate = true;
+            mChannelLockscreenVisibility = NotificationCompat.VISIBILITY_PRIVATE;
         }
 
         public String getContentTitle() {
@@ -131,6 +153,35 @@ public final class MockDatabase {
 
         public ArrayList<String> getParticipants() {
             return mParticipants;
+        }
+
+        public int getPriority() {
+            return mPriority;
+        }
+
+        // Channel values (O and above) get methods:
+        public String getChannelId() {
+            return mChannelId;
+        }
+
+        public CharSequence getChannelName() {
+            return mChannelName;
+        }
+
+        public String getChannelDescription() {
+            return mChannelDescription;
+        }
+
+        public int getChannelImportance() {
+            return mChannelImportance;
+        }
+
+        public boolean isChannelEnableVibrate() {
+            return mChannelEnableVibrate;
+        }
+
+        public int getChannelLockscreenVisibility() {
+            return mChannelLockscreenVisibility;
         }
 
         @Override

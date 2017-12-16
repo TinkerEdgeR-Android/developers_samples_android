@@ -15,15 +15,15 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.wearable.activity.WearableActivity;
 
 public class ListsItem implements Item {
     private final int mItemId;
     private final Class mClass;
 
-    public ListsItem(int itemId, Class<? extends WearableActivity> clazz) {
+    public ListsItem(int itemId, Class<? extends Activity> clazz) {
         mItemId = itemId;
         mClass = clazz;
     }

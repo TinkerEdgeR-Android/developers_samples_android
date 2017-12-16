@@ -73,9 +73,11 @@ public class CircledImageViewPreference extends Preference {
 
     public void setStartCircledImageView() {
         mCircledImageText.setText(R.string.start);
+
         mCircledImage.setImageResource(R.drawable.start);
         mCircledImage.setCircleBorderColor(mColorPrimaryDark);
         mCircledImage.setProgress(1);
+
         mIsLoading = false;
     }
 

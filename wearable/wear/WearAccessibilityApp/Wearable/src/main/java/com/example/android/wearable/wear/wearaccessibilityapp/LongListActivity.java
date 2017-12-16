@@ -15,13 +15,14 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.WearableRecyclerView;
-import android.support.wearable.view.drawer.WearableActionDrawer;
+import android.support.wear.ambient.AmbientMode;
+import android.support.wear.widget.WearableRecyclerView;
+import android.support.wear.widget.drawer.WearableActionDrawerView;
 import android.view.View;
 
 import com.example.android.wearable.wear.wearaccessibilityapp.LongListRecyclerViewAdapter.SwitchChangeListener;
@@ -29,7 +30,8 @@ import com.example.android.wearable.wear.wearaccessibilityapp.LongListRecyclerVi
 import java.util.ArrayList;
 import java.util.List;
 
-public class LongListActivity extends WearableActivity {
+public class LongListActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
+
     private List<AppItem> mItems;
     private LongListRecyclerViewAdapter mAdapter;
     private Handler mHandler;
@@ -41,6 +43,8 @@ public class LongListActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_long_list);
+
+        AmbientMode.attachAmbientSupport(this);
 
         mHandler = new Handler();
 
@@ -65,7 +69,7 @@ public class LongListActivity extends WearableActivity {
                         new SwitchChangeListener() {
                             @Override
                             public void onChange(boolean switchOn) {
-                                WearableActionDrawer wearableActionDrawer =
+                                WearableActionDrawerView wearableActionDrawer =
                                         findViewById(R.id.action_drawer_long_list);
 
                                 if (switchOn) {
@@ -78,6 +82,12 @@ public class LongListActivity extends WearableActivity {
                             }
                         });
         WearableRecyclerView recyclerView = findViewById(R.id.recycler_view_long_list);
+
+        // Aligns the first and last items on the list vertically centered on the screen.
+        recyclerView.setEdgeItemsCenteringEnabled(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(false);
+
 
         recyclerView.setAdapter(mAdapter); // Set adapter to the recyclerView.
 
@@ -177,4 +187,11 @@ public class LongListActivity extends WearableActivity {
         mItems.add(new AppItem(null, 0, SampleAppConstants.HEADER_FOOTER, null)); // add footer
         mAdapter.notifyItemInserted(mItems.size() - 1);
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }
