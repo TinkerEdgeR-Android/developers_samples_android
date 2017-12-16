@@ -15,19 +15,23 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.WearableRecyclerView;
+import android.support.wear.ambient.AmbientMode;
+import android.support.wear.widget.WearableLinearLayoutManager;
+import android.support.wear.widget.WearableRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends WearableActivity {
+public class MainActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AmbientMode.attachAmbientSupport(this);
 
         // Menu items
         List<AppItem> items = new ArrayList<AppItem>();
@@ -63,8 +67,20 @@ public class MainActivity extends WearableActivity {
         MenuRecyclerViewAdapter appListAdapter = new MenuRecyclerViewAdapter(this, items);
 
         WearableRecyclerView recyclerView = findViewById(R.id.main_recycler_view);
+
+        // Customizes scrolling so items farther away form center are smaller.
+        ScalingScrollLayoutCallback scalingScrollLayoutCallback = new ScalingScrollLayoutCallback();
+        recyclerView.setLayoutManager(
+                new WearableLinearLayoutManager(this, scalingScrollLayoutCallback));
+
+        recyclerView.setEdgeItemsCenteringEnabled(true);
         recyclerView.setAdapter(appListAdapter);
-        recyclerView.setLayoutManager(new MyLauncherChildLayoutManager(this)); // For curved layout.
-        recyclerView.setCenterEdgeItems(true);
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

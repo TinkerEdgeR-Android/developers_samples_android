@@ -15,8 +15,9 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
+import android.support.wear.ambient.AmbientMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,13 +27,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListOfGraphicsActivity extends WearableActivity {
+public class ListOfGraphicsActivity extends Activity
+        implements AmbientMode.AmbientCallbackProvider {
     private List<AppItem> mItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_of_graphics);
+
+        AmbientMode.attachAmbientSupport(this);
 
         // Store all data in a list for adapter to use.
         mItems = new ArrayList<AppItem>();
@@ -73,4 +77,11 @@ public class ListOfGraphicsActivity extends WearableActivity {
                     }
                 });
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

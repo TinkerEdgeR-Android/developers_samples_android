@@ -15,10 +15,15 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -29,16 +34,20 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.MessagingStyle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
-import android.support.wearable.activity.WearableActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.wear.ambient.AmbientMode;
 import android.util.Log;
 
-public class NotificationsActivity extends WearableActivity {
+public class NotificationsActivity extends Activity implements AmbientMode.AmbientCallbackProvider {
 
     public static final int NOTIFICATION_ID = 888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AmbientMode.attachAmbientSupport(this);
+
         // Display the fragment as the main content.
         getFragmentManager()
                 .beginTransaction()
@@ -105,7 +114,7 @@ public class NotificationsActivity extends WearableActivity {
                     new OnPreferenceClickListener() {
                         @Override
                         public boolean onPreferenceClick(Preference preference) {
-                            generateMessagingStyleNotification();
+                            generateMessagingStyleNotification(getContext());
                             return true;
                         }
                     });
@@ -130,21 +139,26 @@ public class NotificationsActivity extends WearableActivity {
          * If you wish to replicate the original experience of a bridged notification, please
          * review the generateBigTextStyleNotification() method above to see how.
          */
-        private void generateMessagingStyleNotification() {
+        private void generateMessagingStyleNotification(Context context) {
             Log.d(TAG, "generateMessagingStyleNotification()");
 
             // Main steps for building a MESSAGING_STYLE notification:
             //      0. Get your data
-            //      1. Build the MESSAGING_STYLE
-            //      2. Set up main Intent for notification
-            //      3. Set up RemoteInput (users can input directly from notification)
-            //      4. Build and issue the notification
+            //      1. Retrieve Notification Channel for O and beyond devices (26+)
+            //      2. Build the MESSAGING_STYLE
+            //      3. Set up main Intent for notification
+            //      4. Set up RemoteInput (users can input directly from notification)
+            //      5. Build and issue the notification
 
-            // 0. Get your data (everything unique per Notification)
+            // 0. Get your data (everything unique per Notification).
             MockDatabase.MessagingStyleCommsAppData messagingStyleCommsAppData =
                     MockDatabase.getMessagingStyleData();
 
-            // 1. Build the Notification.Style (MESSAGING_STYLE)
+            // 1. Create/Retrieve Notification Channel for O and beyond devices (26+).
+            String notificationChannelId =
+                    createNotificationChannel(context, messagingStyleCommsAppData);
+
+            // 2. Build the Notification.Style (MESSAGING_STYLE)
             String contentTitle = messagingStyleCommsAppData.getContentTitle();
 
             MessagingStyle messagingStyle =
@@ -162,14 +176,14 @@ public class NotificationsActivity extends WearableActivity {
                 messagingStyle.addMessage(message);
             }
 
-            // 2. Set up main Intent for notification
+            // 3. Set up main Intent for notification
             Intent notifyIntent = new Intent(getActivity(), MessagingMainActivity.class);
 
             PendingIntent mainPendingIntent =
                     PendingIntent.getActivity(
                             getActivity(), 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            // 3. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice)
+            // 4. Set up a RemoteInput Action, so users can input (keyboard, drawing, voice)
             // directly from the notification without entering the app.
 
             // Create the RemoteInput specifying this key.
@@ -202,14 +216,16 @@ public class NotificationsActivity extends WearableActivity {
                             .extend(inlineActionForWear2)
                             .build();
 
-            // 4. Build and issue the notification
+            // 5. Build and issue the notification
 
             // Because we want this to be a new notification (not updating current notification),
             // we create a new Builder. Later, we update this same notification, so we need to save
             // this Builder globally (as outlined earlier).
 
+            // Notification Channel Id is ignored for Android pre O (26).
             NotificationCompat.Builder notificationCompatBuilder =
-                    new NotificationCompat.Builder(getActivity());
+                    new NotificationCompat.Builder(
+                            context, notificationChannelId);
 
             GlobalNotificationBuilder.setNotificationCompatBuilderInstance(
                     notificationCompatBuilder);
@@ -222,16 +238,24 @@ public class NotificationsActivity extends WearableActivity {
                     .setContentText(messagingStyleCommsAppData.getContentText())
                     .setSmallIcon(R.drawable.watch)
                     .setContentIntent(mainPendingIntent)
+                    .setColor(ContextCompat.getColor(context, R.color.background))
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
 
                     // Number of new notifications for API <24 (Wear 1.+) devices
                     .setSubText(
                             Integer.toString(messagingStyleCommsAppData.getNumberOfNewMessages()))
                     .addAction(replyAction)
                     .setCategory(Notification.CATEGORY_MESSAGE)
-                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setPriority(messagingStyleCommsAppData.getPriority())
 
-                    // Hides content on the lock-screen
-                    .setVisibility(Notification.VISIBILITY_PRIVATE);
+                    // Sets priority for 25 and below. For 26 and above, 'priority' is deprecated for
+                    // 'importance' which is set in the NotificationChannel. The integers representing
+                    // 'priority' are different from 'importance', so make sure you don't mix them.
+                    .setPriority(messagingStyleCommsAppData.getPriority())
+
+                    // Sets lock-screen visibility for 25 and below. For 26 and above, lock screen
+                    // visibility is set in the NotificationChannel.
+                    .setVisibility(messagingStyleCommsAppData.getChannelLockscreenVisibility());
 
             notificationCompatBuilder.setLargeIcon(
                     BitmapFactory.decodeResource(
@@ -249,5 +273,52 @@ public class NotificationsActivity extends WearableActivity {
             // Close app to demonstrate notification in steam.
             getActivity().finish();
         }
+
+        private String createNotificationChannel(
+                Context context,
+                MockDatabase.MessagingStyleCommsAppData mockNotificationData) {
+
+            // NotificationChannels are required for Notifications on O (API 26) and above.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                // The id of the channel.
+                String channelId = mockNotificationData.getChannelId();
+
+                // The user-visible name of the channel.
+                CharSequence channelName = mockNotificationData.getChannelName();
+                // The user-visible description of the channel.
+                String channelDescription = mockNotificationData.getChannelDescription();
+                int channelImportance = mockNotificationData.getChannelImportance();
+                boolean channelEnableVibrate = mockNotificationData.isChannelEnableVibrate();
+                int channelLockscreenVisibility =
+                        mockNotificationData.getChannelLockscreenVisibility();
+
+                // Initializes NotificationChannel.
+                NotificationChannel notificationChannel =
+                        new NotificationChannel(channelId, channelName, channelImportance);
+                notificationChannel.setDescription(channelDescription);
+                notificationChannel.enableVibration(channelEnableVibrate);
+                notificationChannel.setLockscreenVisibility(channelLockscreenVisibility);
+
+                // Adds NotificationChannel to system. Attempting to create an existing notification
+                // channel with its original values performs no operation, so it's safe to perform the
+                // below sequence.
+                NotificationManager notificationManager =
+                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.createNotificationChannel(notificationChannel);
+
+                return channelId;
+            } else {
+                // Returns null for pre-O (26) devices.
+                return null;
+            }
+        }
     }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {}
 }

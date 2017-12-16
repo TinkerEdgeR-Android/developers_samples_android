@@ -15,9 +15,9 @@
  */
 package com.example.android.wearable.wear.wearaccessibilityapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.wearable.activity.WearableActivity;
 
 public class AppItem {
     private final String mItemName;
@@ -25,15 +25,14 @@ public class AppItem {
     private final int mViewType;
     private final Class mClass;
 
-    public AppItem(
-            String itemName, int imageId, int viewType, Class<? extends WearableActivity> clazz) {
+    public AppItem(String itemName, int imageId, int viewType, Class<? extends Activity> clazz) {
         mItemName = itemName;
         mImageId = imageId;
         mViewType = viewType;
         mClass = clazz;
     }
 
-    public AppItem(String itemName, int imageId, Class<? extends WearableActivity> clazz) {
+    public AppItem(String itemName, int imageId, Class<? extends Activity> clazz) {
         mItemName = itemName;
         mImageId = imageId;
         mViewType = SampleAppConstants.NORMAL;
