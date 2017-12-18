@@ -16,11 +16,11 @@
 -->
 <vector
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:height="160dp"
+    android:height="80dp"
     android:name="oobe_tap"
     android:viewportHeight="160"
     android:viewportWidth="160"
-    android:width="160dp">
+    android:width="80dp">
     <group
         android:name="tapripple"
         android:translateX="80.25"
