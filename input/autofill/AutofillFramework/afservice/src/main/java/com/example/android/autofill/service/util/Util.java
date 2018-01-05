@@ -42,7 +42,7 @@ public final class Util {
     public static final NodeFilter AUTOFILL_ID_FILTER = (node, id) ->
             id.equals(node.getAutofillId());
     private static final String TAG = "AutofillSample";
-    public static LogLevel sLoggingLevel = LogLevel.OFF;
+    public static LogLevel sLoggingLevel = LogLevel.Off;
 
     private static void bundleToString(StringBuilder builder, Bundle data) {
         final Set<String> keySet = data.keySet();
@@ -252,11 +252,11 @@ public final class Util {
     }
 
     public static boolean logDebugEnabled() {
-        return sLoggingLevel.ordinal() >= LogLevel.DEBUG.ordinal();
+        return sLoggingLevel.ordinal() >= LogLevel.Debug.ordinal();
     }
 
     public static boolean logVerboseEnabled() {
-        return sLoggingLevel.ordinal() >= LogLevel.VERBOSE.ordinal();
+        return sLoggingLevel.ordinal() >= LogLevel.Verbose.ordinal();
     }
 
     public static void logw(String message, Object... params) {
@@ -279,7 +279,9 @@ public final class Util {
         sLoggingLevel = level;
     }
 
-    public enum LogLevel {OFF, DEBUG, VERBOSE}
+    public enum LogLevel {Off, Debug, Verbose}
+
+    public enum DalCheckRequirement {Disabled, LoginOnly, AllUrls}
 
     /**
      * Helper interface used to filter Assist nodes.

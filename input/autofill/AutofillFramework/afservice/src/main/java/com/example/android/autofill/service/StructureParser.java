@@ -57,7 +57,6 @@ public final class StructureParser {
         }
     }
 
-
     public interface NodeProcessor {
         void processNode(ViewNode node);
     }

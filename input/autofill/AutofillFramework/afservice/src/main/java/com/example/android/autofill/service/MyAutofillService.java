@@ -36,6 +36,7 @@ import android.widget.RemoteViews;
 import com.example.android.autofill.service.data.AutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientAutofillDataBuilder;
 import com.example.android.autofill.service.data.ClientViewMetadata;
+import com.example.android.autofill.service.data.ClientViewMetadataBuilder;
 import com.example.android.autofill.service.data.DataCallback;
 import com.example.android.autofill.service.data.adapter.DatasetAdapter;
 import com.example.android.autofill.service.data.adapter.ResponseAdapter;
@@ -51,7 +52,7 @@ import com.example.android.autofill.service.model.DatasetWithFilledAutofillField
 import com.example.android.autofill.service.settings.MyPreferences;
 import com.example.android.autofill.service.util.AppExecutors;
 import com.example.android.autofill.service.util.Util;
-
+import static com.example.android.autofill.service.util.Util.DalCheckRequirement;
 import java.util.List;
 
 import static com.example.android.autofill.service.data.adapter.ResponseAdapter.CLIENT_STATE_PARTIAL_ID_TEMPLATE;
@@ -61,6 +62,7 @@ import static com.example.android.autofill.service.util.Util.dumpStructure;
 import static com.example.android.autofill.service.util.Util.findNodeByFilter;
 import static com.example.android.autofill.service.util.Util.logVerboseEnabled;
 import static com.example.android.autofill.service.util.Util.logd;
+import static com.example.android.autofill.service.util.Util.loge;
 import static com.example.android.autofill.service.util.Util.logv;
 import static com.example.android.autofill.service.util.Util.logw;
 
@@ -94,7 +96,8 @@ public class MyAutofillService extends AutofillService {
                 .get(request.getFillContexts().size() - 1).getStructure();
         StructureParser parser = new StructureParser(structure);
         mDatasetAdapter = new DatasetAdapter(parser);
-        mClientViewMetadata = new ClientViewMetadata(parser);
+        ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
+        mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
         mResponseAdapter = new ResponseAdapter(this, mClientViewMetadata,
                 getPackageName(), mDatasetAdapter, request.getClientState());
         String packageName = structure.getActivityComponent().getPackageName();
@@ -149,10 +152,11 @@ public class MyAutofillService extends AutofillService {
         AssistStructure structure = fillContexts.get(size - 1).getStructure();
         StructureParser parser = new StructureParser(structure);
         mAutofillDataBuilder = new ClientAutofillDataBuilder(parser);
-        mClientViewMetadata = new ClientViewMetadata(parser);
+        ClientViewMetadataBuilder clientViewMetadataBuilder = new ClientViewMetadataBuilder(parser);
+        mClientViewMetadata = clientViewMetadataBuilder.buildClientViewMetadata();
         String packageName = structure.getActivityComponent().getPackageName();
         if (!mPackageVerificationRepository.putPackageSignatures(packageName)) {
-            callback.onFailure(getApplicationContext().getString(R.string.invalid_package_signature));
+            callback.onFailure(getString(R.string.invalid_package_signature));
             return;
         }
         Bundle clientState = request.getClientState();
@@ -202,14 +206,15 @@ public class MyAutofillService extends AutofillService {
     private void checkWebDomainAndBuildAutofillData(String packageName, SaveCallback callback) {
         String webDomain;
         try {
-            webDomain = mClientViewMetadata.buildWebDomain();
-        } catch (SecurityException e) {
+            webDomain = mClientViewMetadata.getWebDomain();
+        } catch(SecurityException e) {
             logw(e.getMessage());
-            callback.onFailure(e.getMessage());
+            callback.onFailure(getString(R.string.security_exception));
             return;
         }
         if (webDomain != null && webDomain.length() > 0) {
-            mDalRepository.checkValid(new DalInfo(webDomain, packageName),
+            DalCheckRequirement req = MyPreferences.getInstance(this).getDalCheckRequirement();
+            mDalRepository.checkValid(req, new DalInfo(webDomain, packageName),
                     new DataCallback<DalCheck>() {
                         @Override
                         public void onLoaded(DalCheck dalCheck) {
@@ -217,16 +222,16 @@ public class MyAutofillService extends AutofillService {
                                 logd("Domain %s is valid for %s", webDomain, packageName);
                                 buildAndSaveAutofillData();
                             } else {
-                                callback.onFailure(String.format(
-                                        "Could not associate web domain %s with app %s", webDomain,
-                                        packageName));
+                                loge("Could not associate web domain %s with app %s",
+                                        webDomain, packageName);
+                                callback.onFailure(getString(R.string.dal_exception));
                             }
                         }
 
                         @Override
                         public void onDataNotAvailable(String msg, Object... params) {
                             logw(msg, params);
-                            callback.onFailure(String.format(msg, params));
+                            callback.onFailure(getString(R.string.dal_exception));
                         }
                     });
         } else {
