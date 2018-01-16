@@ -15,7 +15,10 @@
  */
 package com.android.example.text.styling;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
@@ -40,7 +43,12 @@ public class MainActivity extends AppCompatActivity {
         // Text enclosed in “`” will be transformed into inline code block
         // Lines starting with “+ ” or “* ” will be transformed into bullet points. Bullet
         // points can contain nested markdown elements, like code.
-        CharSequence text = new MarkdownBuilder(this, new Parser())
+        int bulletPointColor = ContextCompat.getColor(this, R.color.colorAccent);
+        int codeBackgroundColor = ContextCompat.getColor(this, R.color.code_background);
+        Typeface codeBlockTypeface = ResourcesCompat.getFont(this, R.font.inconsolata);
+
+        CharSequence text = new MarkdownBuilder(bulletPointColor, codeBackgroundColor,
+                codeBlockTypeface, new Parser())
                 .markdownToSpans(getString(R.string.display_text));
         textView.setText(text);
     }
