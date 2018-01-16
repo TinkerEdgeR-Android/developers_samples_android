@@ -15,18 +15,17 @@
  */
 package com.android.example.text.styling.renderer;
 
-import android.content.Context;
 import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
+import android.support.annotation.Nullable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 
-import com.android.example.text.styling.R;
 import com.android.example.text.styling.parser.Element;
 import com.android.example.text.styling.parser.Parser;
 import com.android.example.text.styling.parser.TextMarkdown;
@@ -38,19 +37,29 @@ import com.android.example.text.styling.renderer.spans.CodeBlockSpan;
  */
 public class MarkdownBuilder {
 
-    @NonNull
-    private final Context context;
+    @ColorInt
+    private final int bulletPointColor;
+
+    @ColorInt
+    private final int codeBackgroundColor;
+
+    @Nullable
+    private final Typeface codeBlockTypeface;
 
     @NonNull
     private final Parser parser;
 
-    public MarkdownBuilder(@NonNull final Context context,
+    public MarkdownBuilder(@ColorInt final int bulletPointColor,
+                           @ColorInt final int codeBackgroundColor,
+                           final Typeface codeBlockTypeface,
                            @NonNull final Parser parser) {
-        this.context = context;
+        this.bulletPointColor = bulletPointColor;
+        this.codeBackgroundColor = codeBackgroundColor;
+        this.codeBlockTypeface = codeBlockTypeface;
         this.parser = parser;
     }
 
-    public CharSequence markdownToSpans(@NonNull final String string) {
+    public SpannedString markdownToSpans(@NonNull final String string) {
         TextMarkdown markdown = parser.parse(string);
 
         // In the SpannableStringBuilder, the text and the markup are mutable.
@@ -58,14 +67,14 @@ public class MarkdownBuilder {
         for (int i = 0; i < markdown.getElements().size(); i++) {
             buildSpans(markdown.getElements().get(i), builder);
         }
-        return builder;
+        return new SpannedString(builder);
     }
 
     /**
      * Build the spans for an element and insert them in the builder
      *
-     * @param element     the element for which the spans are built
-     * @param builder     a {@link SpannableStringBuilder} that gathers all the spans
+     * @param element the element for which the spans are built
+     * @param builder a {@link SpannableStringBuilder} that gathers all the spans
      */
     private void buildSpans(@NonNull final Element element,
                             @NonNull final SpannableStringBuilder builder) {
@@ -89,7 +98,6 @@ public class MarkdownBuilder {
     private void buildBulletPointSpans(@NonNull final Element element,
                                        @NonNull final SpannableStringBuilder builder) {
         int startIndex = builder.length();
-        int bulletPointColor = ContextCompat.getColor(context, R.color.colorAccent);
         for (Element child : element.getElements()) {
             buildSpans(child, builder);
         }
@@ -105,16 +113,14 @@ public class MarkdownBuilder {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         builder.setSpan(new LeadingMarginSpan.Standard(40), startIndex, builder.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        builder.setSpan(new RelativeSizeSpan(1.1f), 0, element.getText().length(),
+        builder.setSpan(new RelativeSizeSpan(1.1f), startIndex, builder.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private void buildCodeBlockSpan(@NonNull Element element, SpannableStringBuilder builder) {
-        Typeface font = ResourcesCompat.getFont(context, R.font.inconsolata);
-        int backgroundColor = ContextCompat.getColor(context, R.color.code_background);
         int startIndex = builder.length();
         builder.append(element.getText());
-        builder.setSpan(new CodeBlockSpan(font, backgroundColor), startIndex, builder.length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan(new CodeBlockSpan(codeBlockTypeface, codeBackgroundColor), startIndex,
+                builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 }
