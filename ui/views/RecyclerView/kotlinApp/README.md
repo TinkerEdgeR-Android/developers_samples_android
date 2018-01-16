@@ -1,6 +1,6 @@
 
 Android RecyclerView Sample (Kotlin)
-===================================
+====================================
 
 Sample demonstrating the use of RecyclerView to layout elements with a
 LinearLayoutManager and with a GridLayoutManager. It also demonstrates
@@ -31,7 +31,6 @@ Pre-requisites
 --------------
 
 - Android SDK 27
-- Android Build Tools v27.0.0
 - Android Gradle Plugin 3.0
 - Android Support Repository
 
