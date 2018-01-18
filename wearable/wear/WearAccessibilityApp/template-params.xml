@@ -21,14 +21,14 @@
     <package>com.example.android.wearable.wear.wearaccessibilityapp</package>
 
     <minSdkVersionWear>24</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
-    <targetSdkVersionWear>26</targetSdkVersionWear>
+    <compileSdkVersionWear>27</compileSdkVersionWear>
+    <targetSdkVersionWear>27</targetSdkVersionWear>
 
     <multiDexEnabled>true</multiDexEnabled>
 
-    <dependency_wearable>com.android.support:wear:27.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:wear:27.0.2</dependency_wearable>
     <dependency_wearable>com.android.support.constraint:constraint-layout:1.0.2</dependency_wearable>
-    <dependency_wearable>com.android.support:appcompat-v7:27.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:appcompat-v7:27.0.2</dependency_wearable>
 
 
     <strings>
