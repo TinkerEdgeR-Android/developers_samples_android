@@ -6,8 +6,8 @@
 ---
 status:       PUBLISHED
 technologies: [Android]
-categories:   [UI]
+categories:   [Background]
 languages:    [Kotlin]
 solutions:    [Mobile]
-github:       android-CardView
+github:       android-JobScheduler
 license:      apache2
