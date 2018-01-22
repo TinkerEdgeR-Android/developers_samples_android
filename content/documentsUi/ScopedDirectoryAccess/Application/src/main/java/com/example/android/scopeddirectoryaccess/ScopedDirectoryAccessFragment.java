@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.storage.StorageManager;
@@ -63,6 +64,9 @@ public class ScopedDirectoryAccessFragment extends Fragment {
     private TextView mNothingInDirectoryTextView;
     private TextView mPrimaryVolumeNameTextView;
     private Spinner mDirectoriesSpinner;
+    private LinearLayout mDirectoryAccessSettings;
+    private Button mLaunchDirectoryAccessSettings;
+
     private DirectoryEntryAdapter mAdapter;
     private ArrayList<DirectoryEntry> mDirectoryEntries;
 
@@ -102,12 +106,25 @@ public class ScopedDirectoryAccessFragment extends Fragment {
     public void onViewCreated(final View rootView, Bundle savedInstanceState) {
         super.onViewCreated(rootView, savedInstanceState);
 
-        mCurrentDirectoryTextView = (TextView) rootView
-                .findViewById(R.id.textview_current_directory);
-        mNothingInDirectoryTextView = (TextView) rootView
-                .findViewById(R.id.textview_nothing_in_directory);
-        mPrimaryVolumeNameTextView = (TextView) rootView
-                .findViewById(R.id.textview_primary_volume_name);
+        mCurrentDirectoryTextView = rootView.findViewById(R.id.textview_current_directory);
+        mNothingInDirectoryTextView = rootView.findViewById(R.id.textview_nothing_in_directory);
+        mPrimaryVolumeNameTextView = rootView.findViewById(R.id.textview_primary_volume_name);
+
+        mDirectoryAccessSettings = rootView.findViewById(R.id.directory_access_settings);
+        mLaunchDirectoryAccessSettings = rootView.findViewById(R.id.launch);
+
+        // TODO: proper API check
+        if (Build.VERSION.CODENAME.equals("P")) {
+            mDirectoryAccessSettings.setVisibility(View.VISIBLE);
+            mLaunchDirectoryAccessSettings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO: use API constant for intent name
+                    Intent intent = new Intent("android.settings.DIRECTORY_ACCESS_SETTINGS");
+                    startActivity(intent);
+                }
+            });
+        }
 
         // Set onClickListener for the primary volume
         Button openPictureButton = (Button) rootView
