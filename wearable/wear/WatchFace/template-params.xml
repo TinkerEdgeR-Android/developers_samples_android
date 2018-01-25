@@ -32,9 +32,9 @@
     <multiDexEnabled>true</multiDexEnabled>
 
 
-    <dependency>com.google.android.support:wearable:2.1.0</dependency>
-    <dependency_wearable>com.android.support:palette-v7:27.0.0</dependency_wearable>
-    <dependency_wearable>com.android.support:wear:27.0.0</dependency_wearable>
+    <dependency>com.google.android.support:wearable:2.2.0</dependency>
+    <dependency_wearable>com.android.support:palette-v7:27.0.2</dependency_wearable>
+    <dependency_wearable>com.android.support:wear:27.0.2</dependency_wearable>
 
 
     <wearable>
