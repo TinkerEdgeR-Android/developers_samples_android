@@ -20,7 +20,7 @@
     <package>com.example.android.wearable.datalayer</package>
 
     <minSdk>18</minSdk>
-    <targetSdkVersion>27</targetSdkVersion>
+    <targetSdkVersion>26</targetSdkVersion>
     <targetSdkVersionWear>26</targetSdkVersionWear>
 
     <multiDexEnabled>true</multiDexEnabled>
