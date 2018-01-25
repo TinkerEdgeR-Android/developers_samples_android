@@ -30,7 +30,7 @@
         <has_handheld_app>false</has_handheld_app>
     </wearable>
 
-    <dependency_wearable>com.android.support:appcompat-v7:26.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:appcompat-v7:26.0.2</dependency_wearable>
 
     <strings>
         <intro>
