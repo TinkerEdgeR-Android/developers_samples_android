@@ -6,6 +6,10 @@ This sample demonstrates the use of the Autofill Framework. It includes implemen
 Activities with views that should be autofilled, and a Service that can provide autofill data to
 client Activities.
 
+Maintainer's Note
+------------------
+**IMPORTANT:** The Kotlin version of this sample is temporarily out of date. Until this is corrected, you should reference the Java version instead.
+
 Introduction
 ------------
 
