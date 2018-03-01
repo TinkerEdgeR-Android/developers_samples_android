@@ -121,15 +121,17 @@ object Parser {
                     if (markEnd == -1) {
                         // we don't have an end of code block so this is just text
                         markEnd = string.length
-                        text = string.subSequence(startIndex, markEnd)
+                        text = string.substring(startIndex, markEnd)
+                        parents.add(Element(Element.Type.TEXT, text, emptyList()))
                         lastStartIndex = markEnd
                     } else {
                         // we found the end of the code block
-                        text = string.subSequence(endIndex, markEnd)
+                        text = string.substring(endIndex, markEnd)
+                        parents.add(Element(Element.Type.CODE_BLOCK, text,
+                                kotlin.collections.emptyList()))
                         // adding 1 so we can ignore the ending "`" for the code block
                         lastStartIndex = markEnd + 1
                     }
-                    parents.add(Element(Element.Type.TEXT, text, emptyList<Element>()))
                 }
             }
         }

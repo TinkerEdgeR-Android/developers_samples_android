@@ -22,19 +22,19 @@ import android.text.SpannedString
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import androidx.text.buildSpannedString
+import androidx.text.inSpans
 import com.android.example.text.styling.parser.Element
 import com.android.example.text.styling.parser.Parser
 import com.android.example.text.styling.renderer.spans.BulletPointSpan
 import com.android.example.text.styling.renderer.spans.CodeBlockSpan
 
-import androidx.text.inSpans
-
 /**
  * Renders the text as simple markdown, using spans.
  */
 class MarkdownBuilder(
-        private @ColorInt val bulletPointColor: Int,
-        private @ColorInt val codeBackgroundColor: Int,
+        @ColorInt private val bulletPointColor: Int,
+        @ColorInt private val codeBackgroundColor: Int,
         private val codeBlockTypeface: Typeface?,
         private val parser: Parser
 ) {
@@ -43,9 +43,7 @@ class MarkdownBuilder(
         val markdown = parser.parse(string)
 
         return buildSpannedString {
-            for (i in 0 until markdown.elements.size) {
-                buildElement(markdown.elements[i], this)
-            }
+            markdown.elements.forEach { it -> buildElement(it, this) }
         }
     }
 
