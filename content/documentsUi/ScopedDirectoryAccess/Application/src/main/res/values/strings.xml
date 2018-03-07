@@ -23,6 +23,7 @@
     <string name="launch">Launch</string>
     <string name="directory_access_settings">Directory access settings</string>
     <string-array name="directories">
+        <item>ROOT</item>
         <item>ALARMS</item>
         <item>DCIM</item>
         <item>DOCUMENTS</item>
