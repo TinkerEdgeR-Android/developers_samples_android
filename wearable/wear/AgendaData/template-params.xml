@@ -23,11 +23,13 @@
     <package>com.example.android.wearable.agendadata</package>
 
     <minSdk>18</minSdk>
-    <targetSdkVersion>25</targetSdkVersion>
+    <targetSdkVersion>27</targetSdkVersion>
     <minSdkVersionWear>23</minSdkVersionWear>
-    <targetSdkVersionWear>25</targetSdkVersionWear>
+    <targetSdkVersionWear>27</targetSdkVersionWear>
+    <compileSdkVersionWear>27</compileSdkVersionWear>
 
-    <dependency>com.android.support:design:25.4.0</dependency>
+    <dependency>com.android.support:design:27.1.0</dependency>
+
 
     <wearable>
         <has_handheld_app>true</has_handheld_app>
