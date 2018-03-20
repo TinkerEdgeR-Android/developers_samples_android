@@ -28,13 +28,16 @@ import android.service.autofill.SaveCallback;
 import android.service.autofill.SaveInfo;
 import android.service.autofill.SaveRequest;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
+import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillValue;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.example.android.autofill.service.MyAutofillService;
 import com.example.android.autofill.service.R;
 
 import java.util.Collection;
@@ -46,27 +49,18 @@ import java.util.Map.Entry;
  * A very basic {@link AutofillService} implementation that only shows dynamic-generated datasets
  * and don't persist the saved data.
  *
- * <p>This class has 2 goals:
- * <ul>
- *   <li>Provide a simple service that app developers can use to see how their apps behave with
- *   autofill.
- *   <li>Explain the basic autofill workflow / provide a service that can be easily modified.
- * </ul>
- */
-/*
- * TODO list:
- * - improve documentation above, explaining
- *   - no-goals, security limitations, etc..
- *   - toast usage
- *   - how dynamic datasets are created
- *   - how save works
- * - use strings instead of hardcoded values
- * - use different icons for different services
+ * <p>The goal of this class is to provide a simple autofill service implementation that is easy
+ * to understand and extend, but it should <strong>not</strong> be used as-is on real apps because
+ * it lacks fundamental security requirements such as data partitioning and package verification
+ * &mdashthese requirements are fullfilled by {@link MyAutofillService}.
  */
 public class BasicService extends AutofillService {
 
     private static final String TAG = "BasicService";
 
+    /**
+     * Number of datasets sent on each request - we're simple, that value is hardcoded in our DNA!
+     */
     private static final int NUMBER_DATASETS = 4;
 
     @Override
@@ -84,7 +78,6 @@ public class BasicService extends AutofillService {
             callback.onSuccess(null);
             return;
         }
-        Log.d(TAG, "autofill hints: " + fields);
 
         // Create the base response
         FillResponse.Builder response = new FillResponse.Builder();
@@ -97,6 +90,9 @@ public class BasicService extends AutofillService {
                 String hint = field.getKey();
                 AutofillId id = field.getValue();
                 String value = hint + i;
+                // We're simple - our dataset values are hardcoded as "hintN" (for example,
+                // "username1", "username2") and they're displayed as such, except if they're a
+                // password
                 String displayValue = hint.contains("password") ? "password for #" + i : value;
                 RemoteViews presentation = newDatasetPresentation(packageName, displayValue);
                 dataset.setValue(id, AutofillValue.forText(value), presentation);
@@ -123,7 +119,13 @@ public class BasicService extends AutofillService {
         callback.onSuccess();
     }
 
-    // TODO: document
+    /**
+     * Parses the {@link AssistStructure} representing the activity being autofilled, and returns a
+     * map of autofillable fields (represented by their autofill ids) mapped by the hint associate
+     * with them.
+     *
+     * <p>An autofillable field is a {@link ViewNode} whose {@link #getHint(ViewNode)} metho
+     */
     @NonNull
     private Map<String, AutofillId> getAutofillableFields(@NonNull AssistStructure structure) {
         Map<String, AutofillId> fields = new ArrayMap<>();
@@ -135,16 +137,25 @@ public class BasicService extends AutofillService {
         return fields;
     }
 
-    // TODO: document
+    /**
+     * Adds any autofillable view from the {@link ViewNode} and its descendants to the map.
+     */
     private void addAutofillableFields(@NonNull Map<String, AutofillId> fields,
             @NonNull ViewNode node) {
-        String[] hints = node.getAutofillHints();
-        if (hints != null) {
-            AutofillId id = node.getAutofillId();
-            // We're simple, we only care about the first hint
-            String hint = hints[0].toLowerCase();
-            Log.v(TAG, "Found hint " + hint + " on " + id);
-            fields.put(hint, id);
+        int type = node.getAutofillType();
+        // We're simple, we just autofill text fields.
+        if (type == View.AUTOFILL_TYPE_TEXT) {
+            String hint = getHint(node);
+            if (hint != null) {
+                AutofillId id = node.getAutofillId();
+                if (!fields.containsKey(hint)) {
+                    Log.v(TAG, "Setting hint " + hint + " on " + id);
+                    fields.put(hint, id);
+                } else {
+                    Log.v(TAG, "Ignoring hint " + hint + " on " + id
+                            + " because it was already set");
+                }
+            }
         }
         int childrenSize = node.getChildCount();
         for (int i = 0; i < childrenSize; i++) {
@@ -152,14 +163,37 @@ public class BasicService extends AutofillService {
         }
     }
 
-    // TODO: move to common code
+    /**
+     * Gets the autofill hint associated with the given node.
+     *
+     * <p>By default it just return the first entry on the node's
+     * {@link ViewNode#getAutofillHints() autofillHints} (when available), but subclasses could
+     * extend it to use heuristics when the app developer didn't explicitly provide these hints.
+     *
+     */
+    @Nullable
+    protected String getHint(@NonNull ViewNode node) {
+        String[] hints = node.getAutofillHints();
+        if (hints == null) return null;
+
+        // We're simple, we only care about the first hint
+        String hint = hints[0].toLowerCase();
+        return hint;
+    }
+
+    /**
+     * Helper method to get the {@link AssistStructure} associated with the latest request
+     * in an autofill context.
+     */
     @NonNull
     private static AssistStructure getLatestAssistStructure(@NonNull FillRequest request) {
         List<FillContext> fillContexts = request.getFillContexts();
         return fillContexts.get(fillContexts.size() - 1).getStructure();
     }
 
-    // TODO: move to common code
+    /**
+     * Helper method to create a dataset presentation with the given text.
+     */
     @NonNull
     private static RemoteViews newDatasetPresentation(@NonNull String packageName,
             @NonNull CharSequence text) {
@@ -170,7 +204,9 @@ public class BasicService extends AutofillService {
         return presentation;
     }
 
-    // TODO: move to common code
+    /**
+     * Displays a toast with the given message.
+     */
     private void toast(@NonNull CharSequence message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
