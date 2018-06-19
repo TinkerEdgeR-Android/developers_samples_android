@@ -168,7 +168,7 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public void onMessageReceived(final MessageEvent messageEvent) {
+    public void onMessageReceived(MessageEvent messageEvent) {
         LOGD(TAG, "onMessageReceived() A message from watch was received:"
                 + messageEvent.getRequestId() + " " + messageEvent.getPath());
 
@@ -186,9 +186,9 @@ public class MainActivity extends Activity implements
      * Sets up UI components and their callback handlers.
      */
     private void setupViews() {
-        mSendPhotoBtn = (Button) findViewById(R.id.sendPhoto);
-        mThumbView = (ImageView) findViewById(R.id.imageView);
-        mDataItemList = (ListView) findViewById(R.id.data_item_list);
+        mSendPhotoBtn = findViewById(R.id.sendPhoto);
+        mThumbView = findViewById(R.id.imageView);
+        mDataItemList = findViewById(R.id.data_item_list);
         mStartActivityBtn = findViewById(R.id.start_wearable_activity);
     }
 

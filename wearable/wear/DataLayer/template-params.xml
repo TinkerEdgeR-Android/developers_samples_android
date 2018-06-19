@@ -26,6 +26,12 @@
 
     <multiDexEnabled>true</multiDexEnabled>
 
+    <dependency>com.android.support:recyclerview-v7:27.1.1</dependency>
+    <dependency>com.android.support:percent:27.1.1</dependency>
+
+    <dependency_wearable>com.android.support:recyclerview-v7:27.1.1</dependency_wearable>
+    <dependency_wearable>com.android.support:percent:27.1.1</dependency_wearable>
+
     <wearable>
         <has_handheld_app>true</has_handheld_app>
     </wearable>

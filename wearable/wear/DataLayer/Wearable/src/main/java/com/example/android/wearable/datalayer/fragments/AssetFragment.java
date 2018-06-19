@@ -39,7 +39,7 @@ public class AssetFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.asset_fragment, container, false);
-        mPhoto = (ImageView) view.findViewById(R.id.photo);
+        mPhoto = view.findViewById(R.id.photo);
         return view;
     }
 
