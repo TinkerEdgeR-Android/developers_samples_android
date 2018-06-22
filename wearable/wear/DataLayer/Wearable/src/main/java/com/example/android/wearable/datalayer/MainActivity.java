@@ -16,8 +16,6 @@
 
 package com.example.android.wearable.datalayer;
 
-import static com.example.android.wearable.datalayer.DataLayerListenerService.LOGD;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -120,7 +118,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        LOGD(TAG, "onDataChanged(): " + dataEvents);
+        Log.d(TAG, "onDataChanged(): " + dataEvents);
 
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
@@ -133,10 +131,10 @@ public class MainActivity extends Activity implements
                     new LoadBitmapAsyncTask().execute(photoAsset);
 
                 } else if (DataLayerListenerService.COUNT_PATH.equals(path)) {
-                    LOGD(TAG, "Data Changed for COUNT_PATH");
+                    Log.d(TAG, "Data Changed for COUNT_PATH");
                     mDataFragment.appendItem("DataItem Changed", event.getDataItem().toString());
                 } else {
-                    LOGD(TAG, "Unrecognized path: " + path);
+                    Log.d(TAG, "Unrecognized path: " + path);
                 }
 
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
@@ -162,13 +160,13 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onMessageReceived(MessageEvent event) {
-        LOGD(TAG, "onMessageReceived: " + event);
+        Log.d(TAG, "onMessageReceived: " + event);
         mDataFragment.appendItem("Message", event.toString());
     }
 
     @Override
     public void onCapabilityChanged(CapabilityInfo capabilityInfo) {
-        LOGD(TAG, "onCapabilityChanged: " + capabilityInfo);
+        Log.d(TAG, "onCapabilityChanged: " + capabilityInfo);
         mDataFragment.appendItem("onCapabilityChanged", capabilityInfo.toString());
     }
 
@@ -206,7 +204,7 @@ public class MainActivity extends Activity implements
         for (Node node : nodes) {
             nodesList.add(node.getDisplayName());
         }
-        LOGD(TAG, "Connected Nodes: " + (nodesList.isEmpty()
+        Log.d(TAG, "Connected Nodes: " + (nodesList.isEmpty()
                 ? "No connected device was found for the given capabilities"
                 : TextUtils.join(",", nodesList)));
         String msg;
@@ -322,7 +320,7 @@ public class MainActivity extends Activity implements
         protected void onPostExecute(Bitmap bitmap) {
 
             if (bitmap != null) {
-                LOGD(TAG, "Setting background image on second page..");
+                Log.d(TAG, "Setting background image on second page..");
                 moveToPage(1);
                 mAssetFragment.setBackgroundImage(bitmap);
             }

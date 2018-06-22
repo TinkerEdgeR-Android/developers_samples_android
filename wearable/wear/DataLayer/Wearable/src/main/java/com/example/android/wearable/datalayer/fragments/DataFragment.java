@@ -43,8 +43,8 @@ public class DataFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.data_fragment, container, false);
-        ListView dataItemList = (ListView) view.findViewById(R.id.dataItem_list);
-        mIntroText = (TextView) view.findViewById(R.id.intro);
+        ListView dataItemList = view.findViewById(R.id.dataItem_list);
+        mIntroText = view.findViewById(R.id.intro);
         mDataItemListAdapter = new DataItemAdapter(getActivity(),
                 android.R.layout.simple_list_item_1);
         dataItemList.setAdapter(mDataItemListAdapter);
@@ -78,8 +78,8 @@ public class DataFragment extends Fragment {
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(android.R.layout.two_line_list_item, null);
                 convertView.setTag(holder);
-                holder.text1 = (TextView) convertView.findViewById(android.R.id.text1);
-                holder.text2 = (TextView) convertView.findViewById(android.R.id.text2);
+                holder.text1 = convertView.findViewById(android.R.id.text1);
+                holder.text2 = convertView.findViewById(android.R.id.text2);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
