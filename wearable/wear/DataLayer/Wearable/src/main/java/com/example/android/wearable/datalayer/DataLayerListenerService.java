@@ -69,7 +69,7 @@ public class DataLayerListenerService extends WearableListenerService {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Message sent successfully");
                         } else {
-                            Log.d(TAG, "Message failed: " + task.getResult());
+                            Log.d(TAG, "Message failed.");
                         }
                     }
                 });
