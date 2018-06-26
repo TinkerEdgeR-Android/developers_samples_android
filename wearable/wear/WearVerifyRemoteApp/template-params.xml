@@ -34,7 +34,7 @@
     <dependency>com.google.android.support:wearable:2.3.0</dependency>
 
 
-    <dependency_wearable>com.android.support:wear:27.1.0</dependency_wearable>
+    <dependency_wearable>com.android.support:wear:27.1.1</dependency_wearable>
 
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
