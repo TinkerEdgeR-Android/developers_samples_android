@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<!-- Copyright (C) 2018 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@
     android:layout_height="match_parent">
 
     <View
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
         android:id="@+id/center"
         android:visibility="invisible"
         android:layout_centerVertical="true" />
 
+    <!-- Method triggered directly in MainActivity.java (onCapabilityDiscoveryButtonClicked()),
+         not in CustomRecyclerAdapter.java. -->
     <Button
         android:id="@+id/capability_2_btn"
         android:text="@string/capability_2_notification"
@@ -34,8 +36,10 @@
         android:layout_above="@id/center"
         android:layout_centerHorizontal="true"
         android:textSize="12sp"
-        android:onClick="onClicked" />
+        android:onClick="onCapabilityDiscoveryButtonClicked" />
 
+    <!-- Method triggered directly in MainActivity.java (onCapabilityDiscoveryButtonClicked()),
+         not in CustomRecyclerAdapter.java. -->
     <Button
         android:id="@+id/capabilities_1_and_2_btn"
         android:text="@string/capabilities_1_and_2_notification"
@@ -45,6 +49,6 @@
         android:textSize="10sp"
         android:layout_alignEnd="@+id/capability_2_btn"
         android:layout_alignStart="@+id/capability_2_btn"
-        android:onClick="onClicked" />
+        android:onClick="onCapabilityDiscoveryButtonClicked" />
 
 </RelativeLayout>
