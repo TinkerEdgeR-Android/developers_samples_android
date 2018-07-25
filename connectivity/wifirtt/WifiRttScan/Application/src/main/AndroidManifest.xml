@@ -32,12 +32,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/CustomAppTheme">
 
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/CustomAppTheme.NoActionBar">
+            android:theme="@style/CustomAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,8 +48,7 @@
         <activity
             android:name=".LocationPermissionRequestActivity"
             android:label="@string/title_activity_location_permission_request"
-            android:theme="@style/CustomAppTheme.NoActionBar" >
+            android:theme="@style/CustomAppTheme" >
         </activity>
     </application>
-
 </manifest>
