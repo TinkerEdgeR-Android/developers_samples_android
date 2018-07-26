@@ -21,6 +21,8 @@
 
     <minSdk>18</minSdk>
     <targetSdkVersion>27</targetSdkVersion>
+
+    <minSdkVersionWear>23</minSdkVersionWear>
     <compileSdkVersionWear>26</compileSdkVersionWear>
     <targetSdkVersionWear>26</targetSdkVersionWear>
 
@@ -28,6 +30,8 @@
 
     <dependency>com.android.support:recyclerview-v7:27.1.1</dependency>
     <dependency>com.android.support:percent:27.1.1</dependency>
+
+    <dependency_wearable>com.android.support:wear:27.1.1</dependency_wearable>
 
     <dependency_wearable>com.android.support:recyclerview-v7:27.1.1</dependency_wearable>
     <dependency_wearable>com.android.support:percent:27.1.1</dependency_wearable>
