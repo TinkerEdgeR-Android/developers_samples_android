@@ -27,14 +27,14 @@ import android.view.View;
 
 /**
  * This is a simple splash screen (activity) for giving more details on why the user should approve
- * fine location permissions. If they choose to move forward, the permission screen is
- * brought up. Either way (approve or disapprove), this will exit to the MainActivity after they are
- * finished with their final decision.
+ * fine location permissions. If they choose to move forward, the permission screen is brought up.
+ * Either way (approve or disapprove), this will exit to the MainActivity after they are finished
+ * with their final decision.
  */
 public class LocationPermissionRequestActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private static final String TAG = "LocationRationale";
+    private static final String TAG = "LocationPermission";
 
     /* Id to identify Location permission request. */
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;

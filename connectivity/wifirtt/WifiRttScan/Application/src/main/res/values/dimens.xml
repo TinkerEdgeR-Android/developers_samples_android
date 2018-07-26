@@ -15,4 +15,16 @@
     <dimen name="recycler_row_padding">5dp</dimen>
     <dimen name="recycler_row_header_text_size">30sp</dimen>
     <dimen name="recycler_row_item_text_size">20sp</dimen>
+
+    <dimen name="activity_access_point_ranging_request_header_text_size">24sp</dimen>
+    <dimen name="activity_access_point_ranging_request_item_text_size">20sp</dimen>
+    <dimen name="activity_access_point_ranging_request_margin_end">16dp</dimen>
+    <dimen name="activity_access_point_ranging_request_margin_start">16dp</dimen>
+    <dimen name="activity_access_point_ranging_request_margin_top">8dp</dimen>
+    <dimen name="activity_access_point_ranging_request_margin_top_title">16dp</dimen>
+    <dimen name="activity_access_point_ranging_request_margin_top_divider">16dp</dimen>
+    <dimen name="activity_access_point_ranging_request_divider_height">1dp</dimen>
+    <dimen name="activity_access_point_ranging_request_edit_view_height">44dp</dimen>
+    <dimen name="activity_access_point_ranging_request_edit_view_width">116dp</dimen>
+
 </resources>

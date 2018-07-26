@@ -21,7 +21,8 @@
     android:layout_gravity="center"
     android:paddingTop="@dimen/recycler_row_padding"
     android:paddingBottom="@dimen/recycler_row_padding"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:clickable="true">
 
     <TextView
         android:layout_width="0dp"

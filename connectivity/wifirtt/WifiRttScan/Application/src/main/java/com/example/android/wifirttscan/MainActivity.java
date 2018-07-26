@@ -15,6 +15,8 @@
  */
 package com.example.android.wifirttscan;
 
+import static com.example.android.wifirttscan.AccessPointRangingResultsActivity.SCAN_RESULT_EXTRA;
+
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -36,6 +38,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.android.wifirttscan.MyAdapter.ScanResultClickListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +47,7 @@ import java.util.List;
  * Displays list of Access Points enabled with WifiRTT (to check distance). Requests location
  * permissions if they are not approved via secondary splash screen explaining why they are needed.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ScanResultClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -59,14 +63,12 @@ public class MainActivity extends AppCompatActivity {
 
     private MyAdapter mAdapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mOutputTextView = findViewById(R.id.access_point_summary_text_view);
-
         mRecyclerView = findViewById(R.id.recycler_view);
 
         // Improve performance if you know that changes in content do not change the layout size
@@ -79,23 +81,11 @@ public class MainActivity extends AppCompatActivity {
 
         mAccessPointsSupporting80211mc = new ArrayList<>();
 
-        mAdapter = new MyAdapter(mAccessPointsSupporting80211mc);
+        mAdapter = new MyAdapter(mAccessPointsSupporting80211mc, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiScanReceiver = new WifiScanReceiver();
-    }
-
-    public void onClickFindDistancesToAccessPoints(View view) {
-        if (mLocationPermissionApproved) {
-            logToUi(getString(R.string.retrieving_access_points));
-            mWifiManager.startScan();
-
-        } else {
-            // On 23+ (M+) devices, fine location permission not granted. Request permission.
-            Intent startIntent = new Intent(this, LocationPermissionRequestActivity.class);
-            startActivity(startIntent);
-        }
     }
 
     @Override
@@ -122,6 +112,27 @@ public class MainActivity extends AppCompatActivity {
         if (!message.isEmpty()) {
             Log.d(TAG, message);
             mOutputTextView.setText(message);
+        }
+    }
+
+    @Override
+    public void onScanResultItemClick(ScanResult scanResult) {
+        Log.d(TAG, "onScanResultItemClick(): ssid: " + scanResult.SSID);
+
+        Intent intent = new Intent(this, AccessPointRangingResultsActivity.class);
+        intent.putExtra(SCAN_RESULT_EXTRA, scanResult);
+        startActivity(intent);
+    }
+
+    public void onClickFindDistancesToAccessPoints(View view) {
+        if (mLocationPermissionApproved) {
+            logToUi(getString(R.string.retrieving_access_points));
+            mWifiManager.startScan();
+
+        } else {
+            // On 23+ (M+) devices, fine location permission not granted. Request permission.
+            Intent startIntent = new Intent(this, LocationPermissionRequestActivity.class);
+            startActivity(startIntent);
         }
     }
 
