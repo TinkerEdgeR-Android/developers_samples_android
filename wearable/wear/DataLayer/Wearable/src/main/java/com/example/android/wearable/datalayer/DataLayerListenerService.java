@@ -28,9 +28,7 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
-/**
- * Listens to DataItems and Messages from the local node.
- */
+/** Listens to DataItems and Messages from the local node. */
 public class DataLayerListenerService extends WearableListenerService {
 
     private static final String TAG = "DataLayerService";
@@ -60,19 +58,21 @@ public class DataLayerListenerService extends WearableListenerService {
                 // Send the rpc
                 // Instantiates clients without member variables, as clients are inexpensive to
                 // create. (They are cached and shared between GoogleApi instances.)
-                Task<Integer> sendMessageTask = Wearable.getMessageClient(this)
-                        .sendMessage(nodeId, DATA_ITEM_RECEIVED_PATH, payload);
+                Task<Integer> sendMessageTask =
+                        Wearable.getMessageClient(this)
+                                .sendMessage(nodeId, DATA_ITEM_RECEIVED_PATH, payload);
 
-                sendMessageTask.addOnCompleteListener(new OnCompleteListener<Integer>() {
-                    @Override
-                    public void onComplete(Task<Integer> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Message sent successfully");
-                        } else {
-                            Log.d(TAG, "Message failed.");
-                        }
-                    }
-                });
+                sendMessageTask.addOnCompleteListener(
+                        new OnCompleteListener<Integer>() {
+                            @Override
+                            public void onComplete(Task<Integer> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "Message sent successfully");
+                                } else {
+                                    Log.d(TAG, "Message failed.");
+                                }
+                            }
+                        });
             }
         }
     }
