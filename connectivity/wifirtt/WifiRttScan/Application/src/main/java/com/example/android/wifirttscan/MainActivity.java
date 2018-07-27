@@ -16,17 +16,28 @@
 package com.example.android.wifirttscan;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import android.net.wifi.rtt.RangingRequest;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Displays list of Access Points enabled with WifiRTT (to check distance). Requests location
@@ -38,46 +49,53 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean mLocationPermissionApproved = false;
 
+    List<ScanResult> mAccessPointsSupporting80211mc;
+
+    private WifiManager mWifiManager;
+    private WifiScanReceiver mWifiScanReceiver;
+
     private TextView mOutputTextView;
+    private RecyclerView mRecyclerView;
+
+    private MyAdapter mAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        mOutputTextView = findViewById(R.id.mainOutputTextView);
+        mOutputTextView = findViewById(R.id.access_point_summary_text_view);
+
+        mRecyclerView = findViewById(R.id.recycler_view);
+
+        // Improve performance if you know that changes in content do not change the layout size
+        // of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        LayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        mAccessPointsSupporting80211mc = new ArrayList<>();
+
+        mAdapter = new MyAdapter(mAccessPointsSupporting80211mc);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mWifiScanReceiver = new WifiScanReceiver();
     }
 
     public void onClickFindDistancesToAccessPoints(View view) {
         if (mLocationPermissionApproved) {
-            Log.d(TAG, "Location Permissions approved! Retrieving Access Points.");
-            // TODO: Implement WifiManager + WifiRTT
+            logToUi(getString(R.string.retrieving_access_points));
+            mWifiManager.startScan();
 
         } else {
-            // On 23+ (M+) devices, fine location not granted. Request permission.
+            // On 23+ (M+) devices, fine location permission not granted. Request permission.
             Intent startIntent = new Intent(this, LocationPermissionRequestActivity.class);
             startActivity(startIntent);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -88,5 +106,67 @@ public class MainActivity extends AppCompatActivity {
         mLocationPermissionApproved =
                 ActivityCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED;
+
+        registerReceiver(
+                mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause()");
+        super.onPause();
+        unregisterReceiver(mWifiScanReceiver);
+    }
+
+    private void logToUi(final String message) {
+        if (!message.isEmpty()) {
+            Log.d(TAG, message);
+            mOutputTextView.setText(message);
+        }
+    }
+
+    private class WifiScanReceiver extends BroadcastReceiver {
+
+        private List<ScanResult> find80211mcSupportedAccessPoints(
+                @NonNull List<ScanResult> originalList) {
+            List<ScanResult> newList = new ArrayList<>();
+
+            for (ScanResult scanResult : originalList) {
+
+                if (scanResult.is80211mcResponder()) {
+                    newList.add(scanResult);
+                }
+
+                if (newList.size() >= RangingRequest.getMaxPeers()) {
+                    break;
+                }
+            }
+            return newList;
+        }
+
+        // This is checked via mLocationPermissionApproved boolean
+        @SuppressLint("MissingPermission")
+        public void onReceive(Context context, Intent intent) {
+
+            List<ScanResult> scanResults = mWifiManager.getScanResults();
+
+            if (scanResults != null) {
+
+                if (mLocationPermissionApproved) {
+                    mAccessPointsSupporting80211mc = find80211mcSupportedAccessPoints(scanResults);
+
+                    mAdapter.swapData(mAccessPointsSupporting80211mc);
+
+                    logToUi(scanResults.size() +
+                            " APs discovered, " +
+                            mAccessPointsSupporting80211mc.size() +
+                            " RTT capable.");
+
+                } else {
+                    // TODO (jewalker): Add Snackbar regarding permissions
+                    Log.d(TAG, "Permissions not allowed.");
+                }
+            }
+        }
     }
 }

@@ -24,6 +24,8 @@
     <compileSdkVersion>28</compileSdkVersion>
     <targetSdkVersion>28</targetSdkVersion>
 
+    <multiDexEnabled>true</multiDexEnabled>
+
     <!-- Include additional dependencies here.-->
     <!-- dependency>com.google.android.gms:play-services:5.0.+</dependency -->
 
