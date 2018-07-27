@@ -40,6 +40,8 @@
     <string name="stats_window_size_label_activity_access_point_ranging_results">Stats window size:</string>
     <string name="ranging_period_label_activity_access_point_ranging_results">Ranging period (ms):</string>
 
-    <string name="reset_label_activity_access_point_ranging_results">Reset</string>
+    <string name="reset_label_activity_access_point_ranging_results">Reset Ranging Requests</string>
+    <string name="number_of_requests_label_activity_access_point_ranging_results">Number of requests:</string>
+    <string name="mac_mismatch_message_activity_access_point_ranging_results">Callback MAC address doesn\'t match original request MAC address.</string>
 
 </resources>
