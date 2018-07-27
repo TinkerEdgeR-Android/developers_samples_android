@@ -30,33 +30,44 @@ import java.util.List;
  * the {@link RecyclerView} to label the data.
  */
 public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
-
     private static final int HEADER_POSITION = 0;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
+    private static ScanResultClickListener sScanResultClickListener;
+
     private List<ScanResult> mWifiAccessPointsWithRtt;
+
+    public MyAdapter(
+            List<ScanResult> list,
+            ScanResultClickListener scanResultClickListener) {
+        mWifiAccessPointsWithRtt = list;
+        sScanResultClickListener = scanResultClickListener;
+    }
 
     public static class ViewHolderHeader extends RecyclerView.ViewHolder {
         public ViewHolderHeader(View view) {
-            super(view);;
+            super(view);
         }
     }
 
-    public static class ViewHolderItem extends RecyclerView.ViewHolder {
+    public class ViewHolderItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView mSsidTextView;
         public TextView mBssidTextView;
 
         public ViewHolderItem(View view) {
             super(view);
+            view.setOnClickListener(this);
             mSsidTextView = view.findViewById(R.id.ssid_text_view);
             mBssidTextView = view.findViewById(R.id.bssid_text_view);
         }
-    }
 
-    public MyAdapter(List<ScanResult> list) {
-        mWifiAccessPointsWithRtt = list;
+        @Override
+        public void onClick(View view) {
+            sScanResultClickListener.onScanResultItemClick(
+                    getItem(getAdapterPosition()));
+        }
     }
 
     public void swapData(List<ScanResult> list) {
@@ -77,12 +88,16 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         ViewHolder viewHolder;
 
         if (viewType == TYPE_HEADER) {
-            viewHolder = new ViewHolderHeader(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recycler_row_header, parent, false));
+            viewHolder =
+                    new ViewHolderHeader(
+                            LayoutInflater.from(parent.getContext())
+                                    .inflate(R.layout.recycler_row_header, parent, false));
 
         } else if (viewType == TYPE_ITEM) {
-            viewHolder = new ViewHolderItem(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recycler_row_item, parent, false));
+            viewHolder =
+                    new ViewHolderItem(
+                            LayoutInflater.from(parent.getContext())
+                                    .inflate(R.layout.recycler_row_item, parent, false));
         } else {
             throw new RuntimeException(viewType + " isn't a valid view type.");
         }
@@ -129,5 +144,11 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
         } else {
             return TYPE_ITEM;
         }
+    }
+
+    // Used to inform the class containing the RecyclerView that one of the ScanResult items in the
+    // list was clicked.
+    public interface ScanResultClickListener {
+        void onScanResultItemClick(ScanResult scanResult);
     }
 }
