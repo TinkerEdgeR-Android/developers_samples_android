@@ -33,21 +33,20 @@
     <dependency>com.android.support.constraint:constraint-layout:1.1.2</dependency>
     <dependency>com.android.support:design:28.0.0-alpha3</dependency>
 
-
     <strings>
         <intro>
-           <![CDATA[
-           TODO, also replace images
-           ]]>
+<![CDATA[
+Sample demonstrates best practices for using WifiRTT APIs in Android. Also, this is a a useful
+application for testing Wifi-RTT enabled phones and access points and validating the estimated
+distance is close to the actual distance between them.
+]]>
         </intro>
     </strings>
 
     <template src="base" />
 
-    <common src="logger" />
-    <common src="activities"/>
     <metadata>
-    <status>DRAFT</status>
+    <status>PUBLISHED</status>
     <categories>Connectivity</categories>
     <technologies>Android</technologies>
     <languages>Java</languages>
@@ -55,7 +54,9 @@
     <level>ADVANCED</level>
     <icon>screenshots/big_icon.png</icon>
     <screenshots>
-        <img>screenshots/1-main.png</img>
+        <img>screenshots/main1.png</img>
+        <img>screenshots/main2.png</img>
+        <img>screenshots/main3.png</img>
     </screenshots>
     <api_refs>
         <android>android.net.wifi.ScanResult</android>
@@ -67,12 +68,25 @@
     </api_refs>
     <description>
 <![CDATA[
-TODO
+Sample demonstrates best practices for using WifiRTT APIs in Android. Also, this is a a useful
+application for testing Wifi-RTT enabled phones and access points and validating the estimated
+distance is close to the actual distance between them.
 ]]>
     </description>
     <intro>
 <![CDATA[
-TODO
+Steps for trying out the sample:
+* Compile and install the mobile app onto your mobile device (for mobile scenario).
+
+This sample demonstrates best practices for using the WifiRtt APIs in Android. The main activity
+lists all access points that are WifiRtt enabled using the [WifiManager][1]. By clicking on one of
+the access points, another activity will launch and initiate [RangingRequest][2] via the
+[WifiRttManager][3]. The activity will display many of the details returned from the access point
+including the distance between the access point and the phone.
+
+[1]: https://developer.android.com/reference/android/net/wifi/WifiManager
+[2]: https://developer.android.com/reference/android/net/wifi/rtt/RangingRequest
+[3]: https://developer.android.com/reference/android/net/wifi/rtt/WifiRttManager
 ]]>
     </intro>
 </metadata>
