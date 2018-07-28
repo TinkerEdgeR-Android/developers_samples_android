@@ -240,18 +240,44 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/successes_in_burst_value" />
 
+    <TextView
+        android:id="@+id/number_of_requests_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top"
+        android:gravity="start"
+        android:text="@string/number_of_requests_label_activity_access_point_ranging_results"
+        android:textAlignment="textStart"
+        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/success_ratio_label" />
+
+    <TextView
+        android:id="@+id/number_of_requests_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
+        android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top"
+        android:gravity="end"
+        android:text="@string/activity_access_point_ranging_results_requesting_default"
+        android:textAlignment="textEnd"
+        android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/success_ratio_value" />
+
     <View
         android:id="@+id/divider2"
         android:layout_width="0dp"
         android:layout_height="@dimen/activity_access_point_ranging_request_divider_height"
-        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
         android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
         android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
+        android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
         android:background="?android:attr/listDivider"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/success_ratio_value" />
+        app:layout_constraintTop_toBottomOf="@+id/number_of_requests_value" />
 
     <TextView
         android:id="@+id/stats_window_size_label"
@@ -273,6 +299,7 @@
         android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
         android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top_divider"
         android:ems="10"
+        android:singleLine="true"
         android:inputType="number"
         android:textAlignment="textEnd"
         android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
@@ -300,6 +327,7 @@
         android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
         android:layout_marginTop="@dimen/activity_access_point_ranging_request_margin_top"
         android:ems="10"
+        android:singleLine="true"
         android:inputType="number"
         android:textAlignment="textEnd"
         android:textSize="@dimen/activity_access_point_ranging_request_item_text_size"
@@ -309,13 +337,15 @@
 
     <Button
         android:id="@+id/reset_button"
-        android:layout_width="91dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="@dimen/activity_access_point_ranging_request_margin_end"
         android:layout_marginStart="@dimen/activity_access_point_ranging_request_margin_start"
+        android:onClick="onResetButtonClick"
         android:text="@string/reset_label_activity_access_point_ranging_results"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

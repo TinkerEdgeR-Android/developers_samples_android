@@ -39,9 +39,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     private List<ScanResult> mWifiAccessPointsWithRtt;
 
-    public MyAdapter(
-            List<ScanResult> list,
-            ScanResultClickListener scanResultClickListener) {
+    public MyAdapter(List<ScanResult> list, ScanResultClickListener scanResultClickListener) {
         mWifiAccessPointsWithRtt = list;
         sScanResultClickListener = scanResultClickListener;
     }
@@ -65,8 +63,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            sScanResultClickListener.onScanResultItemClick(
-                    getItem(getAdapterPosition()));
+            sScanResultClickListener.onScanResultItemClick(getItem(getAdapterPosition()));
         }
     }
 

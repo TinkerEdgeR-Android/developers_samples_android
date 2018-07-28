@@ -168,10 +168,11 @@ public class MainActivity extends AppCompatActivity implements ScanResultClickLi
 
                     mAdapter.swapData(mAccessPointsSupporting80211mc);
 
-                    logToUi(scanResults.size() +
-                            " APs discovered, " +
-                            mAccessPointsSupporting80211mc.size() +
-                            " RTT capable.");
+                    logToUi(
+                            scanResults.size()
+                                    + " APs discovered, "
+                                    + mAccessPointsSupporting80211mc.size()
+                                    + " RTT capable.");
 
                 } else {
                     // TODO (jewalker): Add Snackbar regarding permissions
