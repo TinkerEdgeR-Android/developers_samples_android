@@ -37,6 +37,7 @@
         <activity android:name="com.example.android.autofill.app.commoncases.StandardSignInActivity" />
         <activity android:name="com.example.android.autofill.app.commoncases.StandardAutoCompleteSignInActivity" />
         <activity android:name="com.example.android.autofill.app.commoncases.VirtualSignInActivity" />
+        <activity android:name="com.example.android.autofill.app.edgecases.VirtualCompatModeSignInActivity" />
         <activity android:name="com.example.android.autofill.app.WelcomeActivity" />
         <activity android:name="com.example.android.autofill.app.edgecases.CreditCardActivity" />
         <activity android:name="com.example.android.autofill.app.commoncases.CreditCardSpinnersActivity" />

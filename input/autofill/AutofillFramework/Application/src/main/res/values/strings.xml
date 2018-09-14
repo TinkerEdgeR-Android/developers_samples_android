@@ -19,6 +19,7 @@
     <string name="edge_cases_page_title">Edge Cases</string>
     <string name="common_cases_page_title">Common Cases</string>
     <string name="navigation_button_custom_virtual_view_login_label">Sample Login Using a Custom Virtual View</string>
+    <string name="navigation_button_custom_virtual_view_compat_mode_login_label">Sample Login Using a Custom Virtual View and Compatibility Mode</string>
     <string name="navigation_button_credit_card_label">Sample Credit Card Check Out Using EditTexts</string>
     <string name="navigation_button_spinners_credit_card_label">Sample Credit Card Check Out Using Spinners</string>
     <string name="navigation_button_edittext_login_label">Sample Login Using EditTexts</string>
@@ -68,6 +69,11 @@
         with virtual children. Since the Autofill framework does not know how to autofill the
         virtual children out of the box, it is necessary implement certain Autofill-specific methods
         and interface directly with AutofillManager.
+    </string>
+    <string name="custom_virtual_compat_mode_login_info">This is a sample login page that uses a
+        custom View with virtual children. This view does not implement the Autofill APIs, but
+        it generates Accessibility events, which can be used to implement Autofill through a
+        'compatibility mode' feature introduced on Android Pie.
     </string>
     <string name="credit_card_info">This is a sample credit card checkout page that uses
         EditTexts to input data into the form.

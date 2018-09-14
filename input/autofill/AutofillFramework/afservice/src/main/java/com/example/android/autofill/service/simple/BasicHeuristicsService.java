@@ -92,6 +92,10 @@ public class BasicHeuristicsService extends BasicService {
         if (string == null) return null;
 
         string = string.toLowerCase();
+        if (string.contains("label")) {
+            Log.v(TAG, "Ignroing 'label' hint: " + string);
+            return null;
+        }
         if (string.contains("password")) return View.AUTOFILL_HINT_PASSWORD;
         if (string.contains("username")
                 || (string.contains("login") && string.contains("id")))

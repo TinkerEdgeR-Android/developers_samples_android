@@ -31,7 +31,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
-import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.autofill.AutofillValue;
 import android.widget.RemoteViews;
@@ -143,18 +142,15 @@ public class BasicService extends AutofillService {
     private void addAutofillableFields(@NonNull Map<String, AutofillId> fields,
             @NonNull ViewNode node) {
         int type = node.getAutofillType();
-        // We're simple, we just autofill text fields.
-        if (type == View.AUTOFILL_TYPE_TEXT) {
-            String hint = getHint(node);
-            if (hint != null) {
-                AutofillId id = node.getAutofillId();
-                if (!fields.containsKey(hint)) {
-                    Log.v(TAG, "Setting hint " + hint + " on " + id);
-                    fields.put(hint, id);
-                } else {
-                    Log.v(TAG, "Ignoring hint " + hint + " on " + id
-                            + " because it was already set");
-                }
+        String hint = getHint(node);
+        if (hint != null) {
+            AutofillId id = node.getAutofillId();
+            if (!fields.containsKey(hint)) {
+                Log.v(TAG, "Setting hint " + hint + " on " + id);
+                fields.put(hint, id);
+            } else {
+                Log.v(TAG, "Ignoring hint " + hint + " on " + id
+                        + " because it was already set");
             }
         }
         int childrenSize = node.getChildCount();
