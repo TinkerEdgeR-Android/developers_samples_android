@@ -31,6 +31,7 @@
     <string name="navigation_button_multiple_partitions_label">Sample Page with Multiple Data Partitions</string>
     <string name="navigation_button_web_view_login_label">Sample Login Using a WebView</string>
     <string name="navigation_button_anti_pattern_credit_card_label">Sample Credit Card Anti Pattern</string>
+    <string name="navigation_button_anti_pattern_bad_view_structure_label">Bad View Structure Creation Anti Pattern</string>
     <string name="navigation_button_multistep_signin_label">Multi-Step Sign In</string>
     <string name="navigation_button_multistep_cc_label">Multi-Step Credit Card Check Out</string>
     <string name="username_label">Username</string>
@@ -130,6 +131,10 @@
         The proper way to represent a View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE field
         is through a View.AUTOFILL_TYPE_DATE value, which is what the other credit card sample
         activities use.
+    </string>
+    <string name="anti_pattern_bad_view_structure_info">This is a simple login page where the view
+        structure is created onStart() instead of onCreate(), which causes autofill to misbehave
+        when the autofill service requires authentication.
     </string>
 
     <string name="multi_step_signin_info">
