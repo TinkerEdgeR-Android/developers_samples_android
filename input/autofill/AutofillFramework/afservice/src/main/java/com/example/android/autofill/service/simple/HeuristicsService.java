@@ -239,7 +239,11 @@ public class HeuristicsService extends AutofillService {
         if (string.contains("name")) return View.AUTOFILL_HINT_NAME;
         if (string.contains("phone")) return View.AUTOFILL_HINT_PHONE;
 
-        return null;
+        // When everything else fails, return the full string - this is helpful to help app
+        // developers visualize when autofill is triggered when it shouldn't (for example, in a
+        // chat conversation window), so they can mark the root view of such activities with
+        // android:importantForAutofill=noExcludeDescendants
+        return string;
     }
 
     static FillResponse createResponse(@NonNull Context context,
