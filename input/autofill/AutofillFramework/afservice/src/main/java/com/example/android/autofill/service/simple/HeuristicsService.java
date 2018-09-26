@@ -184,7 +184,7 @@ public class HeuristicsService extends AutofillService {
         // Then try some rudimentary heuristics based on other node properties
 
         String viewHint = node.getHint();
-        String hint = inferHint(viewHint);
+        String hint = inferHint(node, viewHint);
         if (hint != null) {
             Log.d(TAG, "Found hint using view hint(" + viewHint + "): " + hint);
             return hint;
@@ -193,7 +193,7 @@ public class HeuristicsService extends AutofillService {
         }
 
         String resourceId = node.getIdEntry();
-        hint = inferHint(resourceId);
+        hint = inferHint(node, resourceId);
         if (hint != null) {
             Log.d(TAG, "Found hint using resourceId(" + resourceId + "): " + hint);
             return hint;
@@ -204,7 +204,7 @@ public class HeuristicsService extends AutofillService {
         CharSequence text = node.getText();
         CharSequence className = node.getClassName();
         if (text != null && className != null && className.toString().contains("EditText")) {
-            hint = inferHint(text.toString());
+            hint = inferHint(node, text.toString());
             if (hint != null) {
                 // NODE: text should not be logged, as it could contain PII
                 Log.d(TAG, "Found hint using text(" + text + "): " + hint);
@@ -223,7 +223,7 @@ public class HeuristicsService extends AutofillService {
      * @return standard autofill hint, or {@code null} when it could not be inferred.
      */
     @Nullable
-    protected String inferHint(@Nullable String string) {
+    protected String inferHint(ViewNode node, @Nullable String string) {
         if (string == null) return null;
 
         string = string.toLowerCase();
@@ -243,7 +243,11 @@ public class HeuristicsService extends AutofillService {
         // developers visualize when autofill is triggered when it shouldn't (for example, in a
         // chat conversation window), so they can mark the root view of such activities with
         // android:importantForAutofill=noExcludeDescendants
-        return string;
+        if (node.isEnabled() && node.getAutofillType() != View.AUTOFILL_TYPE_NONE) {
+            Log.v(TAG, "Falling back to " + string);
+            return string;
+        }
+        return null;
     }
 
     static FillResponse createResponse(@NonNull Context context,
