@@ -142,19 +142,19 @@ public final class BasicService extends AutofillService {
     private void addAutofillableFields(@NonNull Map<String, AutofillId> fields,
             @NonNull ViewNode node) {
         String[] hints = node.getAutofillHints();
-        if (hints == null) return;
+        if (hints != null) {
+            // We're simple, we only care about the first hint
+            String hint = hints[0].toLowerCase();
 
-        // We're simple, we only care about the first hint
-        String hint = hints[0].toLowerCase();
-
-        if (hint != null) {
-            AutofillId id = node.getAutofillId();
-            if (!fields.containsKey(hint)) {
-                Log.v(TAG, "Setting hint '" + hint + "' on " + id);
-                fields.put(hint, id);
-            } else {
-                Log.v(TAG, "Ignoring hint '" + hint + "' on " + id
-                        + " because it was already set");
+            if (hint != null) {
+                AutofillId id = node.getAutofillId();
+                if (!fields.containsKey(hint)) {
+                    Log.v(TAG, "Setting hint '" + hint + "' on " + id);
+                    fields.put(hint, id);
+                } else {
+                    Log.v(TAG, "Ignoring hint '" + hint + "' on " + id
+                            + " because it was already set");
+                }
             }
         }
         int childrenSize = node.getChildCount();
