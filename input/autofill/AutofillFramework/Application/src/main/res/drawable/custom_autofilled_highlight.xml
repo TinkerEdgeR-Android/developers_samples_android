@@ -1,4 +1,4 @@
-/*
+<!--
  * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-package com.example.android.autofill.service.simple;
-
-/**
- * @deprecated this class was renamed to {@link DebugService}, but it's still in the project because
- * it's linked from the Autofill guide docs site.
- */
-@Deprecated
-public final class HeuristicsService {
-
-}
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#4DFF0000" />
+</shape>
