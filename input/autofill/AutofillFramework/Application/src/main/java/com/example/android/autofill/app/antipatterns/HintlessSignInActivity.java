@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.autofill.service.simple;
+package com.example.android.autofill.app.antipatterns;
 
-/**
- * @deprecated this class was renamed to {@link DebugService}, but it's still in the project because
- * it's linked from the Autofill guide docs site.
- */
-@Deprecated
-public final class HeuristicsService {
+import com.example.android.autofill.app.commoncases.StandardSignInActivity;
+import com.example.android.autofill.app.R;
 
+public class HintlessSignInActivity extends StandardSignInActivity {
+
+    @Override
+    protected int getContentView() {
+        return R.layout.hintless_login_activity;
+    }
 }
