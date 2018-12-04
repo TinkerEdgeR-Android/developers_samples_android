@@ -13,8 +13,8 @@ buildscript {
 apply plugin: 'com.android.library'
 
 repositories {
-    jcenter()
     google()
+    jcenter()
 }
 
 dependencies {
