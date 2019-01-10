@@ -48,14 +48,14 @@ Alternatively, the preferred and minimum sizes can be set in a new
 Pre-requisites
 --------------
 
-- Android SDK 24
-- Android Build Tools v26.0.1
+- Android SDK 27
+- Android Build Tools v27.0.3
 - Android Support Repository
 
 Screenshots
 -------------
 
-<img src="screenshots/main.png" height="400" alt="Screenshot"/>
+<img src="screenshots/main.png" height="400" alt="Screenshot"/> 
 
 Getting Started
 ---------------
