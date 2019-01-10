@@ -1,3 +1,5 @@
+DEPRECATED : This is no longer supported, please consider using https://github.com/googlesamples/android-UniversalMusicPlayer instead.
+======================================================================================================================================
 
 Android MediaBrowserService Sample
 ===================================
