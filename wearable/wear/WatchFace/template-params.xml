@@ -23,18 +23,18 @@
     <package>com.example.android.wearable.watchface</package>
 
     <minSdk>18</minSdk>
-    <targetSdkVersion>27</targetSdkVersion>
+    <targetSdkVersion>28</targetSdkVersion>
 
     <minSdkVersionWear>24</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
-    <targetSdkVersionWear>26</targetSdkVersionWear>
+    <compileSdkVersionWear>28</compileSdkVersionWear>
+    <targetSdkVersionWear>28</targetSdkVersionWear>
 
     <multiDexEnabled>true</multiDexEnabled>
 
 
-    <dependency>com.google.android.support:wearable:2.3.0</dependency>
-    <dependency_wearable>com.android.support:palette-v7:27.1.0</dependency_wearable>
-    <dependency_wearable>com.android.support:wear:27.1.0</dependency_wearable>
+    <dependency>com.google.android.support:wearable:2.4.0</dependency>
+    <dependency_wearable>com.android.support:palette-v7:28.0.0</dependency_wearable>
+    <dependency_wearable>com.android.support:wear:28.0.0</dependency_wearable>
 
 
     <wearable>
