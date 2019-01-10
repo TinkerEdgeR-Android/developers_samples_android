@@ -41,7 +41,7 @@ READ_EXTERNAL_STORAGE or WRITE_EXTERNAL_STORAGE in your manifest.
     </strings>
 
     <metadata>
-        <status>PUBLISHED</status>
+        <status>DEPRECATED</status>
         <categories>Content</categories>
         <technologies>Android</technologies>
         <languages>Java</languages>
