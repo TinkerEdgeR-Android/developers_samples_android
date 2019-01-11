@@ -20,8 +20,6 @@
     <package>com.example.android.activenotifications</package>
 
     <minSdk>24</minSdk>
-    <compileSdkVersion>28</compileSdkVersion>
-    <targetSdkVersion>28</targetSdkVersion>
 
     <strings>
         <intro>

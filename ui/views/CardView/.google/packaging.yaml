@@ -1,3 +1,4 @@
+
 # GOOGLE SAMPLE PACKAGING DATA
 #
 # This file is used by Google as part of our samples packaging process.
@@ -8,9 +9,5 @@ technologies: [Android]
 categories:   [UI]
 languages:    [Java]
 solutions:    [Mobile]
-github:       android-CardView
-level:        INTERMEDIATE
-icon:         CardViewSample/src/main/res/drawable-xxhdpi/ic_launcher.png
-doc_refs:
-    - android:preview/material/ui-widgets.html
+github:       android-CardView Sample
 license: apache2

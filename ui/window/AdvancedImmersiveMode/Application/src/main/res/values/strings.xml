@@ -15,7 +15,6 @@
 -->
 
 <resources>
-    <string name="app_name">AdvancedImmersiveMode</string>
     <string name="enable_low_profile_mode">Enable Low Profile Mode</string>
     <string name="hide_navigation_bar">Hide Navigation bar</string>
     <string name="hide_status_bar">Hide Status Bar</string>

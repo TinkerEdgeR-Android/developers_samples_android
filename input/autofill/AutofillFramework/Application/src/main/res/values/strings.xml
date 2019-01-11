@@ -79,7 +79,7 @@
     <string name="custom_virtual_compat_mode_login_info">This is a sample login page that uses a
         custom View with virtual children. This view does not implement the Autofill APIs, but
         it generates Accessibility events, which can be used to implement Autofill through a
-        'compatibility mode' feature introduced on Android Pie.
+        \'compatibility mode\' feature introduced on Android Pie.
     </string>
     <string name="credit_card_info">This is a sample credit card checkout page that uses
         EditTexts to input data into the form.

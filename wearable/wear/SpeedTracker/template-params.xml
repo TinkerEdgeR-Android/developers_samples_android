@@ -21,11 +21,8 @@
     <package>com.example.android.wearable.speedtracker</package>
 
     <minSdk>18</minSdk>
-    <targetSdkVersion>27</targetSdkVersion>
 
     <minSdkVersionWear>23</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
-    <targetSdkVersionWear>26</targetSdkVersionWear>
     <multiDexEnabled>true</multiDexEnabled>
 
     <wearable>
