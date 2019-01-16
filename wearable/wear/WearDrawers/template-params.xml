@@ -21,7 +21,6 @@
     <package>com.example.android.wearable.wear.weardrawers</package>
 
     <minSdkVersionWear>23</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
     <targetSdkVersionWear>26</targetSdkVersionWear>
 
     <multiDexEnabled>true</multiDexEnabled>

@@ -20,7 +20,6 @@
     <package>com.example.android.wearable.wear.alwayson</package>
 
     <minSdkVersionWear>23</minSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
     <targetSdkVersionWear>26</targetSdkVersionWear>
     <multiDexEnabled>true</multiDexEnabled>
 

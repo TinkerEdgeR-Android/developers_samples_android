@@ -24,7 +24,6 @@
     <minSdk>23</minSdk>
     <minSdkVersionWear>23</minSdkVersionWear>
     <targetSdkVersion>27</targetSdkVersion>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
     <targetSdkVersionWear>26</targetSdkVersionWear>
 
     <wearable>

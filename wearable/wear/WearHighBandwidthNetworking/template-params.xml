@@ -26,7 +26,6 @@
     <minSdkVersionWear>24</minSdkVersionWear>
     <targetSdkVersion>26</targetSdkVersion>
     <targetSdkVersionWear>26</targetSdkVersionWear>
-    <compileSdkVersionWear>26</compileSdkVersionWear>
     <multiDexEnabled>true</multiDexEnabled>
 
     <!-- Include additional dependencies here.-->
