@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0-alpha3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
 
 // The sample build uses multiple directories to
